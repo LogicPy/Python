@@ -148,11 +148,9 @@ def main():
 	z = find_between(x,'data-aria-label-part="0">','</p>')
 
 	# If SMTP doesn't fail...
-	#######################
-	#					  #
-	#	Gmail Feedback 	  #
-	#					  #
-	#######################
+	##################
+	# Gmail Feedback #
+	##################
 
 	if bckChck == 0:
 
@@ -259,11 +257,9 @@ def main():
 				pass
 
 	# Reserved Backup Communication Module
-	########################
-	#					   #
-	#  anotepad Feedback   #
-	#					   #
-	########################
+	#####################
+	# anotepad Feedback #
+	#####################
 
 	elif bckChck == 1:
 
