@@ -25,6 +25,15 @@
 # pixel color is found, then the aimbot will calculate the screen coordinates and
 # finally position your mouse directly over the target.
 
+# Note: I've also developed a 3D shooter aimbot, but I'm not going to share it right away.
+# My 3D shooter aimbot is almost perfect and I've configured it to GunZ 2 and MicroVolts using
+# a brand new algorithm for instant color capturing. I'll share it soon!
+
+# Note 2: This aimbot needs to be updated as well... Going to upload a full 2D/3D aimbot framework
+# that is easily configured to any game with a built in detection box template selection feature.
+
+# Full source code coming very soon...
+
 # 1) Set enemy color(s) in variable OR array 
 # 2) Run Aimbot
 
