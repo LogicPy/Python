@@ -10,9 +10,6 @@
 
 import sys
 import requests
-import time
-import tqdm
-from itertools import islice
 
 print """
 
