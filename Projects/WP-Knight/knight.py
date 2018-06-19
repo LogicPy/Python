@@ -69,6 +69,7 @@ def find_between( s, first, last ):
         return ""
 
 def url_config():
+	global login_URL
 	login_URL = raw_input("\n Enter target URL: ")
 	print ""
 
