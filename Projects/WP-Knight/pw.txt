@@ -1,5 +1,4 @@
-111111
-1234
+11111111
 123456
 1234567
 12345678
@@ -7,10 +6,3 @@ abc123
 dragon
 iloveyou
 letmein
-monkey
-password
-qwerty
-tequiero
-apple1
-gameboy
-password1

@@ -3,7 +3,7 @@
 # Coded by Pythogen
 
 # Intended for personal security testing
-# WP-Knight was created as an alternative to WPScan.
+# WP-Knight was created as a mini alternative to WPScan.
 
 # (6/19/2018) - Basic cracker function complete. Works perfectly on any WordPress target. New features will be added soon.
 
@@ -133,9 +133,6 @@ def bruteforce():
 				# 2) Submit POST data. Initialize login
 				bruteforce.page = c.post(login_URL, data=login_data, headers=header_data)
 
-				# Debug purposes
-				#print bruteforce.page.content
-
 				# 4) Looking for keyword indicating successful login
 				Check = bruteforce.page.content.find(keyword)
 				Check2 = bruteforce.page.content.find(keyword2)
@@ -153,10 +150,8 @@ def bruteforce():
 		text_file2.close()
 		#aPlace = aPlace + 3
 		#bPlace = bPlace + 3
-		try:
-			bruteforce()
-		except:
-			print ""
+		print ""
+
 
 # Set request header details:
 host = find_between(login_URL,"//","/")
