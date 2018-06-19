@@ -3,10 +3,9 @@
 # Coded by Pythogen
 
 # Intended for personal security testing
-# WP-Knight was created as an alternative to WPScan which has too many cycle limitations.
-# WP-Knight has unique cycling features to help bypass rate limit and adapt to a target's unique security settings.
+# WP-Knight was created as an alternative to WPScan.
 
-# (6/19/2018) - Basic cracker function complete. Works perfectly on any WordPress target with a unique cycle algorithm. New features will be added soon.
+# (6/19/2018) - Basic cracker function complete. Works perfectly on any WordPress target. New features will be added soon.
 
 import sys
 import requests
@@ -95,8 +94,8 @@ def bruteforce():
 		# Username cycle
 		for u in USERNAME:
 			# Password cycle (Only first three words)
-			for p in PASSWORD[aPlace:bPlace]:
-
+			#for p in PASSWORD[aPlace:bPlace]:
+			for p in PASSWORD:
 				# Print process
 				uname = u
 				pwd = p
@@ -152,8 +151,8 @@ def bruteforce():
 
 		text_file.close()
 		text_file2.close()
-		aPlace = aPlace + 3
-		bPlace = bPlace + 3
+		#aPlace = aPlace + 3
+		#bPlace = bPlace + 3
 		try:
 			bruteforce()
 		except:
