@@ -43,7 +43,7 @@ def console():
 		cmd = raw_input(" Enter command> ")
 		if cmd == "help" or cmd == "?":
 			print """\n Commands:
-	url - Set login URL ([website]/wp/wordpress/wp-login.php)
+	url - Set target URL ([website]/wp-login.php)
 	version - Check WordPress version
 	go - Activate WP-Knight
 	exit - Exit WP-Knight
