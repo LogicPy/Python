@@ -7,6 +7,8 @@
 
 # (6/19/2018) - Basic cracker function complete. Works perfectly on any WordPress target. New features will be added soon.
 
+# Test
+
 import sys
 import requests
 
