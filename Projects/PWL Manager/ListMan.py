@@ -1,3 +1,4 @@
+
 import sys
 
 def main():
@@ -12,7 +13,7 @@ def main():
 		inp = raw_input("Command: ")
 		inp = inp.lower()
 		if inp == "help":
-			print "\n-------Commands-------\nchar.min - Set minimum character limit\nlisty.cont - Show loaded list or add more passwords\nsave.breach - Save/store cracked username:password combination\nview.breach - Review saved cracks\nclear.breach - Clear breach list\nexit - Close application\n----------------------\n"
+			print "\n-------Commands-------\nchar.min - Set minimum character limit\ndupe.kill - Remove duplicates\nlisty.cont - Show loaded list or add more passwords\nsave.breach - Save/store cracked username:password combination\nview.breach - Review saved cracks\nclear.breach - Clear breach list\nexit - Close application\n----------------------\n"
 		elif inp == "char.min":
 			lmt = raw_input("\nEnter minimum limit: ")
 			charLimit(lmt)
@@ -34,6 +35,9 @@ def main():
 				print ""
 			else:
 				print "Invalid option.. Returning to main function."
+
+		elif inp == "dupe.kill":
+			dupeKill()
 
 		elif inp == "save.breach":
 			saveUsr = raw_input("Enter username: ")
@@ -65,6 +69,30 @@ def main():
 			sys.exit(1)
 		else:
 			print "\nYou have entered an invalid command..\n"
+
+def dupeKill():
+	text_fileinit = open("listy2.txt", "w")
+	text_fileinit.write("")
+	text_fileinit.close()
+	
+	# Load list
+	text_file = open("listy.txt", "r")
+	# Split newline
+	t = text_file.read().split('\n')
+	
+	# Filter duplicates
+	s = []
+	for i in t:
+		if i not in s:
+			s.append(i)
+
+	# Save without duplicates
+	for x in s:
+		text_file = open("listy2.txt", "a")
+		text_file.write(x + "\n")
+		text_file.close()
+
+	print "\nDuplicates removed.\n"
 
 def charLimit(lim):
 
