@@ -8,7 +8,13 @@
 #         |_|                        
 # By Pythogen
 
-# Frame.py:
+# Brute.py:
+                                                                
+#  _____       _ _   _              _____           _         _   
+# |_   _|_ _ _|_| |_| |_ ___ ___   |  _  |___ ___  |_|___ ___| |_ 
+#   | | | | | | |  _|  _| -_|  _|  |   __|  _| . | | | -_|  _|  _|
+#   |_| |_____|_|_| |_| |___|_|    |__|  |_| |___|_| |___|___|_|  
+#                                               |___|            
 
 #Modules
 import requests
@@ -198,16 +204,16 @@ def processReq():
 
 
 					# [ After every 60 attempts... ]
-				#	if inc % 60 == 0:
+					#if inc % 60 == 0:
 
 						# Delete Three Lines
-				#		lines = open('pw.txt').readlines()
-					#	open('pw.txt', 'w').writelines(lines[3:-1])
+						#lines = open('pw.txt').readlines()
+						#open('pw.txt', 'w').writelines(lines[3:-1])
 
-				#		print "\n[Please wait for 10 minute cool down...]\n"
+						#print "\n[Please wait for 10 minute cool down...]\n"
 
 						# [ Delay for 10 minutes and then repeat... ]
-				#		time.sleep(600)
+						#time.sleep(600)
 
 			#switch users
 			#print "\n[ user switch ]\n"
