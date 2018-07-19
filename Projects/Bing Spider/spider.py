@@ -3,6 +3,8 @@ from time import sleep
 import requests
 
 arEx = []
+arFin = []
+
 keyword = "WordPress"
 
 keywords = open("keywords.txt", "r")
@@ -37,6 +39,8 @@ def main():
 
 	for x in kwords:
 
+		print " ---------------- %s ----------------" % (x)
+
 		urlCon = "https://www4.bing.com/search?q=%s" % (x)
 
 		r  = requests.get(urlCon)
@@ -59,11 +63,12 @@ def main():
 				grbsrc = cr.text.encode("utf-8")
 				if keyword in grbsrc:
 					print i
+					arFin.append(i)
 			except:
 				pass
 
 	saveEm = open("gathered.txt","w")
-	for p in arEx:
+	for p in arFin:
 		saveEm.write(p + "\n")
 	saveEm.close()
 
