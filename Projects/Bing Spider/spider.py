@@ -76,7 +76,8 @@ def info():
 			"""
 
 def scan():
-
+	global arEx
+	
 	print "\n [Scanner Activated]\n"
 
 	for x in kwords:
@@ -108,6 +109,7 @@ def scan():
 					arFin.append(i)
 			except:
 				pass
+		arEx = []
 
 	saveEm = open("gathered.txt","w")
 	for p in arFin:
