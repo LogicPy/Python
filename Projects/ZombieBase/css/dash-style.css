@@ -1,0 +1,158 @@
+@import url('https://fonts.googleapis.com/css?family=Iceland');
+
+body
+{
+	background-color: #333333 !important;
+}		
+
+footer
+{
+	background-color: black;
+	color: white;
+    width: 100%;
+    bottom: 0;
+    position: fixed;
+    padding: 10px;
+    text-align: center;
+    font-family: 'Iceland', cursive;
+}
+
+a
+{
+	text-decoration: none !important;
+	color: white !important;
+}
+
+.logoSet
+{
+	width: 80px;
+	margin-left: 10px;
+}
+
+.inputSel:hover
+{
+	background-color: #333333 !important;
+}
+
+.space1, .space2, .space3
+{
+	background-color: #555555;
+	margin-top: 5px;
+	border-color: #999999;
+	border-width: 1px;
+	border-style: solid;
+	color: white;
+	padding: 10px;
+}
+
+.css-typing
+{
+	color: white;
+	font-family: 'Teko', sans-serif;
+	font-size: 160%;
+	text-align: center;
+	margin-top: 2% !important;
+}
+
+.logbtn
+{
+	margin-top: 10px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+.logbtn:hover
+{
+	background-color: #333333 !important;
+}
+
+.dash
+{
+	margin-top: 10px;
+	width: 100%;
+	margin-left: auto;
+	margin-right: auto;
+}
+h1,h2,h3,h4,h5,h6
+{
+	color:white !important;
+	font-family: 'Teko', sans-serif !important;
+	font-size: 180% !important;
+	margin: 0 !important;
+	margin-top: 20px !important;
+}
+
+.downloadClick
+{
+	text-align: center;
+	margin-left: auto;
+	margin-right: auto;
+	display: block;
+	width: 100px;
+}
+
+ul
+{
+	list-style-type: none;
+	color: white;
+}
+
+.navColor
+{
+	background-color: black;
+	color: white;
+}
+
+.w3-sidebar
+{
+	background-color: black !important;
+	color: white !important;
+	font-family: 'Teko', sans-serif;
+	font-size: 200%;
+}
+
+/* Typer */
+.typebody {
+  display: flex;
+  justify-content: center;
+}
+
+.prevbroad
+{
+	font-family: 'Teko', sans-serif;
+	font-size: 390%;
+	text-align: center;
+}
+
+.typewriter h1 {
+  color: #fff;
+  font-family: monospace;
+  overflow: hidden; /* Ensures the content is not revealed until the animation */
+  border-right: .15em solid orange; /* The typwriter cursor */
+  white-space: nowrap; /* Keeps the content on a single line */
+  margin: 0 auto; /* Gives that scrolling effect as the typing happens */
+  letter-spacing: .15em; /* Adjust as needed */
+  animation: 
+    typing 3.5s steps(30, end),
+    blink-caret .5s step-end infinite;
+}
+
+input
+{
+	background-color: #555555;
+	border: 1px solid #999999;
+	width: 100%;
+	margin: 10px;
+}
+
+/* The typing effect */
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+}
+
+/* The typewriter cursor effect */
+@keyframes blink-caret {
+  from, to { border-color: transparent }
+  50% { border-color: orange }
+}

@@ -1,0 +1,164 @@
+  @import url('https://fonts.googleapis.com/css?family=Raleway:400,500');
+
+.hidden {
+  display: none !important;
+}
+
+.visible {
+  display: inherit !important;
+}
+
+.cli
+{
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.cli-input,
+.cli-input:focus {
+  width: 94.9%;
+  background: none;
+  border: none;
+  outline: none;
+  color: #DADFE5;
+}
+
+.dollar {
+  margin-right: 1%;
+}
+
+.term-reverse {
+  background: #DADFE5;
+  width: 2px;
+  height: 10px;
+}
+
+.cli {
+
+}
+
+@media (max-width: 768px) {
+  .cli {
+    max-width: 100%;
+  }
+}
+
+.cli .cli-header {
+  background: #EEF1F5;
+  height: 25px;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  padding: 6px 15px 0 15px;
+  font-size: .75em;
+  color: #9b9fa5;
+}
+
+.cli .cli-header span {
+  display: inline-block;
+  text-align: center;
+  position: relative;
+  top: -1px;
+  margin-left: 15px;
+}
+
+.cli .cli-header span:hover {
+  cursor: default;
+}
+
+.cli .cli-header .dot {
+  background: #D8DCE2;
+  height: 15px;
+  width: 15px;
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+  top: 2px;
+  /* Transitions */
+  
+  -webkit-transition: all .25s ease-in-out;
+  -moz-transition: all .25s ease-in-out;
+  -ms-transition: all .25s ease-in-out;
+  -o-transition: all .25s ease-in-out;
+  transition: all .25s ease-in-out;
+}
+
+.cli .cli-header .dot:not(:nth-child(1)) {
+  margin-left: 4px;
+}
+/* Colors for dots */
+
+.cli .cli-header .dot:nth-child(1):hover {
+  background: #DD333F;
+}
+
+.cli .cli-header .dot:nth-child(2):hover {
+  background: #F5D76E;
+}
+
+.cli .cli-header .dot:nth-child(3):hover {
+  background: #5FDD68;
+}
+
+.cli .cli-body {
+  background: black;
+  padding: 30px;
+  color: #DADFE5;
+  font-size: .75em;
+  font-weight: 500;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  overflow: auto;
+  overflow-y: scroll;
+  max-height: 200px;
+}
+
+.cli .cli-body:hover {
+  cursor: text;
+}
+
+.cli .cli-body p {
+  margin-top: 0;
+  margin-bottom: 5px;
+}
+
+.cli .cli-body p.success {
+  color: #5FDD68;
+}
+
+.cli .cli-body p.error {
+  color: #DD333F;
+}
+
+.cli .cli-body p.small {
+  font-size: .7em;
+}
+
+.cli .cli-body p a,
+.cli .cli-body p a:visited {
+  color: #dadfe5;
+}
+/* SCROLLBARS */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-button {
+  width: 8px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D8DCE2;
+  border: thin solid #D8DCE2;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #7d7d7d;
+}
