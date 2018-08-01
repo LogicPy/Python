@@ -52,9 +52,6 @@ def main():
 	global uname
 	global pwd
 
-	#Site's Name (Banner)
-	Service = ('Twitter - Login [Working]'
-				'\n\n Cracker Activated.. ')
 	#Login URL
 	login_URL = 'https://twitter.com/sessions'
 	#login_URL redirected to after login_URL containing keyword
