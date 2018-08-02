@@ -1,10 +1,10 @@
 
-#    ___________.__                          __                                  
-#    \__    ___/|  |__ _____    ____ _____ _/  |_  ____  ______    ______ ___.__.
-#      |    |   |  |  \\__  \  /    \\__  \\   __\/  _ \/  ___/    \____ <   |  |
-#      |    |   |   Y  \/ __ \|   |  \/ __ \|  | (  <_> )___ \     |  |_> >___  |
-#      |____|   |___|  (____  /___|  (____  /__|  \____/____  > /\ |   __// ____|
-# 	                 \/     \/     \/     \/                \/  \/ |__|   \/     
+#   _____ _                       _                          
+#  |_   _| |__   __ _ _ __   __ _| |_ ___  ___   _ __  _   _ 
+#    | | | '_ \ / _` | '_ \ / _` | __/ _ \/ __| | '_ \| | | |
+#    | | | | | | (_| | | | | (_| | || (_) \__ \_| |_) | |_| |
+#    |_| |_| |_|\__,_|_| |_|\__,_|\__\___/|___(_) .__/ \__, |
+#                                               |_|    |___/ 
 
 # Coded by LogicPy, 2018
 
@@ -16,6 +16,7 @@ from itertools import islice
 from tqdm import tqdm
 import sys
 
+# Display Thanatos banner
 def banner():
 	print """
 	                 uuuuuuu
@@ -60,7 +61,7 @@ aPlace = 0
 bPlace = 3
 intBool = 0
 
-# Main Routine.
+# Main Routine
 def main():
 
 	# Enable access to variables ANYWHERE
@@ -169,6 +170,7 @@ def find_between( s, first, last ):
     except ValueError:
         return ""
 
+# Process requests / Activate cracker
 def processReq():
 	global inc
 	global aPlace
