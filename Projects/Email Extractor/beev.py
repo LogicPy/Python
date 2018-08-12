@@ -38,7 +38,7 @@ banner = """
   |   __|     | .'| | |  |__   | . | | . | -_|  _|
   |_____|_|_|_|__,|_|_|  |_____|  _|_|___|___|_|  
                                |_|                                                           
-	- Coded by LogicPy -
+  - Coded by LogicPy -
 """
 
 def find_between( s, first, last ):
@@ -59,6 +59,7 @@ def main():
 
   while(v==0):
     cmd = raw_input(" Command> ")
+    cmd = cmd.lower()
     if cmd == "bing.scan":
       bingVal = raw_input(" Enter randomizer value (2-6): ")
       bingVal = int(bingVal)
@@ -86,16 +87,16 @@ def main():
       print "\n [Invalid command]\n"
 
 def info():
-	print """
+  print """
   -------------------------------------------------------
   -------------------- [Information] --------------------
 
-	This script extracts email addresses from the internet.
+  This script extracts email addresses from the internet.
   -------------------------------------------------------
-			"""
+      """
 
 def random_generator(bval, chars=string.ascii_uppercase + string.digits):
-	return ''.join(random.choice(chars) for x in range(bval))
+  return ''.join(random.choice(chars) for x in range(bval))
 
 def find_between( s, first, last ):
     try:
