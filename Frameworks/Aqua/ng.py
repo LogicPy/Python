@@ -27,18 +27,15 @@ def main():
 	global PASSWORD
 	global login_URL
 	global page
-	global landing
 	global keyword
 	global attempts
 
 	#Site's Name (Banner)
-	Service = 'NyDSD Login'
+	Service = 'NG Login'
 	#Login URL
-	login_URL = 'http://www.nydsd.com/dx/cgi-bin/dxserver.cgi'
-	#login_URL redirected to after login_URL containing keyword
-	landing = 'http://www.nydsd.com/dx/cgi-bin/dxserver.cgi?SESSION=2ACA9E120F826F4FDE282A118F06ECE139B747BDB423563C7A0D1458417482FD52649233E510A1042EE617313FC8FD34&OPTION=OPTIONS'
+	login_URL = 'https://www.newgrounds.com/passport/mode/iframe/appsession/6b0d0754007b51a9c2fb7ed373862203481c2cdb1f247a'
 	#The keyword that indicates successful login_URL detection
-	keyword = '(url.indexOf("OPTION=OPTIONS")'
+	keyword = 'You have successfully signed in!'
 				
 #Used for finding values between tags
 def find_between( s, first, last ):
@@ -57,8 +54,10 @@ def processReq():
 		#POST Login data
 		login_data = \
 		{
-			'ID' : '',
-			'Password' : '',
+			'username': '',
+			'password': '',
+			'remember': '1',
+			'login': '1'
 		}
 
 		#Header data
@@ -69,14 +68,13 @@ def processReq():
 
 		r = requests.post(login_URL, data=login_data, headers=header_data)
 
-		print r.text.encode("utf-8")
+		#print r.text.encode("utf-8")
 
 		check = r.text.encode("utf-8").find(keyword)
 
 		if check == -1:
-			print 'invalid'
+			print '\n invalid \n'
 		else:
-			print '\n NY-DSD - Login Successful\n'
 			loggedIn()
 
 def loggedIn():
@@ -87,12 +85,10 @@ def loggedIn():
 		cmd = raw_input("Enter selection: ")
 		if cmd == '1':
 			pass
-		elif cmd == 'help':
-			print '\n Commands:\n\n 1) 10-Day Sheet\n 2) Credit Memo \n 3) Boar\'s Head PO\n\n'
 		elif cmd == "exit":
 			sys.exit()
 		else:
-			print '\n Invalid Command. Type "help" for list of commands... \n'
+			print '\n Invalid Command. \n'
 
 #Go to main 
 main()
