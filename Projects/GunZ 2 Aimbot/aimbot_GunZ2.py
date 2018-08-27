@@ -128,11 +128,7 @@ def Aimbot_GO():
 		#pic = pyautogui.screenshot()
 		 
 		# # Take screenshots (50px Box)
-		#pic = pyautogui.screenshot(region=(490,355, 50, 50))
-		pic = pyautogui.screenshot(region=(Box)) # DIDN'T HAVE TO SAVE SHIT! NICE
-
-		# Debugging Purposes (2)
-		#x = raw_input("Freeze for Box Alignment...")
+		pic = pyautogui.screenshot(region=(Box)) 
 
 		# Set list with screenshot pixel colors
 		pix_val = list(pic.getdata())
