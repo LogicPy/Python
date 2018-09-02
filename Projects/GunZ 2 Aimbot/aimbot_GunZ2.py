@@ -55,7 +55,7 @@ xCord = 0
 yCord = 0
 
 # Default Box Template 50x50
-Box = 895, 520, 80, 80
+Box = 640, 360, 640, 360
 
 # Primary Function / Command Console
 def main():
@@ -86,6 +86,8 @@ def main():
 			Box_Setup()
 		elif cmd == "resolution.setup":
 			Resolution_Setup()
+		elif cmd == "debug":
+			debug_mode()
 		elif cmd == "info":
 			print """
    /$$$$$$                      /$$$$$$$$        /$$$$$$ 
@@ -110,10 +112,6 @@ def main():
 
 # Aimbot Function (Auto-Aim)
 def Aimbot_GO():
-	# Checkpoint Boolean/Integer for Handling Console Output
-	listenVar = 0
-	# Keep Track of Detected Targets with this Integer
-	targetCount = 0
 
 	print "\n Aimbot Activated!\n"
 	# Loop for process...
@@ -137,27 +135,27 @@ def Aimbot_GO():
 		if color in pix_val:
 
 			# Variables for Storing Pixel Color Location
-			xCord = pix_val.index(color) / 80
-			yCord = pix_val.index(color) % 80
+			xCord = pix_val.index(color) / 640
+			yCord = pix_val.index(color) % 640
 
 			# Debugging (3)
 			#print "pixel color pos: %s, %s" % (yCord, xCord)
 
 			# Algorithm for Automatic Aiming
-			if(yCord>60):
-				z = yCord - 60
+			if(yCord>310):
+				z = (yCord - 310) / 2
 				win32api.mouse_event(win32con.MOUSEEVENTF_MOVE,z,0,0,0)
 				#pass
-			elif(yCord<60):
-				z = 60 - yCord 
+			elif(yCord<310):
+				z = (310 - yCord) / 2
 				win32api.mouse_event(win32con.MOUSEEVENTF_MOVE,-(z),0,0,0)
 				#pass
-			if(xCord>50):
-				x = xCord - 50
+			if(xCord>100):
+				x = (xCord - 100) / 2
 				win32api.mouse_event(win32con.MOUSEEVENTF_MOVE,0,x,0,0)
 				#pass
-			elif(xCord<50):
-				x = 50 - xCord
+			elif(xCord<100):
+				x = (100 - xCord) / 2
 				win32api.mouse_event(win32con.MOUSEEVENTF_MOVE,0,-(x),0,0)
 				#pass
 		else:
@@ -191,6 +189,25 @@ def click(x,y):
     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN,x,y,0,0)
     sleep(0.05)
     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP,x,y,0,0)
+
+# Debug option for setting up bot
+def debug_mode():
+
+	print "\n Debug Activated!\n"
+
+	while(True):
+
+		pic = pyautogui.screenshot(region=(Box))
+
+		pix_val = list(pic.getdata())
+
+		if color in pix_val:
+
+			xCord = pix_val.index(color) / 640
+			yCord = pix_val.index(color) % 640
+
+			# Debugging (3)
+			print "pixel color pos: %s, %s" % (yCord, xCord)
 
 # Enemy Detection Box Configuration / Selection Prompt
 def Box_Setup():
