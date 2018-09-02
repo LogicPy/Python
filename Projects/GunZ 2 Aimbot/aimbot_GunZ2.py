@@ -54,7 +54,7 @@ color = (218, 33, 40)
 xCord = 0
 yCord = 0
 
-# Default Box Template 50x50
+# Default Box Template 640x360
 Box = 640, 360, 640, 360
 
 # Primary Function / Command Console
@@ -70,7 +70,6 @@ def main():
 	info - Displays Aimbot Information
 	aimbot.on - Activate the Aimbot
 	shotbot.on - Activate the Shotbot
-	box.config - Detection Box Templates
 	resolution.setup - Monitor Resolution Settings
 	exit - Exit this Script\n"""
 		elif cmd == "aimbot.on":
@@ -82,10 +81,6 @@ def main():
 		elif cmd == "shotbot.on":
 			#Shotbot_GO()
 			print "\n To be finished later...\n"
-		elif cmd == "box.config":
-			Box_Setup()
-		elif cmd == "resolution.setup":
-			Resolution_Setup()
 		elif cmd == "debug":
 			debug_mode()
 		elif cmd == "info":
@@ -125,11 +120,17 @@ def Aimbot_GO():
 		# Take screenshots (Full Screen)
 		#pic = pyautogui.screenshot()
 		 
-		# # Take screenshots (50px Box)
+		# # Take screenshots (640px Box)
 		pic = pyautogui.screenshot(region=(Box)) 
 
 		# Set list with screenshot pixel colors
 		pix_val = list(pic.getdata())
+
+		# Scan array >> Find enemy color
+		# [x][x][x][x][x][x][x][x][x][x]
+		# [x][x][x][x][x][x][ ][ ][ ][ ]
+		# [ ][ ][ ][ ][ ][ ][ ][ ][ ][ ]
+		# [ ][ ][ ][ ][ ][ ][ ][ ][ ][ ]
 
 		# If Target's Pixel Color Found in Screenshot, then...
 		if color in pix_val:
@@ -182,7 +183,6 @@ def print_no_newline(string):
 	sys.stdout.write(string)
 	sys.stdout.flush()
 
-
 # Auto-Click Function for Shotbot
 def click(x,y):
     win32api.SetCursorPos((x,y))
@@ -208,40 +208,5 @@ def debug_mode():
 
 			# Debugging (3)
 			print "pixel color pos: %s, %s" % (yCord, xCord)
-
-# Enemy Detection Box Configuration / Selection Prompt
-def Box_Setup():
-	print """\n Select Box Template:\n
-	1) 50x50
-	Type 'back' to Return to Main Console
-	"""
-	while(True):
-		Sel = raw_input(" Selection>")
-		if Sel == "1":
-			Box = 895, 520, 80, 80
-			print " \n 50x50 Detection Box Template Configuration Enabled.\n"
-			break
-		elif Sel == "back":
-			print ""
-			break
-		else:
-			print "\n Invalid Selection... Please Choose a Box Configuration (or type 'back').\n"
-
-def Resolution_Setup():
-	print """\n Select Monitor Resolution:\n
-	1) 1920x1080
-	Type 'back' to Return to Main Console
-	"""
-	while(True):
-		SelR = raw_input(" Selection>")
-		if SelR == "1":
-			Box = 895, 520, 80, 80
-			print "\n 1080p Resolution Settings Activated.\n"
-			break
-		elif SelR == "back":
-			print ""
-			break
-		else:
-			print "\n Invalid Selection... Please Choose your Monitor Resolution (or type 'back').\n" 
 
 main()
