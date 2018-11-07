@@ -75,7 +75,8 @@ def url_config():
 	login_URL = raw_input("\n Enter target URL: ")
 	host = find_between(login_URL,"//","/")
 	redirect = 'http://%s/wp-login.php' % (host)
-	print "\n Target: %s" % (redirect)
+	login_URL = 'http://%s/wp-login.php' % (host)
+	print "\n Target: %s" % (login_URL)
 	print ""
 
 def versionCheck():
