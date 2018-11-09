@@ -120,7 +120,7 @@ def grab_json(base_url):
         r = requests.get(url, verify=False)
     except Exception:
         return False
-    try: # this needs replacing with a regex check
+    try:
         if "description" in r.text:
             return r.text
         else:
