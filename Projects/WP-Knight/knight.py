@@ -66,7 +66,7 @@ def console():
 		if cmd == "help" or cmd == "?":
 			print """\n [i] Commands:\n
 	url - Specify target URL ( http://website.com/wp-login.php )
-	version - Check WordPress version
+	version - Check WordPress version ( Specify target URL first )
 	enumerate - Gather Usernames
 	go - Activate WP-Knight
 	exit - Exit WP-Knight
