@@ -525,7 +525,7 @@ def CMDCheck():
 			q = z
 
 		# --------- Echo all Hosts ----------
-		# example: portnum 80
+		# example: echo.all
 		# -----------------------------------
 		elif z == "echo.all":
 			print "\nAll servers echo back to controller"
