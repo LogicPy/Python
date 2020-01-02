@@ -15,13 +15,16 @@ def find_between( s, first, last ):
     except ValueError:
         return ""
 
-
+# Randomize selection between MOV or IMG
+arr = ['MOV ','IMG ']
+arrnum = randint(0, 1)
 x = randint(0001, 9999)
-#randomized number
-print "MOV " + str(x)
+
+#randomized number with new identifier MOV or IMG
+print arr[arrnum]+ str(x)
 
 # Initial generated Request
-req =  requests.get("https://www.youtube.com/results?search_query=" + "MOV " + str(x))
+req =  requests.get("https://www.youtube.com/results?search_query=" + arr[arrnum]+ str(x))
 print "Getting first link.."
 
 # Get between tags to find new refreshed link
