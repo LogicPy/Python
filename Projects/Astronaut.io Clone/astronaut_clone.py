@@ -17,8 +17,8 @@ def find_between( s, first, last ):
 
 def main():
 	# Randomize selection between MOV or IMG
-	arr = ['MOV ','IMG ']
-	arrnum = randint(0, 1)
+	arr = ['MOV ','IMG ', 'DSC ']
+	arrnum = randint(0, 2)
 	x = randint(0001, 9999)
 
 	#randomized number with new identifier MOV or IMG
