@@ -44,7 +44,6 @@ def process2():
 	global y
 	for i in z:
 		image = Image.open(str(i))
-		# next 3 lines strip exif
 		data = list(image.getdata())
 		image_without_exif = Image.new(image.mode, image.size)
 		image_without_exif.putdata(data)
@@ -62,23 +61,21 @@ def Process():
 	if tpcheck == 0:
 
 		for i in z:
+			# Cycle 'z' and strip exif
 			image = Image.open(str(i))
-			# next 3 lines strip exif
 			data = list(image.getdata())
 			image_without_exif = Image.new(image.mode, image.size)
 			image_without_exif.putdata(data)
-
 			image_without_exif.save((str(i)))
 			print "Image exif removed from file " + str(i)
 
 	elif tpcheck == 1:
 			for i in z:
+				# Cycle 'z' and strip exif
 				image = Image.open(str(y))
-		# next 3 lines strip exif
 				data = list(image.getdata())
 				image_without_exif = Image.new(image.mode, image.size)
 				image_without_exif.putdata(data)
-
 				image_without_exif.save((str(i)))
 				print "Image exif removed from file " + str(i)
 
