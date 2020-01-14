@@ -37,7 +37,7 @@ def main():
 	#login_URL redirected to after login_URL containing keyword
 	landing = 'http://www.newgrounds.com/bbs'
 	#The keyword that indicates successful login_URL detection
-	keyword = 'loggedin'
+	keyword = "user_logged_in', true)"
 
 	#Display Banner
 	print '\n%s\n' % (Service)
