@@ -37,7 +37,7 @@ The 'keyword' variable contains a simple keyword used for login detection. After
 
 Next you want to take a look at the dictionaries in 'processReq' function/method. Notice there's two dictionary type objects declared. One is named 'login_data' and the other is 'header_data'; quite self explainatory. 
 
-First open up Google Chrome and use the 'Inspect Element' feataure, navigate to the network tab and gather the necessary information by attempting a login.  
+First open up Google Chrome and use the 'Inspect Element' feature, navigate to the network tab and gather the necessary information by attempting a login.  
 
 Conversion tool:
 
