@@ -53,6 +53,8 @@ def main():
 
 while(True):
 	cmd = raw_input("Enter command ('help' for help): ")
+	cmd = cmd.lower()
+	
 	if cmd == "start":
 		main()
 	elif cmd == "help":
