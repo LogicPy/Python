@@ -82,13 +82,13 @@ def Aimbot_GO():
 		pic = pyautogui.screenshot()
 		 
 		# Save the image
-		pic.save('img.png') 
+		#pic.save('img.png') 
 
 		# Open image for analysis
-		im = Image.open("img.png","r")
+		#im = Image.open("img.png","r")
 
 		# Set list with screenshot pixel colors
-		pix_val = list(im.getdata())
+		pix_val = list(pic.getdata())
 
 		# Blue enemy
 		if color in pix_val:
