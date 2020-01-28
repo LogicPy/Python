@@ -170,7 +170,7 @@ def asubmit(subjNote):
 		Check = asubmit.page.content.find(keyword)
 
 		if Check == -1:
-			print '\n - aNotepad login failed, but possible submission still sucessful! (Try again)'
+			print '\n - aNotepad login failed, but possible submission still sucessful!'
 		else:
 			print '\n - aNotepad Successful login + submission'
 
