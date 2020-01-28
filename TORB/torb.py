@@ -170,9 +170,9 @@ def asubmit(subjNote):
 		Check = asubmit.page.content.find(keyword)
 
 		if Check == -1:
-			print '\nlogin failed. (Try again)'
+			print '\n - aNotepad login failed, but possible submission still sucessful! (Try again)'
 		else:
-			print '\nSuccessful login + submission'
+			print '\n - aNotepad Successful login + submission'
 
 		c.post(creationLink, data=create_form, headers=header_create)
 
