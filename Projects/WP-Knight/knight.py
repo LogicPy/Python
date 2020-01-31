@@ -262,6 +262,8 @@ def bruteforce():
 		# Configure progress bar with total value
 		progressBar = tqdm(total=totalCalc)
 
+		print '\n\n [?] Username: %s \n\n' % (USERNAME)
+
 		# Username cycle
 		for u in USERNAME:
 
