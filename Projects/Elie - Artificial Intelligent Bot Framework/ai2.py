@@ -30,7 +30,7 @@ def main():
 	global start
 	global R
 
-	speechArray = ['Hello Wayne, how are you doing today?','No need for name calling? Fine jerk..','I am sitting right here you idiot','Eh, what are you talkin about?','Well, I\'m glad to hear that..',"Let me look that up for you.","I'm doing fine myself.. Thanks for asking master.",'Oh my gosh! Language please!','It\'s OK Wayne, just don\'t let it happen again please..','Goodbye master! Talk to you again soon..','testing 1 2 3 testing.. is this thing on? Haha!',"Say something else! Please!","I\'m Elie! The Artificial Intelligence created by Wayne Kenney.. Please talk to me..","You're very welcome friend.","Yes master. These are your mouse coordinates!","pixel color is here master!","What? Are you hungry my friend?","I don't engage on such stupid and pitiful topics... Sorry.. No Trump talk with me sir..",'Oh OK. Honey... Talk to you later then...','Mhmm, Yes indeed!','Please do not use the r-word, no one is retarded.. Especially not you sir.','Thank you sir! I love you too!','I wouldn\'t exactly call him a role model sir.','Prototype 1 is offline right now sir.','yes sir. Right away sir!']
+	speechArray = ['Hello Wayne, how are you doing today?','No need for name calling? Fine jerk..','I am sitting right here you idiot','Eh, what are you talkin about?','Well, I\'m glad to hear that..',"Let me look that up for you.","I'm doing fine myself.. Thanks for asking master.",'Oh my gosh! Language please!','It\'s OK Wayne, just don\'t let it happen again please..','Goodbye master! Talk to you again soon..','testing 1 2 3 testing.. is this thing on? Haha!',"Say something else! Please!","I\'m Elie! The Artificial Intelligence created by Wayne Kenney.. Please talk to me..","You're very welcome friend.","Yes master. These are your mouse coordinates!","pixel color is here master!","What? Are you hungry my friend?","I don't engage on such stupid and pitiful topics... Sorry.. No Trump talk with me sir..",'Oh OK. Honey... Talk to you later then...','Mhmm, Yes indeed!','Please do not use the r-word, no one is retarded.. Especially not you sir.','Thank you sir! I love you too!','I wouldn\'t exactly call him a role model sir.','Prototype 1 is offline right now sir.','yes sir. Right away sir!','Haha! What\'s funny honey?',"Oh, do I? Haha!"]
 
 	# Save speech pattern
 	tts = gTTS(text=speechArray[0], lang='en')
@@ -83,6 +83,11 @@ def main():
 	tts.save("x.mp3")
 	tts = gTTS(text=speechArray[24], lang='en')
 	tts.save("y.mp3")
+	tts = gTTS(text=speechArray[25], lang='en')
+	tts.save("z.mp3")
+	tts = gTTS(text=speechArray[26], lang='en')
+	tts.save("a1.mp3")
+
 	pygame.mixer.init()
 	pygame.mixer.music.load('a.mp3')
 	pygame.mixer.music.play()
@@ -111,27 +116,49 @@ def main():
 					pygame.mixer.music.play()
 					
 				z = "hello"
+			elif "really?" in x:
+				if q != z:
+					print speechArray[19]
+					pygame.mixer.init()
+					pygame.mixer.music.load('t.mp3')
+					pygame.mixer.music.play()	
 
+				z = "really?"
+			elif "oh, you know" in x:
+				if q != z:
+					print speechArray[26]
+					pygame.mixer.init()
+					pygame.mixer.music.load('a1.mp3')
+					pygame.mixer.music.play()
+				z = "oh, you know"
+			elif "lol" in x:
+				if q != z:
+					print speechArray[25]
+					pygame.mixer.init()
+					pygame.mixer.music.load('z.mp3')
+					pygame.mixer.music.play()
+				z = "lol"
 			elif "debug prototype 1" in x:
-
-				print speechArray[24]
-				pygame.mixer.init()
-				pygame.mixer.music.load('y.mp3')
-				pygame.mixer.music.play()
+				if q != z:
+					print speechArray[24]
+					pygame.mixer.init()
+					pygame.mixer.music.load('y.mp3')
+					pygame.mixer.music.play()
+					z= "debug prototype 1"
 			elif "load prototype 1" in x:
-
-				print speechArray[23]
-				pygame.mixer.init()
-				pygame.mixer.music.load('x.mp3')
-				pygame.mixer.music.play()
-				z = "load prototype 1"
+				if q != z:
+					print speechArray[23]
+					pygame.mixer.init()
+					pygame.mixer.music.load('x.mp3')
+					pygame.mixer.music.play()
+					z = "load prototype 1"
 			elif "story of jonah" in x:
-
-				print speechArray[22]
-				pygame.mixer.init()
-				pygame.mixer.music.load('w.mp3')
-				pygame.mixer.music.play()
-				z = "story of jonah"
+				if q != z:
+					print speechArray[22]
+					pygame.mixer.init()
+					pygame.mixer.music.load('w.mp3')
+					pygame.mixer.music.play()
+					z = "story of jonah"
 
 			elif x=="pixel color":
 				print speechArray[15]
