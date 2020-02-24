@@ -124,13 +124,13 @@ def main():
 					pygame.mixer.music.play()	
 
 				z = "really?"
-			elif "oh, you know" in x:
+			elif "you know" in x:
 				if q != z:
 					print speechArray[26]
 					pygame.mixer.init()
 					pygame.mixer.music.load('a1.mp3')
 					pygame.mixer.music.play()
-				z = "oh, you know"
+				z = "you know"
 			elif "lol" in x:
 				if q != z:
 					print speechArray[25]
