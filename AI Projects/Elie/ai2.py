@@ -32,7 +32,7 @@ def main():
 	 Enable Lite Interaction ego-bot
 	 """
 
-	speechArray = ['Hello Wayne, how are you doing today?','No need for name calling? Fine jerk..','I am sitting right here you idiot','Eh, what are you talkin about?','Well, I\'m glad to hear that..',"Let me look that up for you.","I'm doing fine myself.. Thanks for asking master.",'Oh my gosh! Language please!','It\'s OK Wayne, just don\'t let it happen again please..','Goodbye master! Talk to you again soon..','testing 1 2 3 testing.. is this thing on? Haha!',"Say something else! Please!","I\'m Elie! The Artificial Intelligence created by Wayne Kenney.. Please talk to me..","You're very welcome friend.","Yes master. These are your mouse coordinates!","pixel color is here master!","What? Are you hungry my friend?","I don't engage on such stupid and pitiful topics... Sorry.. No Trump talk with me sir..",'Oh OK. Honey... Talk to you later then...','Mhmm, Yes indeed!','Please do not use the r-word, no one is retarded.. Especially not you sir.','Thank you sir! I love you too!','I wouldn\'t exactly call him a role model sir.']
+	speechArray = ['Hello Wayne, how are you doing today?','No need for name calling? Fine jerk..','I am sitting right here you idiot','Eh, what are you talkin about?','Well, I\'m glad to hear that..',"Let me look that up for you.","I'm doing fine myself.. Thanks for asking master.",'Oh my gosh! Language please!','It\'s OK Wayne, just don\'t let it happen again please..','Goodbye master! Talk to you again soon..','testing 1 2 3 testing.. is this thing on? Haha!',"Say something else! Please!","I\'m Elie! The Artificial Intelligence created by Wayne Kenney.. Please talk to me..","You're very welcome friend.","Yes master. These are your mouse coordinates!","pixel color is here master!","What? Are you hungry my friend?","I don't engage on such stupid and pitiful topics... Sorry.. No Trump talk with me sir..",'Oh OK... Talk to you later then...','Mhmm, Yes indeed!','Please do not use the r-word, no one is retarded.. Especially not you sir.','Thank you sir! I love you too!','I wouldn\'t exactly call him a role model sir.']
 	
 	engine = pyttsx3.init()
 	rate = engine.getProperty('rate')
@@ -43,6 +43,10 @@ def main():
 	print(speechArray[0] + '\n')
 	r = 0
 	z = 0 
+
+	engine.say(speechArray[0])
+	engine.runAndWait()
+					
 	while(True):
 		# Initialize pattern with prompt
 		x = raw_input("Prompt: ")
@@ -383,6 +387,30 @@ def main():
 
 
 				z = "ok!"
+
+			elif  x == "super":
+				if q != z:
+					print(speechArray[4])
+					engine.say(speechArray[4])
+					engine.runAndWait()
+
+				z = "super"
+
+			elif  "Fantastic" in x:
+				if q != z:
+					print(speechArray[4])
+					engine.say(speechArray[4])
+					engine.runAndWait()
+
+				z = "Fantastic"
+
+			elif  "fantastic" in x:
+				if q != z:
+					print(speechArray[4])
+					engine.say(speechArray[4])
+					engine.runAndWait()
+
+				z = "fantastic"
 
 			elif  x == "great!":
 				if q != z:
