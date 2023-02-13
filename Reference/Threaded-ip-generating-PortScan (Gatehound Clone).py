@@ -1,6 +1,7 @@
 import socket
 import threading
 import random
+import struct
 
 def scan_port(host, port, semaphore):
     global oct1
@@ -14,7 +15,9 @@ def scan_port(host, port, semaphore):
     oct3 = random.randint(1,255)
     oct4 = random.randint(1,255)
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    ipGen = '%s.%s.%s.%s' % (oct1, oct2, oct3, oct4)
+    # ipGen = '%s.%s.%s.%s' % (oct1, oct2, oct3, oct4)
+    ipGen = socket.inet_ntoa(struct.pack('>I', random.randint(1, 0xffffffff)))
+
     print ("Scanning port %s on host %s.\n" % (port,ipGen))
     s.settimeout(1)
     try:
