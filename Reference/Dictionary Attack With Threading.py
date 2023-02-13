@@ -5,8 +5,6 @@ import sys
 
 # Global Variables
 url = "https://giantessworld.net/user.php?action=login"
-userList = open('users.txt', 'r').read().split('\n')
-pwList = open('pw.txt', 'r').read().split('\n')
 
 # Successful Authentication
 def cracked(username, password):
