@@ -6,7 +6,7 @@ import itertools, random, string, time
 import time
 
 # Global Variables
-url = "https://giantessworld.net/user.php?action=login"
+url = "https://weblinkserver.net/user.php?action=login"
 
 # Alphabet
 alphabet = string.ascii_lowercase

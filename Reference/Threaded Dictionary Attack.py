@@ -4,7 +4,7 @@ from time import sleep
 import sys
 
 # Global Variables
-url = "https://giantessworld.net/user.php?action=login"
+url = "https://web-link-server.net/user.php?action=login"
 
 # Successful Authentication
 def cracked(username, password):

@@ -27,7 +27,7 @@ def convertTuple(tup):
     return str
 
 # Global Variables
-url = "https://giantessworld.net/user.php?action=login"
+url = "https://website.com/user.php?action=login"
 userList = open('usersBrute.txt', 'r').read().split('\n')
 
 # Login Function
