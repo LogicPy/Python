@@ -14,8 +14,8 @@ print ("""
  |  _  |___ ___|  _|___ ___| |_   |  _  |_|_____| |_ ___| |_   
  |   __| -_|  _|  _| -_|  _|  _|  |     | |     | . | . |  _|  
  |__|  |___|_| |_| |___|___|_|    |__|__|_|_|_|_|___|___|_|                                                             
- Coded by Pythogen (Wayne Kenney) - 4/27/2018 - [Private Edition]
-           -= GunZ 2 (Undetectable) =-
+ Coded by LogicPy (Wayne Kenney) - 3/24/2023 - [Private Edition]
+           -= Universal Game Aimbot (Undetectable) =-
 """)
 
 def mouseMovementTest():
