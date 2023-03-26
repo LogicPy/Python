@@ -7,22 +7,56 @@ from time import sleep
 import time
 import sys
 import win32gui, win32api, win32con, ctypes
-
+import mouse
 
 print ("""
   _____         ___         _      _____ _       _       _     
  |  _  |___ ___|  _|___ ___| |_   |  _  |_|_____| |_ ___| |_   
  |   __| -_|  _|  _| -_|  _|  _|  |     | |     | . | . |  _|  
  |__|  |___|_| |_| |___|___|_|    |__|__|_|_|_|_|___|___|_|                                                             
- Coded by LogicPy (Wayne Kenney) - 3/24/2023 - [Private Edition]
-           -= Universal Game Aimbot (Undetectable) =-
+ Coded by Pythogen (Wayne Kenney) - 4/27/2018 - [Private Edition]
+           -= GunZ 2 (Undetectable) =-
 """)
 
-# Define the color ranges for the player and enemy players
+def mouseMovementTest():
+    while(True):
+        print (mouse.get_position())
+        mouse.move(100, 100, absolute=False, duration=0.2)
+        
+#mouseMovementTest()
+
+def find_center(image):
+    # Convert image to grayscale and apply threshold
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    _, threshold = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
+
+    # Find contours in the thresholded image
+    contours, _ = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+    # Check if any contours were found
+    if len(contours) == 0:
+        return None
+
+    # Find the largest contour
+    contour = max(contours, key=cv2.contourArea)
+
+    # Get the moments of the largest contour
+    M = cv2.moments(contour)
+
+    # Calculate the center of mass of the contour
+    if M["m00"] != 0:
+        cx = int(M["m10"] / M["m00"])
+        cy = int(M["m01"] / M["m00"])
+        return (cx, cy)
+    else:
+        return None
+
+
 player_lower = np.array([0, 0, 255])
 player_upper = np.array([0, 0, 255])
-enemy_lower = np.array([0, 0, 255])
-enemy_upper = np.array([0, 0, 255])
+color = np.array([0, 0, 255])
+enemy_lower = np.array([100, 100, 200])
+enemy_upper = np.array([140, 140, 255])
 
 # Define the region of interest (ROI) where the game screen is located
 roi = (0, 0, 1920, 1080)
@@ -40,9 +74,22 @@ while True:
     player_mask = cv2.inRange(screen, player_lower, player_upper)
     enemy_mask = cv2.inRange(screen, enemy_lower, enemy_upper)
     
+    # Combine the player and enemy masks
+    combined_mask = cv2.bitwise_or(player_mask, enemy_mask)
+    # Apply a binary threshold to the combined mask
+    _, threshold = cv2.threshold(combined_mask, 127, 255, cv2.THRESH_BINARY)
+    
+    # Find the center of the thresholded image
+    center = find_center(screen)
+
+    if center is not None:
+        # Move the mouse to the center
+        pyautogui.moveTo(center[0] + roi[0], center[1] + roi[1])
+
     # Find the contours of the player and enemy players
-    player_contours = cv2.findContours(player_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    enemy_contours  = cv2.findContours(enemy_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    player_contours, _ = cv2.findContours(player_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    enemy_contours, _  = cv2.findContours(enemy_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
     
     # Get the center coordinates of the player and enemy players
     player_center = None
@@ -72,7 +119,9 @@ while True:
         screen_width, screen_height = pyautogui.size()
         mouse_x = screen_width / 2 + distance * math.cos(angle_to_hit)
         mouse_y = screen_height / 2 + distance * math.sin(angle_to_hit)
-        pyautogui.moveTo(mouse_x, mouse_y, duration=0)
+        pyautogui.moveTo(mouse_x + center[0], mouse_y + center[1], duration=0)
+        mouse.move(mouse_x + center[0], mouse_y + center[1], duration=0)
+        #pyautogui.moveTo(region_x + center[0], region_y + center[1])
 
         print("Distance: ", distance)
         print("Height difference: ", height_difference)
