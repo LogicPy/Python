@@ -3,6 +3,8 @@ from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, LSTM, Dense
+import numpy as np
+import time
 
 questions = [
     "What's your name?",
@@ -15,6 +17,9 @@ answers = [
     "I'm an AI, so I don't have feelings, but I'm here to help you.",
     "I'm an AI, so I don't have a favorite color."
 ]
+
+print("\nloading chatbot simple neural model...\n")
+time.sleep(3)
 
 # Tokenization and encoding
 tokenizer = Tokenizer()
@@ -32,11 +37,15 @@ output_sequences = pad_sequences(output_sequences, maxlen=max_sequence_length, p
 
 embedding_dim = 256
 lstm_units = 1024
-timesteps = 3
-input_dim = 3
+# Assuming X has shape (samples, features)
+timesteps = 10
+X = Input(shape=(timesteps, 10 // timesteps))
+X_reshaped = np.reshape(X, (X.shape[0], timesteps, X.shape[1] // timesteps))
+input_dim = 8
+
 
 # Encoder
-encoder_inputs = Input(shape=(timesteps, input_dim))
+encoder_inputs = Input(shape=(timesteps, X.shape[1] // timesteps))
 encoder_embedding = Dense(embedding_dim, activation='relu')(encoder_inputs)
 encoder_lstm = LSTM(lstm_units, return_state=True)
 _, state_h, state_c = encoder_lstm(encoder_embedding)
