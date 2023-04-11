@@ -74,7 +74,9 @@ net = tflearn.fully_connected(net, len(output[0]), activation='softmax')
 net = tflearn.regression(net)
 
 model = tflearn.DNN(net)
-
+# For new training purposes
+#model.fit(training, output, n_epoch=500, batch_size=8, show_metric=True)
+#model.save('model.tflearn')
 
 try:
     model.load("model.tflearn")
