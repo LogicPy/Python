@@ -25,6 +25,7 @@ def register_on_deviantart():
     email_generator = ''.join(email_generator) + str(random.randrange(150000))  + "@gmail.com" # join shuffled characters and concatenate with random number
     print ("Email: " + email_generator)
 
+
     email_input = driver.find_element(By.ID, "email")
     email_input.send_keys(email_generator)
     passwordshufflepart1=['A', 'B', 'C', 'D', 'E'] 
@@ -32,7 +33,7 @@ def register_on_deviantart():
     passwordstringint=''.join(passwordshufflepart1) + str(random.randrange(100000, 99999999) )
     password_input = driver.find_element(By.ID, "password")
     password_input.send_keys(passwordstringint)
-    print ("Password: " + str(passwordstringint)) 
+    print ("Password: " + str(passwordstringint)) # Used to be statically, 'asdfasdgf43434' now randomly generated too...
     continue_with_email_button = driver.find_element(By.XPATH, '//button[contains(@class, "_2PLlr") and contains(., "Continue with Email")]')
     continue_with_email_button.click()
 
@@ -43,16 +44,29 @@ def register_on_deviantart():
     print ("Username: " + str(usernamevar))
 
     # Wait for the username to be processed
-    time.sleep(10)
+    inputget = input("press enter to continue.... (After you've set your birthdate)")
 
     # Wait for the month element to appear
 
-       # Manual input section for ten seconds to input date... Then finito
+       # Add code for selecting day and year here
 
     join_button = driver.find_element(By.XPATH, '//button[contains(@class, "_2PLlr") and contains(., "Join")]')
     join_button.click()
 
     time.sleep(5)  # Wait for 5 seconds to observe the result
+
+    # Navigate to the user's profile page
+    user_profile_url = "https://www.deviantart.com/username"
+    driver.get(user_profile_url)
+    
+    # Time to manually select the watch button before Selenium tries to do it itself
+    time.sleep(50)
+    
+    # Temporarily removed for ease of application 
+    # Click the "Watch" button to follow the user
+    #watch_button = driver.find_element_by_css_selector("button[data-hook='deviation_watch_button']")
+    #watch_button.click()
+
     driver.quit()
 
 try:
