@@ -25,13 +25,14 @@ def register_on_deviantart():
     email_generator = ''.join(email_generator) + str(random.randrange(150000))  + "@gmail.com" # join shuffled characters and concatenate with random number
     print ("Email: " + email_generator)
 
-
     email_input = driver.find_element(By.ID, "email")
     email_input.send_keys(email_generator)
-
+    passwordshufflepart1=['A', 'B', 'C', 'D', 'E'] 
+    random.shuffle(passwordshufflepart1)
+    passwordstringint=''.join(passwordshufflepart1) + str(random.randrange(100000, 99999999) )
     password_input = driver.find_element(By.ID, "password")
-    password_input.send_keys("asdfasdgf43434")
-    print ("Password: " + str("asdfasdgf43434")) 
+    password_input.send_keys(passwordstringint)
+    print ("Password: " + str(passwordstringint)) 
     continue_with_email_button = driver.find_element(By.XPATH, '//button[contains(@class, "_2PLlr") and contains(., "Continue with Email")]')
     continue_with_email_button.click()
 
@@ -46,7 +47,7 @@ def register_on_deviantart():
 
     # Wait for the month element to appear
 
-       # Add code for selecting day and year here
+       # Manual input section for ten seconds to input date... Then finito
 
     join_button = driver.find_element(By.XPATH, '//button[contains(@class, "_2PLlr") and contains(., "Join")]')
     join_button.click()
