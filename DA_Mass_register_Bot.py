@@ -21,8 +21,10 @@ def register_on_deviantart():
     driver.get("https://www.deviantart.com/join")
 
     email_generator = ['A', 'B', 'C', 'D', 'E'] 
-    email_generator = str(random.shuffle(email_generator)) + str(random.randrange(150000))  + "@gmail.com"
+    random.shuffle(email_generator) # shuffle the list in place
+    email_generator = ''.join(email_generator) + str(random.randrange(150000))  + "@gmail.com" # join shuffled characters and concatenate with random number
     print ("Email: " + email_generator)
+
 
     email_input = driver.find_element(By.ID, "email")
     email_input.send_keys(email_generator)
