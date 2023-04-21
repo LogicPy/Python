@@ -2,6 +2,7 @@ import torch
 from transformers import GPT2LMHeadModel, GPT2Tokenizer, GPT2Config, TextDataset, DataCollatorForLanguageModeling
 from transformers import Trainer, TrainingArguments
 import torch.optim as optim
+import os
 
 """
 GPT-2 Small: 117 million parameters
