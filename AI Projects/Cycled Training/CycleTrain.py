@@ -5,6 +5,7 @@ import os
 # Reset model download by changing the directory and delete it when finished to reset the training process!
 os.environ['TRANSFORMERS_CACHE'] = os.getcwd() + '/modelbase2/'
 
+import torch.optim as optim
 import json
 from transformers import GPT2Tokenizer, GPT2LMHeadModel, TextDataset, DataCollatorForLanguageModeling
 from transformers import Trainer, TrainingArguments
