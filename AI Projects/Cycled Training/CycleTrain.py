@@ -1,3 +1,6 @@
+# Multiple cycle training by:
+# Wayne Kenney
+
 import os
 # Reset model download by changing the directory and delete it when finished to reset the training process!
 os.environ['TRANSFORMERS_CACHE'] = os.getcwd() + '/modelbase2/'
@@ -17,6 +20,8 @@ os.makedirs(output_dir, exist_ok=True)
 # Load the tokenizer and model
 tokenizer = GPT2Tokenizer.from_pretrained(model_name)
 model = GPT2LMHeadModel.from_pretrained(model_name)
+learning_rate = 2e-5
+optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
 
 # Define the training arguments
 training_args = TrainingArguments(
@@ -26,6 +31,8 @@ training_args = TrainingArguments(
     per_device_train_batch_size=2,  # Adjust batch size according to your GPU memory
     save_steps=10_000,
     save_total_limit=2,
+    learning_rate=learning_rate,  # Set the learning rate here
+
 )
 
 for cycle in range(num_cycles):
@@ -55,6 +62,7 @@ for cycle in range(num_cycles):
             args=training_args,
             data_collator=data_collator,
             train_dataset=train_dataset,
+            optimizers=(optimizer, None),
         )
 
         # Train the model
