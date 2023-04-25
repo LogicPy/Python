@@ -1,0 +1,59 @@
+<link rel="stylesheet" type="text/css" href="{{ url_for('send_css', path='style.css') }}">
+
+<h1>Wayne's WebUI for Ai</h1>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<style type="text/css">
+    h1 {
+        padding:60px;
+        color: white;
+        -webkit-text-stroke: 0.5px black;
+    }
+</style>
+<!-- Add this inside the <div class="container"> -->
+<!-- Chat box container -->
+<div id="chatbox">
+  <!-- User input field -->
+  <form id="predictionForm">
+    <label for="inputText">Write a message:</label>
+    <input type="text" id="inputText" placeholder="Type something...">
+    <input type="hidden" id="targetLang" value="en">
+    <button type="submit"><span id="sendBtn">Send</span></button>
+  </form>
+  <!-- System response -->
+  <br>
+  <textarea id="predictionResult" rows="4" cols="50" readonly>Loading...</textarea><br><br>
+</div>
+
+<!-- Update the JavaScript code to send requests to the /predict route -->
+<script>
+document.getElementById("predictionForm").addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    const inputData = document.getElementById("inputText").value;
+    const predictionResult = await sendMessageToAI(inputData);
+    
+    if (predictionResult) {
+        document.getElementById("predictionResult").innerText = `Prediction: ${predictionResult}`;
+    } else {
+        alert('Error: ' + response.statusText);
+    }
+});
+
+async function sendMessageToAI(inputText) {
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input_text: inputText })
+    };
+
+    try {
+        const response = await fetch('/predict', requestOptions);
+        const data = await response.json();
+        return data.response;
+    } catch (error) {
+        console.error("Error:", error);
+    }
+}
+</script>

@@ -1,0 +1,59 @@
+  @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+
+
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f1f1f1;
+        }
+        h1
+        {
+        font-family: 'Pacifico', cursive;
+        }
+        #chatbox {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            width: 400px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        #predictionForm {
+            display: flex;
+            gap: 10px;
+        }
+
+        #inputText {
+            flex-grow: 1;
+            border-radius: 20px;
+            border: 1px solid #ccc;
+            padding: 5px 10px;
+            outline: none;
+        }
+
+        #sendBtn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 6px 12px;
+            cursor: pointer;
+        }
+
+        #sendBtn:hover {
+            background-color: #0069d9;
+        }
+
+        #predictionResult {
+            width: 100%;
+            border: none;
+            border-radius: 10px;
+            padding: 10px;
+            resize: none;
+            box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.1);
+            outline: none;
+        }

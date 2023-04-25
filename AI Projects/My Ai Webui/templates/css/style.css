@@ -1,0 +1,44 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #f0f0f0;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+button {
+    background-color: #007BFF;
+    color: white;
+    padding: 10px 20px;
+    margin-top: 20px;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+#chatbox {
+  display: flex;
+  align-items: center; /* Center vertically */
+  display:none;
+}
+
+#userInput, #systemResponse {
+  margin: 10px; /* Add a little spacing between messages */
+}
+
+#bubbleLeft, #bubbleRight {
+  border-radius: 50%; /* Make the chat bubbles round */
+}
+
+/* Style the user input field */
+#userInput label {
+  font-weight: bold; /* Bold text for the user's message */
+}
