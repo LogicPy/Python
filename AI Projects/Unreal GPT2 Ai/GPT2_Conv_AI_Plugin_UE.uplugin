@@ -1,0 +1,24 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "GPT2_Conv_AI_Plugin_UE",
+	"Description": "This plugin enables the integration of the GPT-2 conversational AI model into Unreal Engine, allowing developers to create NPCs with natural language capabilities.",
+	"Category": "Other",
+	"CreatedBy": "Wayne.cool",
+	"CreatedByURL": "http://wayne.cool/",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "GPT2_Conv_AI_Plugin_UE",
+			"Type": "Runtime",
+			"LoadingPhase": "PreLoadingScreen"
+		}
+	]
+}
