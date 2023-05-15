@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat with GPT-2</title>
+</head>
+<body>
+    <div id="chatbox">
+        <!-- Chat messages will go here -->
+    </div>
+    
+    <form id="chat-form">
+        <input type="text" id="input-field" placeholder="Type your message...">
+        <button type="submit">Send</button>
+    </form>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+        $('#chat-form').on('submit', function(e) {
+            e.preventDefault();
+            const message = $('#input-field').val();
+            
+            $('#chatbox').append('<p>You: ' + message + '</p>');
+            
+            $.ajax({
+                url: '/api',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ 'message': message }),
+                success: function(data) {
+                    $('#chatbox').append('<p>Bot: ' + data.message + '</p>');
+                }
+            });
+            
+            $('#input-field').val('');
+        });
+    </script>
+</body>
+</html>
