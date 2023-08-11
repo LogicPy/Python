@@ -35,8 +35,12 @@ function sendMessage() {
     } else {
         messageContent = data.reply;
     }
+
+    // Remove any newline characters from messageContent
+    messageContent = messageContent.replace(/\n/g, ' ');
+
     // Update the UI with the message
-    chatLog.value += "Bot: " + messageContent + "\n";
+    chatLog.value += "Bot:" + messageContent + "\n";
 });
 }
 

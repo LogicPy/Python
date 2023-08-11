@@ -29,7 +29,7 @@ def chat_response():
 def get_ai_response(message):
     # Mocked for now, integrate with your AI model as needed
     if "unregistered:" in message:
-        return "Please register for more features."
+        return " Please register for more features."
     else:
         messages = [{"role": "user", "content": message}]
         output = model.chat_completion(messages)
