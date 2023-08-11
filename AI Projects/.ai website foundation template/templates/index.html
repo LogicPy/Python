@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+</head>
+<body>
+        <!-- Hidden field for user status -->
+
+    <div>
+        <textarea id="chatLog" rows="10" cols="50" disabled></textarea>
+        <br>
+        <input type="hidden" id="userStatus" value="unregistered">
+        <input type="text" id="userInput" placeholder="Type a message...">
+        <button onclick="sendMessage()">Send</button>
+        <button onclick="userLoggedIn()">Register Me!</button>
+
+    </div>
+
+    <script>
+function sendMessage() {
+    const userInput = document.getElementById("userInput").value;
+    const userStatus = document.getElementById("userStatus").value;
+    fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ "message": userInput, "status": userStatus })  
+    })
+    .then(response => response.json())
+    .then(data => {
+    let messageContent;
+    if (data.reply.choices) {
+        messageContent = data.reply.choices[0].message.content;
+    } else {
+        messageContent = data.reply;
+    }
+    // Update the UI with the message
+    chatLog.value += "Bot: " + messageContent + "\n";
+});
+}
+
+
+// This function is just an example; you'll use something like this when a user logs in.
+function userLoggedIn() {
+    document.getElementById("userStatus").value = "registered";
+    console.log('User is now registered!');
+
+}
+    </script>
+
+</body>
+</html>
