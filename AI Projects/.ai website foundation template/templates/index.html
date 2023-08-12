@@ -4,12 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chatbot</title>
+
+<style type="text/css">
+.bot-response code {
+    display: block;  /* Makes the code block display as a block element */
+    background-color: black;
+    color: white;
+    border-radius: 5px;
+    font-family: 'Courier New', Courier, monospace;  /* Gives a monospace font */
+    overflow-x: auto;  /* Adds a scrollbar if the code is too long */
+}
+
+#chatLog {
+    width: 780px; /* or whatever size you like */
+    height: 200px;
+    overflow-y: scroll;
+    border: 1px solid gray;
+    white-space: pre-line; /* Keeps newline characters */
+}
+
+</style>
+
 </head>
 <body>
         <!-- Hidden field for user status -->
 
     <div>
-        <textarea id="chatLog" rows="10" cols="50" disabled></textarea>
+        <div id="chatLog" rows="10" cols="50" disabled></div>
         <br>
         <input type="hidden" id="userStatus" value="unregistered">
         <input type="text" id="userInput" placeholder="Type a message...">
@@ -19,6 +40,10 @@
     </div>
 
     <script>
+
+const messageContent = data.reply.choices[0].message.content;
+const formattedResponse = "Bot: <code>" + messageContent + "</code>";
+
 function sendMessage() {
     const userInput = document.getElementById("userInput").value;
     const userStatus = document.getElementById("userStatus").value;
@@ -38,9 +63,10 @@ function sendMessage() {
 
     // Remove any newline characters from messageContent
     messageContent = messageContent.replace(/\n/g, ' ');
+    messageContent = messageContent.trim();
 
     // Update the UI with the message
-    chatLog.value += "Bot:" + messageContent + "\n";
+    chatLog.innerHTML += "<span class='bot-response'>Bot: " + messageContent + "</span><br>";
 });
 }
 
