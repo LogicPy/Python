@@ -29,6 +29,7 @@ a, button, * {
     max-width: 100%;
     height: 50vh; /* or whatever height you prefer */
     z-index: 5;
+    display: inline-block;
 }
 
 @media only screen and (max-width: 568px) {
@@ -193,7 +194,7 @@ body {
             <!-- Hidden field for user status -->
             <input type="hidden" id="userStatus" value="unregistered">
             <input type="text" class="strafe-left-to-right" id="userInput" placeholder="Type a message...">
-            <button onclick="sendMessage()">Send</button>
+            <button onclick="sendMessage()">Send</button> 
 
         </div>
 
@@ -229,6 +230,8 @@ function sendMessage() {
     // Update the UI with the message
     chatLog.innerHTML += "<span class='bot-response b'>Bot: " + messageContent + "</span><br>";
 });
+    // Clear your Chat Input Box... (After Sending your Message)
+    document.getElementById("userInput").value = "";
 }
 
     function expandDropdown() {
