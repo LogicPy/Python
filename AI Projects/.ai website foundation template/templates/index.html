@@ -16,7 +16,8 @@ a, button, * {
     margin: 0;
     padding: 0;
     box-sizing: border-box; /* ensures padding and borders do not increase element sizes */
-    color: white;
+    color: black;
+    font-weight: bold;
 }
 
 #userInput
@@ -30,6 +31,7 @@ a, button, * {
     height: 50vh; /* or whatever height you prefer */
     z-index: 5;
     display: inline-block;
+    font-weight: bold;
 }
 
 @media only screen and (max-width: 568px) {
@@ -49,31 +51,41 @@ img {
 .container {
     display: flex;
     justify-content: flex-end;
+    font-weight: bold;
 }
 
 button {
     background: none;
     border: none;
-    color: white; /* or whatever link color you want */
+    color: black; /* or whatever link color you want */
     text-decoration: underline;
     cursor: pointer;
+    font-weight: bold;
 }
 
 #regbtn
 {
     margin-right: 50px;
     float: right;
+    font-weight: bold;
 }
 
 .b{
     color: orange;
+    font-weight: bold;
+}
+
+.user-response{
+    color: #E75480;
+    font-weight: bold;
 }
 
 .bot-response code {
     display: block;  /* Makes the code block display as a block element */
     background-color: black;
-    color: white;
+    color: black;
     border-radius: 5px;
+    font-weight: bold;
     font-family: 'Courier New', Courier, monospace;  /* Gives a monospace font */
     overflow-x: auto;  /* Adds a scrollbar if the code is too long */
 }
@@ -145,6 +157,7 @@ button {
     margin-top: 25px;
     display: none;
 }
+
 .drop-color
 {
     color: white;
@@ -162,12 +175,14 @@ button {
     left: 0;
     display: none; /* Initially hidden */
 }
+
 body {
     font-family: 'Courier New', Courier, monospace;
     background-color: #272822; /* Sublime Text background color */
     color: #F8F8F2; /* Default text color */
     padding: 20px;
 }
+
 .oper1 {color:white;}
 .keyword { color: #F92672; } /* Python keywords */
 .string { color: #E6DB74; } /* String values */
@@ -180,7 +195,7 @@ body {
 <body>
 
 <div class="video-background">
-    <iframe src="https://www.youtube.com/embed/B5unCXpegAw?start=18&controls=0&showinfo=0&rel=0&autoplay=1&loop=1&mute=1&playlist=B5unCXpegAw" frameborder="0" allowfullscreen></iframe>
+    <iframe src="https://www.youtube.com/embed/WWJ672iZKNQ?start=18&controls=0&showinfo=0&rel=0&autoplay=1&loop=1&mute=1&playlist=WWJ672iZKNQ" frameborder="0" allowfullscreen></iframe>
 </div>
 
 <div class="row">
@@ -208,6 +223,8 @@ function sendMessage() {
     
     const userInput = document.getElementById("userInput").value;
     const userStatus = document.getElementById("userStatus").value;
+    chatLog.innerHTML += "<span class='user-response'>User: " + userInput + "</span><br>"
+
     fetch('/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
