@@ -1,8 +1,12 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, abort
 from gpt4all import GPT4All
-model = GPT4All("orca-mini-3b.ggmlv3.q4_0.bin")
 
+model = GPT4All("ggml-gpt4all-j-v1.3-groovy.bin")
 app = Flask(__name__)
+
+# This is just a sample API key for demonstration.
+# In a real-world scenario, you'd probably store this in a more secure manner, like environment variables.
+VALID_API_KEY = "YOUR_SECRET_API_KEY"
 
 @app.route('/')
 def home():
@@ -10,15 +14,12 @@ def home():
 
 @app.route('/chat', methods=['POST'])
 def chat():
-    response = chat_response()
-    return response
-
-def chat_response():
+    # Here, we get the JSON data from the request.
     data = request.json
-    user_message = data.get('message')
-    user_status = data.get('status')
 
-    # Preprocess the message
+    user_message = data.get('message', "")
+    user_status = data.get('status', "unregistered")
+
     processed_message = user_status + ": " + user_message
 
     # Send to AI for response
@@ -26,8 +27,22 @@ def chat_response():
 
     return jsonify({"reply": ai_response})
 
+@app.route('/api/chat', methods=['POST'])
+def api_chat():
+    api_key = request.headers.get('Authorization')
+
+    if not api_key or api_key != f"Bearer {VALID_API_KEY}":
+        abort(401, description="Invalid API key")
+
+    data = request.json
+    user_message = data.get("message", "")
+    
+    # Here, integrate your Unreal Chatbot to get a response
+    bot_response = "Hello from the External Python-connected Chatbot!"  # Placeholder response
+    
+    return jsonify({"response": bot_response})
+
 def get_ai_response(message):
-    # Mocked for now, integrate with your AI model as needed
     if "unregistered:" in message:
         return " Please register for more features."
     else:

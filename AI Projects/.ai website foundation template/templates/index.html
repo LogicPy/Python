@@ -6,18 +6,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chatbot</title>
 
+<link 
+   href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" 
+   rel="stylesheet">
+
 <style type="text/css">
 
-* {
+a, button, * {
     margin: 0;
     padding: 0;
     box-sizing: border-box; /* ensures padding and borders do not increase element sizes */
+    color: white;
+}
+
+#userInput
+{
+    color:black;
 }
 
 #chatLog {
     width: 100%;
     max-width: 100%;
     height: 50vh; /* or whatever height you prefer */
+    z-index: 5;
 }
 
 @media only screen and (max-width: 568px) {
@@ -34,6 +45,28 @@ img {
     height: auto;
 }
 
+.container {
+    display: flex;
+    justify-content: flex-end;
+}
+
+button {
+    background: none;
+    border: none;
+    color: white; /* or whatever link color you want */
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+#regbtn
+{
+    margin-right: 50px;
+    float: right;
+}
+
+.b{
+    color: orange;
+}
 
 .bot-response code {
     display: block;  /* Makes the code block display as a block element */
@@ -43,29 +76,135 @@ img {
     font-family: 'Courier New', Courier, monospace;  /* Gives a monospace font */
     overflow-x: auto;  /* Adds a scrollbar if the code is too long */
 }
+/* Left to Right */
+@keyframes strafeInLeftToRight {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
 
+.strafe-left-to-right {
+    animation: strafeInLeftToRight 1s forwards;
+}
+
+/* Right to Left */
+@keyframes strafeInRightToLeft {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.strafe-right-to-left {
+    animation: strafeInRightToLeft 1s forwards;
+}
+
+.video-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1; /* Place video under everything else */
+    overflow: hidden;
+}
+
+.video-background iframe {
+    z-index: -5;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 150%; /* Ensures video fills screen while maintaining aspect ratio */
+    height: 150%;
+}
+
+.templateHolder{
+    margin-left: 40px;
+    margin-top: 20px;
+}
+
+/* Initial styling */
+.dropdown-container {
+    width: 750px;
+    height: 50px;
+    background-color: black;
+    position: relative;
+    overflow: hidden;
+    transition: height 0.3s; /* Smooth transition for the height */
+    margin-top: 25px;
+    display: none;
+}
+.drop-color
+{
+    color: white;
+    font-weight: bold;   
+    margin: 25px;
+}
+
+.dropdown-content {
+    padding-left: 15px;
+    width: 100%;
+    height: 0px;
+    background-color: #aaa;
+    position: absolute;
+    top: 50px; /* Initially positioned right under the container */
+    left: 0;
+    display: none; /* Initially hidden */
+}
+body {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #272822; /* Sublime Text background color */
+    color: #F8F8F2; /* Default text color */
+    padding: 20px;
+}
+.oper1 {color:white;}
+.keyword { color: #F92672; } /* Python keywords */
+.string { color: #E6DB74; } /* String values */
+.comment { color: #75715E; } /* Comments */
+.function { color: #A6E22E; } /* Function names */
+.variable { color: #FD971F; } /* Variable names */
 </style>
 
 </head>
 <body>
-        <!-- Hidden field for user status -->
 
-    <div>
-        <div id="chatLog" rows="10" cols="50" disabled></div>
-        <br>
-        <input type="hidden" id="userStatus" value="unregistered">
-        <input type="text" id="userInput" placeholder="Type a message...">
-        <button onclick="sendMessage()">Send</button>
-        <button onclick="userLoggedIn()">Register Me!</button>
+<div class="video-background">
+    <iframe src="https://www.youtube.com/embed/B5unCXpegAw?start=18&controls=0&showinfo=0&rel=0&autoplay=1&loop=1&mute=1&playlist=B5unCXpegAw" frameborder="0" allowfullscreen></iframe>
+</div>
 
-    </div>
+<div class="row">
+  <div class="col-md-6">
+<div class="templateHolder">
+    
+    <button class="registration-btn" onclick="userLoggedIn()" class="strafe-right-to-left">Register Now!</button>
+        <div>
+            <div id="chatLog" rows="10" cols="50" class="strafe-right-to-left" disabled></div>
+            <br>
+            <!-- Hidden field for user status -->
+            <input type="hidden" id="userStatus" value="unregistered">
+            <input type="text" class="strafe-left-to-right" id="userInput" placeholder="Type a message...">
+            <button onclick="sendMessage()">Send</button>
 
-    <script>
+        </div>
+
+</div>
+<script>
 
 const messageContent = data.reply.choices[0].message.content;
 const formattedResponse = "Bot: <code>" + messageContent + "</code>";
 
 function sendMessage() {
+    
     const userInput = document.getElementById("userInput").value;
     const userStatus = document.getElementById("userStatus").value;
     fetch('/chat', {
@@ -75,6 +214,7 @@ function sendMessage() {
     })
     .then(response => response.json())
     .then(data => {
+    chatLog.innerHTML += "<span class='bot-response'>Notice: " + 'Ai is generating message. Please wait!' + "</span><br>"
     let messageContent;
     if (data.reply.choices) {
         messageContent = data.reply.choices[0].message.content;
@@ -87,18 +227,90 @@ function sendMessage() {
     messageContent = messageContent.trim();
 
     // Update the UI with the message
-    chatLog.innerHTML += "<span class='bot-response'>Bot: " + messageContent + "</span><br>";
+    chatLog.innerHTML += "<span class='bot-response b'>Bot: " + messageContent + "</span><br>";
 });
 }
 
+    function expandDropdown() {
+        const container = document.querySelector('.dropdown-container');
+        const content = document.querySelector('.dropdown-content');
+
+        // Expanding the container and showing the content
+        container.style.height = '700px'; // 50px for the header + 200px for the content
+        content.style.display = 'block';
+    }
+
+    function collapseDropdown() {
+        const container = document.querySelector('.dropdown-container');
+        const content = document.querySelector('.dropdown-content');
+
+        // Collapsing the container and hiding the content
+        container.style.height = '50px';
+        content.style.display = 'none';
+    }
 
 // This function is just an example; you'll use something like this when a user logs in.
 function userLoggedIn() {
+    const container = document.querySelector('.dropdown-container');
+    container.style.display = 'block'; // Show the dropdown container
     document.getElementById("userStatus").value = "registered";
     console.log('User is now registered!');
-
+    chatLog.innerHTML += "<span class='bot-response'>Notice: " + 'Successfully logged in! Welcome user!' + "</span><br>"
 }
     </script>
 
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Popper JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
+</div>
+  <div class="col-md-6">
+
+<div class="dropdown-container" onmouseover="expandDropdown()" onmouseout="collapseDropdown()">
+    <span class="drop-color">API Key Code Synchronization</span>
+    <div class="dropdown-content">
+<pre>
+<span class="comment"># This script demonstrates how to use the chatbot API from Python</span>
+
+<span class="keyword">import</span> <span class="oper1">requests</span>
+
+<span class="oper1">API_ENDPOINT = </span><span class="string">"https://waynecool.ngrok.app/api/chat"</span>
+<span class="oper1">API_KEY = </span><span class="string">"YOUR_SECRET_API_KEY"</span>
+
+<span class="keyword">def</span> <span class="function">send_message_to_chatbot</span><span class="oper1">(message):
+    headers = {</span>
+        <span class="string">"Authorization"</span>: <span class="string">f"Bearer {API_KEY}"</span>,
+        <span class="string">"Content-Type"</span>: <span class="string">"application/json"</span>
+    <span class="oper1">}
+    data = {</span><span class="string">"message"</span><span class="oper1">: message} </span>
+    
+    <span class="oper1">response = requests.post(API_ENDPOINT, json=data, headers=headers)</span>
+    
+    <span class="keyword">if</span> <span class="oper1">response.status_code == </span><span class="number">200</span>:
+        <span class="keyword">return</span> <span class="oper1">response.json()[ </span><span class="string">"response"</span><span class="oper1">]</span>
+    <span class="keyword">else</span>:
+        <span class="keyword">return</span> <span class="string">f"Error: {response.text}"</span>
+
+<span class="keyword">if</span> <span class="variable">__name__</span> <span class="oper1">==</span> <span class="string">"__main__"</span><span class="oper1">:</span>
+    <span class="keyword">while</span> <span class="keyword">True</span>:
+        <span class="oper1">user_input =</span> <span class="function">input</span>(<span class="string">"You: "</span><span class="oper1">)</span>
+        <span class="keyword">if</span> <span class="oper1">user_input.</span><span class="function">lower</span><span class="oper1">()</span> <span class="keyword">in</span> <span class="oper1">[</span><span class="string">"quit"</span><span class="oper1">,</span> <span class="string">"exit"</span><span class="oper1">]:</span>
+            <span class="keyword">break</span>
+        <span class="oper1">response = </span><span class="function">send_message_to_chatbot</span><span class="oper1">(user_input)</span>
+        <span class="function">print</span><span class="oper1">(</span><span class="string">f"Bot: {response}"</span><span class="oper1">)</span>
+</pre>
+    </div>
+</div>
+</div>
+</div>
 </body>
 </html>
+
+
+
