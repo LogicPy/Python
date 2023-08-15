@@ -4,9 +4,12 @@ from gpt4all import GPT4All
 model = GPT4All("ggml-gpt4all-j-v1.3-groovy.bin")
 app = Flask(__name__)
 
+import os
+print(os.getcwd())
+
 # This is just a sample API key for demonstration.
 # In a real-world scenario, you'd probably store this in a more secure manner, like environment variables.
-VALID_API_KEY = "YOUR_SECRET_API_KEY"
+VALID_API_KEY = "AX13372164XQ"
 
 @app.route('/')
 def home():

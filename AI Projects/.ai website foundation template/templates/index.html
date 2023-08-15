@@ -12,11 +12,21 @@
 
 <style type="text/css">
 
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    position: relative;
+    background: url("static/bgcolor4.png") no-repeat;
+    background-size: cover;
+}
+
 a, button, * {
     margin: 0;
     padding: 0;
     box-sizing: border-box; /* ensures padding and borders do not increase element sizes */
-    color: black;
+    color: white;
     font-weight: bold;
 }
 
@@ -32,6 +42,8 @@ a, button, * {
     z-index: 5;
     display: inline-block;
     font-weight: bold;
+    background-color: black; 
+    padding: 25px;
 }
 
 @media only screen and (max-width: 568px) {
@@ -82,8 +94,7 @@ button {
 
 .bot-response code {
     display: block;  /* Makes the code block display as a block element */
-    background-color: black;
-    color: black;
+    color: white !important;
     border-radius: 5px;
     font-weight: bold;
     font-family: 'Courier New', Courier, monospace;  /* Gives a monospace font */
@@ -178,7 +189,6 @@ button {
 
 body {
     font-family: 'Courier New', Courier, monospace;
-    background-color: #272822; /* Sublime Text background color */
     color: #F8F8F2; /* Default text color */
     padding: 20px;
 }
@@ -189,14 +199,72 @@ body {
 .comment { color: #75715E; } /* Comments */
 .function { color: #A6E22E; } /* Function names */
 .variable { color: #FD971F; } /* Variable names */
+
+.loader {
+    border: 16px solid #f3f3f3; /* Light grey */
+    border-top: 16px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 2s linear infinite;
+}
+/* This will ensure that the spinner's container stretches across the entire viewport */
+#spinnerContainer {
+    position: fixed;
+    top: 50%;  /* centers the box vertically */
+    left: 50%; /* centers the box horizontally */
+    width: 250px; /* width of your 'popup' */
+    height: 250px; /* height of your 'popup' */
+    margin-left: -125px; /* half of the width */
+    margin-top: -125px; /* half of the height */
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 8px; /* smooths the corners of your popup */
+    display: grid;
+    place-items: center; /* This keeps our spinner and caption centered */
+    z-index: 1000;
+}
+
+#spinnerCaption {
+    margin-bottom: 20px; /* Space between caption and spinner */
+    font-size: 15px;    /* Adjust to your preferred size */
+    color: white;        /* Adjust color if necessary */
+    text-align: center;
+}
+
+#spinner {
+    position: absolute;
+    width: 50px;   /* You can adjust this */
+    height: 50px;   /* And this */
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    top: 50%;
+    left: 40%;
+    transform: translate(-50%, -50%); /* Centers the spinner within its container */
+    /* ...other spinner styles... */
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 </style>
 
 </head>
 <body>
 
+<!--
 <div class="video-background">
     <iframe src="https://www.youtube.com/embed/WWJ672iZKNQ?start=18&controls=0&showinfo=0&rel=0&autoplay=1&loop=1&mute=1&playlist=WWJ672iZKNQ" frameborder="0" allowfullscreen></iframe>
 </div>
+-->
+<div id="spinnerContainer" style="display: none;">
+    <div id="spinnerCaption">Generating Response Text...</div>
+    <div id="spinner" style="display: none;"></div>
+</div>
+
 
 <div class="row">
   <div class="col-md-6">
@@ -219,8 +287,21 @@ body {
 const messageContent = data.reply.choices[0].message.content;
 const formattedResponse = "Bot: <code>" + messageContent + "</code>";
 
+function enableSpinner() {
+    document.getElementById('spinner').style.display = 'block';
+    document.getElementById('spinnerContainer').style.display = 'block';
+    // Simulating an AI processing time of 3 seconds before hiding the spinner.
+    // You can remove this timeout and use the `hideSpinner` function wherever needed.
+    setTimeout(hideSpinner, 30000);
+}
+
+function hideSpinner() {
+    document.getElementById('spinner').style.display = 'none';
+    document.getElementById('spinnerContainer').style.display = 'none';
+}
+
 function sendMessage() {
-    
+    enableSpinner();
     const userInput = document.getElementById("userInput").value;
     const userStatus = document.getElementById("userStatus").value;
     chatLog.innerHTML += "<span class='user-response'>User: " + userInput + "</span><br>"
@@ -232,7 +313,7 @@ function sendMessage() {
     })
     .then(response => response.json())
     .then(data => {
-    chatLog.innerHTML += "<span class='bot-response'>Notice: " + 'Ai is generating message. Please wait!' + "</span><br>"
+     // Activate the spinner
     let messageContent;
     if (data.reply.choices) {
         messageContent = data.reply.choices[0].message.content;
@@ -244,11 +325,22 @@ function sendMessage() {
     messageContent = messageContent.replace(/\n/g, ' ');
     messageContent = messageContent.trim();
 
+    if (messageContent.startsWith("Please register")) {
+        // Actions for when the message starts with "Please register"
+        console.log("The message starts with 'Please register'");
+        hideSpinner();
+    } else {
+        hideSpinner();
+        // Actions for when the message doesn't start with "Please register"
+        console.log("The message doesn't start with 'Please register'");
+    }    // Clear your Chat Input Box... (After Sending your Message)
+
     // Update the UI with the message
     chatLog.innerHTML += "<span class='bot-response b'>Bot: " + messageContent + "</span><br>";
 });
-    // Clear your Chat Input Box... (After Sending your Message)
+
     document.getElementById("userInput").value = "";
+
 }
 
     function expandDropdown() {
