@@ -63,6 +63,7 @@ def csrf_scanner(starting_url):
             test_script = "<script>alert('XSS')</script>"
             for param in test_parameters:
                 test_url = build_test_url(url, param, test_script)
+                #print ("\n" + test_url)
                 xss_response = requests.get(test_url)
                 if is_vulnerable_to_xss(xss_response):
                     print(f"Potential XSS vulnerability detected at {url} with parameter '{param}'")
