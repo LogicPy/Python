@@ -1,6 +1,15 @@
 import pygame
 import random
 
+# Colors and settings omitted for brevity...
+
+# Load chess pieces and initial board setup...
+
+dragging = False  # Track whether a piece is being dragged
+dragging_piece = None  # The piece being dragged
+dragging_offset_x = 0  # Offset between cursor and piece image top-left corner
+dragging_offset_y = 0
+
 # Initialize pygame
 pygame.init()
 
@@ -118,60 +127,42 @@ input_error = False
 font = pygame.font.Font(None, 36)
 
 while running:
+    mouse_x, mouse_y = pygame.mouse.get_pos()  # Get mouse position
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_BACKSPACE:
-                current_input = current_input[:-1]  # Remove the last character
-            elif event.key == pygame.K_RETURN:
-                move_notation = current_input
-                #if validate_move(event.move_notation, turn):
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            for row in range(board_size):
+                for col in range(board_size):
+                    piece = board[row][col]
+                    if piece != '--':
+                        x, y = col * square_size, row * square_size
+                        if x < mouse_x < x + square_size and y < mouse_y < y + square_size:
+                            dragging = True
+                            dragging_piece = piece
+                            dragging_offset_x = mouse_x - x
+                            dragging_offset_y = mouse_y - y
+                            board[row][col] = '--'  # Remove the piece from the board
+        elif event.type == pygame.MOUSEBUTTONUP:
+            if dragging:
+                target_row, target_col = mouse_y // square_size, mouse_x // square_size
+                board[target_row][target_col] = dragging_piece  # Place the piece at the new location
+                dragging = False
+                dragging_piece = None
+        elif event.type == pygame.MOUSEMOTION:
+            if dragging:
+                # During dragging, we don't need to update the board; the piece follows the mouse cursor.
+                pass
 
-                # Assuming current_input holds the move notation
-                move_coordinates = get_move_coordinates(move_notation)
+    screen.fill((0, 0, 0))  # Clear screen
+    draw_board()  # Draw the board and pieces
 
-                if len(move_notation) != 4:
-                    # Invalid move
-                    input_error = True
-                    # Call the error check function
-                    input_error_check(screen, input_error)
-                else:
-                    make_move(move_coordinates)
-                
-                current_input = ""  # Reset input for the next move
-                
-                turn = 'b' if turn == 'w' else 'w'  # Switch turns
+    if dragging:
+        # Draw the dragging piece at the mouse position, offset by the initial click position.
+        piece_image = pieces[dragging_piece]
+        screen.blit(piece_image, (mouse_x - dragging_offset_x, mouse_y - dragging_offset_y))
 
-            elif event.key == pygame.K_s:
-                turn = 'b' if turn == 'w' else 'w'  # Switch turns
-            # Handle a move input event (this is pseudocode - replace with your actual event handling logic)
-            elif event.type == pygame.USEREVENT and event.move_made:
-                if validate_move(event.move_notation, turn):
-                    make_move(event.move_notation)
-                    # Switch turns
-                    turn = 'b' if turn == 'w' else 'w'
-            else:
-                current_input += event.unicode  # Append the pressed key
-
-    # Clear the screen first
-    screen.fill((0, 0, 0))
-
-    # Draw the board and other elements here
-    draw_board()
-    # Render and display the current input
-    text_surface = font.render(current_input, True, pygame.Color('white'))
-    screen.blit(text_surface, (10, screen_size - 30))
-
-    # Update the display
-    pygame.display.flip()   
-
-    # Render and display the current input
-    text_surface = font.render(current_input, True, pygame.Color('white'))
-    screen.blit(text_surface, (10, screen_size - 30))
-    display_turn_information(turn, screen)
-
-    # Update the display
     pygame.display.flip()
 
 pygame.quit()
