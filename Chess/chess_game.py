@@ -59,6 +59,13 @@ board = [
 
 board_keycolor_var = "w"
 
+def update_turn():
+    global board_keycolor_var
+    # Switch the turn
+    board_keycolor_var = 'w' if board_keycolor_var == 'b' else 'b'
+    # Debug output
+    print(f"Turn switched to: {board_keycolor_var}")
+
 def board_to_fen(board):
     global board_keycolor_var
     # Convert the board to FEN notation
@@ -121,6 +128,12 @@ def apply_stockfish_move(move):
     board[to_row][to_col] = moving_piece
     board[from_row][from_col] = '--'
     
+    # Auto-Function responsible for switching Ai's turn auto-ai play-through
+    # Line one - update the turns using new function
+    #update_turn()  # Update the global turn variable after the move
+    # Line two - generated output on fen-feedback
+    #print(f"Generated FEN: {fen}")  # Debug output
+
     # Check if move is a capture, for simplicity we'll just move the piece
     print(f"Moved {moving_piece} from {from_square} to {to_square}")
     result = is_king_captured(board)
