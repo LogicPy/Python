@@ -1,9 +1,17 @@
 import pygame
 import random
+from stockfish import Stockfish
+from stockfish.models import StockfishException
+
+# Goal: Set new orientation for chess assistance application using Stockfish with 'stockfish.get_best_move()'
 
 # Colors and settings omitted for brevity...
 
 # Load chess pieces and initial board setup...
+
+# Stockfish Path:
+# Initialize Stockfish with the path to your Stockfish executable
+stockfish = Stockfish(path="C:/Users/Admin/Downloads/stockfish-windows-x86-64-avx2/stockfish/stockfish-windows-x86-64-avx2")
 
 dragging = False  # Track whether a piece is being dragged
 dragging_piece = None  # The piece being dragged
@@ -48,6 +56,73 @@ board = [
     ['wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP'],
     ['wR', 'wN', 'wB', 'wQ', 'wK', 'wB', 'wN', 'wR']
 ]
+
+def board_to_fen(board):
+    # Convert the board to FEN notation
+    fen_rows = []
+    for row in board:
+        empty_count = 0
+        fen_row = ""
+        for cell in row:
+            if cell == "--":  # Empty square
+                empty_count += 1
+            else:
+                if empty_count > 0:
+                    fen_row += str(empty_count)
+                    empty_count = 0
+                fen_row += cell[1].lower() if cell[0] == 'b' else cell[1]
+        if empty_count > 0:
+            fen_row += str(empty_count)
+        fen_rows.append(fen_row)
+    fen_position = "/".join(fen_rows)
+    
+    # Assuming it's always Black's turn for simplicity, and omitting castling, en passant, halfmove, and fullmove counters
+    return f"{fen_position} w - - 0 1"
+
+def is_king_captured(board):
+    # Assuming 'wK' for White King and 'bK' for Black King
+    white_king_present = any('wK' in row for row in board)
+    black_king_present = any('bK' in row for row in board)
+    
+    if not white_king_present:
+        return 'Black wins by capturing the White King!'
+    elif not black_king_present:
+        return 'White wins by capturing the Black King!'
+    else:
+        return None  # No king has been captured
+
+def display_end_game_message(result):
+    font = pygame.font.SysFont(None, 48)
+    text_surface = font.render(result, True, (255, 0, 0))  # Red text for visibility
+    text_rect = text_surface.get_rect(center=(screen_size // 2, screen_size // 2))
+    screen.fill((0, 0, 0))  # Optionally clear the screen or draw over the current state
+    screen.blit(text_surface, text_rect)
+    pygame.display.flip()  # Update the display with the message
+
+def apply_stockfish_move(move):
+    global running
+    # Convert the move notation to board indices
+    cols = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4, 'f': 5, 'g': 6, 'h': 7}
+    from_square, to_square = move[:2], move[2:]
+    
+    from_row = 8 - int(from_square[1])
+    from_col = cols[from_square[0]]
+    to_row = 8 - int(to_square[1])
+    to_col = cols[to_square[0]]
+    
+    # Perform the move
+    moving_piece = board[from_row][from_col]
+    board[to_row][to_col] = moving_piece
+    board[from_row][from_col] = '--'
+    
+    # Check if move is a capture, for simplicity we'll just move the piece
+    print(f"Moved {moving_piece} from {from_square} to {to_square}")
+    result = is_king_captured(board)
+    result = is_king_captured(board)
+    if result:
+        display_end_game_message(result)
+        return False  # Indicate the game should end
+    return True  # Indicate the game should continue
 
 # Function to draw the chess board
 def draw_board():
@@ -132,6 +207,33 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.KEYDOWN:
+ 
+            if event.key == pygame.K_b:
+                # Assuming 'w' is white and 'b' is black
+                current_color = 'w' if turn == 'w' else 'b'
+                fen = board_to_fen(board)
+
+                # Set up Stockfish for the current player's turn
+                # This might involve setting the FEN position with the correct player to move
+                # and then requesting the best move for that player.
+                
+                # Execute the move for the current color
+                try:
+                    stockfish.set_fen_position(fen)
+                    best_move = stockfish.get_best_move()
+                except Exception as e:
+                    print(f"A mysterious force has ended the game: {e}")
+                    # Consider ending the game or resetting the board here
+                    best_move = None
+                if best_move:
+                    game_continues = apply_stockfish_move(best_move)
+                    if not game_continues:
+                        break  # Exit the loop if the game shou
+                    
+                    # After move, switch turn
+                    turn = 'b' if turn == 'w' else 'w'
+
         elif event.type == pygame.MOUSEBUTTONDOWN:
             for row in range(board_size):
                 for col in range(board_size):
@@ -144,6 +246,7 @@ while running:
                             dragging_offset_x = mouse_x - x
                             dragging_offset_y = mouse_y - y
                             board[row][col] = '--'  # Remove the piece from the board
+
         elif event.type == pygame.MOUSEBUTTONUP:
             if dragging:
                 target_row, target_col = mouse_y // square_size, mouse_x // square_size
