@@ -24,7 +24,7 @@ pygame.init()
 # Set up the display
 screen_size = 600
 screen = pygame.display.set_mode((screen_size, screen_size))
-pygame.display.set_caption('Pygame Chess')
+pygame.display.set_caption("Wayne's Ultimate Chessbot - Superior 'Chess.com' winning Engine")
 
 # Colors
 white = (255, 255, 255)
@@ -57,7 +57,10 @@ board = [
     ['wR', 'wN', 'wB', 'wQ', 'wK', 'wB', 'wN', 'wR']
 ]
 
+board_keycolor_var = "w"
+
 def board_to_fen(board):
+    global board_keycolor_var
     # Convert the board to FEN notation
     fen_rows = []
     for row in board:
@@ -77,7 +80,10 @@ def board_to_fen(board):
     fen_position = "/".join(fen_rows)
     
     # Assuming it's always Black's turn for simplicity, and omitting castling, en passant, halfmove, and fullmove counters
-    return f"{fen_position} w - - 0 1"
+    if board_keycolor_var == "w":
+        return f"{fen_position} w - - 0 1"
+    elif board_keycolor_var == "b":
+        return f"{fen_position} b - - 0 1"
 
 def is_king_captured(board):
     # Assuming 'wK' for White King and 'bK' for Black King
@@ -208,12 +214,27 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN:
- 
+
+            if event.key == pygame.K_s:
+                # Switch to the second board configuration
+                board = [
+                    ['wR', 'wN', 'wB', 'wQ', 'wK', 'wB', 'wN', 'wR'],
+                    ['wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP'],
+                    ['--', '--', '--', '--', '--', '--', '--', '--'],
+                    ['--', '--', '--', '--', '--', '--', '--', '--'],
+                    ['--', '--', '--', '--', '--', '--', '--', '--'],
+                    ['--', '--', '--', '--', '--', '--', '--', '--'],
+                    ['bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP'],
+                    ['bR', 'bN', 'bB', 'bQ', 'bK', 'bB', 'bN', 'bR']
+                ]
+                # You may need to update the display or other game state variables as appropriate
+                draw_board()  # Redraw the board with the new configuration
+                board_keycolor_var = "b"
+
             if event.key == pygame.K_b:
                 # Assuming 'w' is white and 'b' is black
                 current_color = 'w' if turn == 'w' else 'b'
                 fen = board_to_fen(board)
-
                 # Set up Stockfish for the current player's turn
                 # This might involve setting the FEN position with the correct player to move
                 # and then requesting the best move for that player.
