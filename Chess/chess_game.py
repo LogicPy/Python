@@ -17,6 +17,7 @@ dragging = False  # Track whether a piece is being dragged
 dragging_piece = None  # The piece being dragged
 dragging_offset_x = 0  # Offset between cursor and piece image top-left corner
 dragging_offset_y = 0
+move_history = []
 
 # Initialize pygame
 pygame.init()
@@ -111,12 +112,65 @@ def display_end_game_message(result):
     screen.fill((0, 0, 0))  # Optionally clear the screen or draw over the current state
     screen.blit(text_surface, text_rect)
     pygame.display.flip()  # Update the display with the message
+# Assuming you have a function to apply Stockfish's move
+
+# Assuming each move in move_history is stored as a dictionary for clarity
+# e.g., {'from': 'e2', 'to': 'e4', 'piece': 'wP', 'captured': None}
+
+def undo_move():
+    global move_history, board, turn
+    if move_history:
+        last_move = move_history.pop()
+        
+        # Retrieve the details of the move
+        from_square = last_move['from']
+        to_square = last_move['to']
+        piece_moved = last_move['piece']
+        piece_captured = last_move['captured']
+        
+        # Convert board positions to indices, similar to notation_to_index()
+        from_row, from_col = notation_to_index(from_square)
+        to_row, to_col = notation_to_index(to_square)
+        
+        # Move the piece back to its original position
+        board[from_row][from_col] = piece_moved
+        # If a piece was captured, put it back
+        if piece_captured:
+            board[to_row][to_col] = piece_captured
+        else:
+            board[to_row][to_col] = '--'
+        
+        # Update the board display, etc.
+        draw_board()
+        pygame.display.flip()
+        
+        # Switch the turn back
+        turn = 'w' if turn == 'b' else 'b'
+
+# Modify make_move() to record full move information
+def make_move(move):
+    global move_history, board, turn
+    # ...
+    # When making a move, store all necessary information
+    move_info = {
+        'from': from_square,
+        'to': to_square,
+        'piece': piece_moved,
+        'captured': piece_captured  # Store the piece that was at to_square before the move
+    }
+    move_history.append(move_info)
+    # ...
 
 def apply_stockfish_move(move):
     global running
+    global move_history
+
     # Convert the move notation to board indices
     cols = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4, 'f': 5, 'g': 6, 'h': 7}
     from_square, to_square = move[:2], move[2:]
+    
+    piece_moved = get_piece_at_square(from_square)
+    piece_captured = get_piece_at_square(to_square)
     
     from_row = 8 - int(from_square[1])
     from_col = cols[from_square[0]]
@@ -133,7 +187,16 @@ def apply_stockfish_move(move):
     #update_turn()  # Update the global turn variable after the move
     # Line two - generated output on fen-feedback
     #print(f"Generated FEN: {fen}")  # Debug output
+    # Record the move
+    move_info = {
+        'from': from_square,
+        'to': to_square,
+        'piece': piece_moved,
+        'captured': piece_captured
+    }
+    move_history.append(move_info)
 
+    # Continue with any other logic needed to update the game state
     # Check if move is a capture, for simplicity we'll just move the piece
     print(f"Moved {moving_piece} from {from_square} to {to_square}")
     result = is_king_captured(board)
@@ -184,17 +247,15 @@ def get_move_coordinates(move_notation):
         input_error_check(screen, True)
     return move_notation
 
-def make_move(move):
-    """Makes a move on the board without legality checks."""
-    from_square, to_square = move[:2], move[2:]
-    from_row, from_col = notation_to_index(from_square)
-    to_row, to_col = notation_to_index(to_square)
-    board[to_row][to_col] = board[from_row][from_col]  # Move the piece
-    board[from_row][from_col] = '--'  # Clear the old square
-    from_row, from_col = notation_to_index(from_square)
-    to_row, to_col = notation_to_index(to_square)
-    print(f"Move from ({from_row}, {from_col}) to ({to_row}, {to_col}) on "+turn+'.')
-    print(f"Making move: {move_coordinates}")
+def get_piece_at_square(square):
+    # Assuming your board is a list of lists, where rows are lists and each square is represented by a string like 'e2'
+    # Convert algebraic notation (e.g., 'e2') to board indices
+    col_to_index = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4, 'f': 5, 'g': 6, 'h': 7}
+    row_index = 8 - int(square[1])  # Convert the numeric part to an index, e.g., '8' -> 0, '1' -> 7
+    col_index = col_to_index[square[0]]  # Convert the letter to an index, e.g., 'a' -> 0, 'h' -> 7
+    
+    # Return the piece at the specified square
+    return board[row_index][col_index]
 
 def notation_to_index(notation):
     col_to_index = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4, 'f': 5, 'g': 6, 'h': 7}
@@ -243,6 +304,17 @@ while running:
                 # You may need to update the display or other game state variables as appropriate
                 draw_board()  # Redraw the board with the new configuration
                 board_keycolor_var = "b"
+
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_u:  # If 'u' is pressed
+                    try:
+                        undo_move()  # Call the undo function
+                    except Exception as e:
+                        print(f"Error in undo_move: {e}")
+                    print("Undo pressed")
+
+                if event.key == pygame.K_p:  # If 'u' is pressed
+                    print(board)
 
             if event.key == pygame.K_b:
                 # Assuming 'w' is white and 'b' is black
