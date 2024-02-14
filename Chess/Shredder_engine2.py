@@ -1,20 +1,19 @@
 import pygame
 import random
-from stockfish import Stockfish
-from stockfish.models import StockfishException
 import asyncio
-
-# Goal: Set new orientation for chess assistance application using Stockfish with 'stockfish.get_best_move()'
-
-# Colors and settings omitted for brevity...
-
-# Load chess pieces and initial board setup...
-
-# Stockfish Path:
-# Initialize Stockfish with the path to your Stockfish executable
 import chess
 import chess.engine
 
+# The ultimate undetectable Chess.com hacking cheat engine bot is here.
+# No more using the crappy Stockfish engine that's super predictable as the admins can pin-point your moves (followed by the inevitable ban), 
+# and use this far more intelligent engine framework that doesn't loop on the same move when it plays against itself.
+
+# Goal: Create a better and less detectable cheat engine to use on Chess.com, Shredder is far superior than Stockfish.
+# Test it yourself, use my super updated Stockfish bot and player the Shredder engine game on hard-mode, not only won't you win, but you won't predict the moves of the ai opponent.
+# I'm loving the Shredder engine. Chess.com, good luck figuring me out! xD Hahaha! 
+
+# Shredder Path:
+# Initialize Shredder with the path to your Shredder executable
 # Initialize your chess board and engine
 board = chess.Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
 engine_path = "C:/Program Files (x86)/ShredderChess/Shredder Classic 5/EngineClassic5UCIx64"  # Update with your engine's path
@@ -121,7 +120,6 @@ def display_end_game_message(result):
     screen.fill((0, 0, 0))  # Optionally clear the screen or draw over the current state
     screen.blit(text_surface, text_rect)
     pygame.display.flip()  # Update the display with the message
-# Assuming you have a function to apply Stockfish's move
 
 # Assuming each move in move_history is stored as a dictionary for clarity
 # e.g., {'from': 'e2', 'to': 'e4', 'piece': 'wP', 'captured': None}
