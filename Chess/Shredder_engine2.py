@@ -9,8 +9,7 @@ import chess.engine
 # and use this far more intelligent engine framework that doesn't loop on the same move when it plays against itself.
 
 # Goal: Create a better and less detectable cheat engine to use on Chess.com, Shredder is far superior than Stockfish.
-# Test it yourself, use my super updated Stockfish bot and player the Shredder engine game on hard-mode, not only won't you win, but you won't predict the moves of the ai opponent.
-# I'm loving the Shredder engine. Chess.com, good luck figuring me out! xD Hahaha! 
+# I was caught multiple times, there's no chance to win with my bot on Chess.com anymore.... :\ Eh, my dream has been shattered before it come to fruition.. 
 
 # Shredder Path:
 # Initialize Shredder with the path to your Shredder executable
