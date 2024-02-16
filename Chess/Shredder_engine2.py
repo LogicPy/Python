@@ -21,6 +21,8 @@ engine_path = "C:/Program Files (x86)/ShredderChess/Shredder Classic 5/EngineCla
 # Specify the path to the UCI-compatible executable of Shredder
 #shredder_path = "C:/Program Files (x86)/ShredderChess/Shredder Classic 5/EngineClassic5UCIx64"
 
+# Assume captured_pieces is a list storing captured pieces as (piece_type, piece_color)
+captured_pieces = []
 
 # Load chess pieces images
 pieces_images = {
@@ -54,6 +56,7 @@ pygame.init()
 screen_size = 500
 screen = pygame.display.set_mode((screen_size, screen_size))
 pygame.display.set_caption("Wayne's Ultimate Chessbot - Superior 'Chess.com' winning Engine")
+captured_pieces = []
 
 # Colors
 white = (255, 255, 255)
@@ -62,6 +65,8 @@ gray = (58, 63, 82)
 move_notation = ""
 move_coordinates = 0
 input_error = False
+command_input = ""
+respawn_ui_active = False
 
 # Chess board settings
 board_size = 8
@@ -316,7 +321,146 @@ def reverse_last_move(board, move_history):
             print("Cannot reverse this move directly due to rules or board state.")
     else:
         print("No moves to reverse.")
+# Assuming we have a list of captured pieces
+captured_pieces = []
 
+def display_command_input(input_text, screen):
+    font = pygame.font.SysFont(None, 36)  # Reuse or redefine as needed
+    text_surface = font.render(f"Input: {input_text}", True, pygame.Color('white'))
+    screen.blit(text_surface, (10, screen.get_height() - 50))
+
+# Placeholder for function to render the respawn UI
+def render_respawn_ui(screen, captured_pieces):
+    # Create a simple UI to display captured pieces
+    # For each captured piece, draw a square with the piece image
+    for idx, piece in enumerate(captured_pieces):
+        piece_image = pieces_images[piece.symbol()]
+        piece_rect = pygame.Rect(10, 10 + idx * 60, 50, 50)  # Modify as needed for your UI layout
+        screen.blit(piece_image, piece_rect.topleft)
+
+# Placeholder for function to handle piece selection
+def select_respawn_piece(mouse_pos, captured_pieces):
+    # Determine if the mouse click is within the bounds of any captured pieces in the UI
+    for idx, piece in enumerate(captured_pieces):
+        piece_rect = pygame.Rect(10, 10 + idx * 60, 50, 50)  # Same as in render_respawn_ui
+        if piece_rect.collidepoint(mouse_pos):
+            return piece
+    return None
+
+def respawn_piece_command(command):
+    # Parse the command, expected format "respawn [piece] [square]"
+    # Example command: "respawn bN e4"
+    parts = command.split()
+    if len(parts) == 3 and parts[0] == "respawn":
+        piece_symbol = parts[1]
+        square_name = parts[2]
+        try:
+            # Convert the input to a piece object and a square
+            piece_type = {"P": chess.PAWN, "N": chess.KNIGHT, "B": chess.BISHOP,
+                          "R": chess.ROOK, "Q": chess.QUEEN, "K": chess.KING}[piece_symbol[1].upper()]
+            piece_color = chess.BLACK if piece_symbol[0] == 'b' else chess.WHITE
+            square = chess.SQUARE_NAMES.index(square_name)
+            
+            # Find a captured piece that matches the command
+            for captured_piece in captured_pieces:
+                if captured_piece.piece_type == piece_type and captured_piece.color == piece_color:
+                    captured_pieces.remove(captured_piece)
+                    break
+            else:
+                print("No such piece is captured.")
+                return
+            
+            # Check if the square is empty and respawn the piece
+            if not board.piece_at(square):
+                board.set_piece_at(square, chess.Piece(piece_type, piece_color))
+                print(f"Respawned {piece_symbol} at {square_name}.")
+                # Redraw the board here if necessary
+            else:
+                print(f"Square {square_name} is not empty.")
+        except (IndexError, KeyError, ValueError):
+            print("Invalid command or arguments.")
+    else:
+        print("Invalid command format.")
+
+# Example usage
+ # In a real game, you'd capture this within Pygame's event loop
+
+def clear_and_redraw_game_ui(screen, board, pieces_images, square_size=60):
+    # Clear the screen
+    screen.fill(pygame.Color("white"))  # Assuming white is your background color
+
+    # Draw the chessboard
+    for square in chess.SQUARES:
+        rank = chess.square_rank(square)
+        file = chess.square_file(square)
+        color = pygame.Color("light gray") if (rank + file) % 2 == 0 else pygame.Color("dark gray")
+        rect = pygame.Rect(file * square_size, (7 - rank) * square_size, square_size, square_size)
+        pygame.draw.rect(screen, color, rect)
+
+        # Draw the piece on the square, if there is one
+        piece = board.piece_at(square)
+        if piece:
+            # Generate the correct key based on the piece color and type
+            color_prefix = 'w' if piece.color == chess.WHITE else 'b'
+            symbol = piece.symbol().upper()  # Assuming uppercase for piece type
+            key = f"{color_prefix}{symbol}"  # Construct the key as used in pieces_images
+
+        if piece:
+            color_prefix = 'w' if piece.color == chess.WHITE else 'b'
+            symbol = piece.symbol().upper()  # Use uppercase to match your dictionary keys
+            key = f"{color_prefix}{symbol}"
+
+            piece_image = pieces_images.get(key)
+            if piece_image:
+                screen.blit(piece_image, rect.topleft)
+            else:
+                print(f"Image not found for key: {key}")
+
+
+def process_command(command, board):
+    parts = command.split()
+    if len(parts) == 3 and parts[0].lower() == "res":
+        piece_symbol = parts[1]
+        square_name = parts[2]
+
+        # Validate the piece symbol
+        try:
+            piece_type = {"P": chess.PAWN, "N": chess.KNIGHT, "B": chess.BISHOP,
+                          "R": chess.ROOK, "Q": chess.QUEEN, "K": chess.KING}[piece_symbol[1].upper()]
+            piece_color = chess.BLACK if piece_symbol[0] == 'b' else chess.WHITE
+            
+            # Attempt to parse the square name, catching any ValueError
+            try:
+                square = chess.parse_square(square_name)
+            except ValueError:
+                print(f"Invalid square: {square_name}. Please enter a valid square (e.g., e4).")
+                return
+
+            # Respawn the piece
+            if not board.piece_at(square):
+                board.set_piece_at(square, chess.Piece(piece_type, piece_color))
+                print(f"Respawned {piece_symbol} at {square_name}.")
+            else:
+                print(f"Square {square_name} is not empty.")
+        except KeyError:
+            print("Invalid piece symbol. Please use the format [color][piece], e.g., 'bN' for Black Knight.")
+    else:
+        print("Invalid command format. Please use 'respawn [piece] [square]', e.g., 'respawn bN e4'.")
+
+
+def respawn_piece(board, piece_type, piece_color, square):
+    # Check if the square is empty
+    if not board.piece_at(square):
+        board.set_piece_at(square, chess.Piece(piece_type, piece_color))
+        print(f"Respawned piece at {chess.SQUARE_NAMES[square]}.")
+    else:
+        print(f"Square {chess.SQUARE_NAMES[square]} is not empty.")
+
+
+
+    # Optionally, draw other game elements (e.g., active player indicator, game status messages)
+
+    # Note: Don't call pygame.display.flip() here; it should be called once after all drawing is done in the main loop
 
 async def main():
     # Your main program logic, including setting up the board, engine, and event loop
@@ -342,6 +486,9 @@ async def main():
     pygame.display.set_caption("Wayne's Ultimate Chessbot - Superior 'Chess.com' winning Engine")
 
     # Colors
+    captured_pieces = []
+    command_input = ""
+    respawn_ui_active = False
     white = (255, 255, 255)
     black = (0, 0, 0)
     gray = (58, 63, 82)
@@ -363,7 +510,9 @@ async def main():
     input_error = False
     dragging_from_col = None
     dragging_piece_origin = None
-
+    # Initialize the command input outside of the event loop
+    command_input = ""
+    command_prompt_active = False 
     # Initialize font outside the loop
     font = pygame.font.Font(None, 36)
 
@@ -371,91 +520,128 @@ async def main():
         mouse_x, mouse_y = pygame.mouse.get_pos()  # Get mouse position
         screen.fill((0, 0, 0))  # Clear the screen
         draw_board(screen, board, pieces)  # Draw the board and static pieces
-        pygame.display.flip()
+        #pygame.display.flip()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+
             elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    if command_prompt_active:  # If there's input and command prompt is active, process the command
+                        process_command(command_input, board)
+                        command_input = ""  # Clear the command input after processing
+                    command_prompt_active = not command_prompt_active  # Toggle visibility regardless of input
 
-                if event.key == pygame.K_p:
-                    print_move_history(move_history)
+                elif event.key == pygame.K_BACKSPACE and command_prompt_active:
+                    # Only allow backspace to edit command if the command prompt is active
+                    command_input = command_input[:-1]
 
-                if event.key == pygame.K_u:  # If 'u' is pressed
-                    try:
-                        undo_moves(board, move_history)  # Call the undo function
-                        #reverse_last_move(board, move_history)
-                    except Exception as e:
-                        print(f"Error in undo_move: {e}")
-                    print("Undo pressed")
-                if event.key == pygame.K_b:  # If 'b' is pressed
-                       # Correctly initiate and manage the engine asynchronously
+                elif command_prompt_active:
+                    # This block should capture other character inputs for the command prompt
+                    command_input += event.unicode
+
+                else:
+                    # Handle other hotkeys only when command prompt is not active
+                    if event.key == pygame.K_p:
                         print_move_history(move_history)
+
+                    elif event.key == pygame.K_o:
+                        # Toggle the respawn UI state
+                        respawn_ui_active = not respawn_ui_active
+
+                    
+# Make sure to update the display and render your game elements outside this loop
+
+
+            # Render the rest of your game elements here...
+            # Update the display once per frame, not just when the UI is active
+
+
+                    if event.key == pygame.K_u:  # If 'u' is pressed
                         try:
-
-                            with chess.engine.SimpleEngine.popen_uci(engine_path) as engine:
-                                result = engine.play(board, chess.engine.Limit(time=0.1))
-                                move = result.move
-                                if move in board.legal_moves:
-                                    board.push(move)
-                                    move_history.append(move) 
-
-                                else:
-                                    print(f"Illegal move attempted: {move.uci()}")
-                                    
-                                   # move_history.append(move)
-
-
-                                    
-                                print("Engine recommends move:", move)
-                                # Apply the move to your board representation
-                                
-                                if move in board.legal_moves:
-                                    
-                                    print(move)
-                                    board.push(move)
-                                print("Original board and turn:", board, "White" if board.turn == chess.WHITE else "Black")
-
-                                force_change_turn(board)
-                                print("After turn change:", board, "White" if board.turn == chess.WHITE else "Black")
-                            # Check for end of game
-                            if board.is_game_over():
-                                print("Game over", board.result())
-                                running = False
+                            undo_moves(board, move_history)  # Call the undo function
+                            #reverse_last_move(board, move_history)
                         except Exception as e:
-                            print(f"An error occurred: {e}")
-                        finally:
-                            print("Cleanup if needed")
+                            print(f"Error in undo_move: {e}")
+                        print("Undo pressed")
+                    if event.key == pygame.K_b:  # If 'b' is pressed
+                           # Correctly initiate and manage the engine asynchronously
+                            print_move_history(move_history)
+                            try:
 
-                # Check for end of game
-                if event.key == pygame.K_q:  # When 'q' key is pressed
-                    # Logic to swap king and queen positions for both sides
-                    
-                    # White pieces swap
-                    if board.piece_at(chess.D1) == chess.Piece(chess.QUEEN, chess.WHITE) and \
-                       board.piece_at(chess.E1) == chess.Piece(chess.KING, chess.WHITE):
-                        board.set_piece_at(chess.D1, chess.Piece(chess.KING, chess.WHITE))
-                        board.set_piece_at(chess.E1, chess.Piece(chess.QUEEN, chess.WHITE))
+                                with chess.engine.SimpleEngine.popen_uci(engine_path) as engine:
+                                    result = engine.play(board, chess.engine.Limit(time=0.1))
+                                    move = result.move
+                                    if move in board.legal_moves:
+                                        board.push(move)
+                                        move_history.append(move) 
 
-                    # Black pieces swap
-                    if board.piece_at(chess.D8) == chess.Piece(chess.QUEEN, chess.BLACK) and \
-                       board.piece_at(chess.E8) == chess.Piece(chess.KING, chess.BLACK):
-                        board.set_piece_at(chess.D8, chess.Piece(chess.KING, chess.BLACK))
-                        board.set_piece_at(chess.E8, chess.Piece(chess.QUEEN, chess.BLACK))
-
-                    # Add your code to redraw the board here if needed
-                    # draw_board(screen, board) or similar function
-                    
-                    # Optionally, update the display if your drawing function doesn't already do this
-                    pygame.display.flip()
+                                    else:
+                                        print(f"Illegal move attempted: {move.uci()}")
+                                        
+                                       # move_history.append(move)
 
 
-                if event.key == pygame.K_r:
-                    board.reset()
+                                        
+                                    print("Engine recommends move:", move)
+                                    # Apply the move to your board representation
+                                    
+                                    if move in board.legal_moves:
+                                        
+                                        print(move)
+                                        board.push(move)
+                                    print("Original board and turn:", board, "White" if board.turn == chess.WHITE else "Black")
 
-                    # Execute the move for the current color
-                        # After move, switch turn
-                        #turn = 'b' if turn == 'w' else 'w'
-            #if board.turn == chess.BLACK:
+                                    force_change_turn(board)
+                                    print("After turn change:", board, "White" if board.turn == chess.WHITE else "Black")
+                                # Check for end of game
+                                if board.is_game_over():
+                                    print("Game over", board.result())
+                                    running = False
+                            except Exception as e:
+                                print(f"An error occurred: {e}")
+                            finally:
+                                print("Cleanup if needed")
+
+                    # Check for end of game
+                    if event.key == pygame.K_q:  # When 'q' key is pressed
+                        # Logic to swap king and queen positions for both sides
+                        
+                        # White pieces swap
+                        if board.piece_at(chess.D1) == chess.Piece(chess.QUEEN, chess.WHITE) and \
+                           board.piece_at(chess.E1) == chess.Piece(chess.KING, chess.WHITE):
+                            board.set_piece_at(chess.D1, chess.Piece(chess.KING, chess.WHITE))
+                            board.set_piece_at(chess.E1, chess.Piece(chess.QUEEN, chess.WHITE))
+
+                        # Black pieces swap
+                        if board.piece_at(chess.D8) == chess.Piece(chess.QUEEN, chess.BLACK) and \
+                           board.piece_at(chess.E8) == chess.Piece(chess.KING, chess.BLACK):
+                            board.set_piece_at(chess.D8, chess.Piece(chess.KING, chess.BLACK))
+                            board.set_piece_at(chess.E8, chess.Piece(chess.QUEEN, chess.BLACK))
+
+                        # Add your code to redraw the board here if needed
+                        # draw_board(screen, board) or similar function
+                        
+                        # Optionally, update the display if your drawing function doesn't already do this
+                        pygame.display.flip()
+
+
+                    if event.key == pygame.K_r:
+                        board.reset()
+
+                # Execute the move for the current color
+                    # After move, switch turn
+                    #turn = 'b' if turn == 'w' else 'w'
+        #if board.turn == chess.BLACK:
+      # Draw the board and pieces
+
+            elif event.type == pygame.MOUSEBUTTONDOWN and respawn_ui_active:
+                # Handle mouse click for selecting and placing pieces
+                mouse_pos = event.pos
+                selected_piece = select_respawn_piece(mouse_pos, captured_pieces)
+                if selected_piece:
+                    # Logic for placing the selected piece goes here
+                    pass
             if event.type == pygame.MOUSEBUTTONDOWN:
 
                 print("Current board FEN:", board.fen())
@@ -555,26 +741,27 @@ async def main():
                 dragging = False
                 dragging_piece = None
 
-            elif event.type == pygame.MOUSEMOTION:
-                if dragging:
-                    # During dragging, we don't need to update the board; the piece follows the mouse cursor.
-                    pass
-
-        screen.fill((0, 0, 0))  # Clear screen
-        draw_board(screen, board, pieces)   # Draw the board and pieces
-
-        if dragging:
-            #print(dragging_piece.color)
-            piece_symbol = dragging_piece.symbol()  # Will be uppercase for white, lowercase for black
-            piece_color = 'w' if dragging_piece.color else 'b'  # Convert boolean color to 'w' or 'b'
-            correct_symbol = piece_color + piece_symbol.upper()  # Construct correct key for image lookup
-            piece_image = pieces_images[correct_symbol]  # Lookup the correct image using pieces_images
-            screen.blit(piece_image, (mouse_x - dragging_offset_x, mouse_y - dragging_offset_y))
 
 
-        # Assuming this is done right before setting the piece back on the board
-           # if target_square:
-               # board.set_piece_at(target_square, dragging_piece)  # Directly set the original piece
+            # Outside the event loop, you'd render the respawn UI based on the state
+
+
+
+            if command_prompt_active:
+                display_command_input(command_input, screen) 
+
+            if dragging:
+                #print(dragging_piece.color)
+                piece_symbol = dragging_piece.symbol()  # Will be uppercase for white, lowercase for black
+                piece_color = 'w' if dragging_piece.color else 'b'  # Convert boolean color to 'w' or 'b'
+                correct_symbol = piece_color + piece_symbol.upper()  # Construct correct key for image lookup
+                piece_image = pieces_images[correct_symbol]  # Lookup the correct image using pieces_images
+                screen.blit(piece_image, (mouse_x - dragging_offset_x, mouse_y - dragging_offset_y))
+
+
+                # Assuming this is done right before setting the piece back on the board
+                   # if target_square:
+                       # board.set_piece_at(target_square, dragging_piece)  # Directly set the original piece
 
 
 
