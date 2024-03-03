@@ -48,7 +48,7 @@ sio = socketio.Client()
 
 def networkSetup():
     ssid = "Wayne.Cool headquarters"
-    psk = "Aquabat1337"
+    psk = "**********"
     with open("wlan.cfg", "w") as f:
         f.write(f"SSID = {ssid}\n")
         f.write(f"PSK = {psk}\n")
