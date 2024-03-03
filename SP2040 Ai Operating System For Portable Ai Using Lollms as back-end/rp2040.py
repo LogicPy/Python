@@ -1,3 +1,13 @@
+# Adafruit I2S 3W Class D Amplifier Breakout - MAX98357A:
+# Connect VIN to the power supply voltage (e.g., 3.3V or 5V).
+# Connect GND to the ground.
+# Connect LRCLK to the LRCLK pin of the RP2040.* Connect BCLK to the BCLK pin of the RP2040.
+# Connect DIN to the DOUT pin of the RP2040.
+# Adafruit I2S MEMS Microphone Breakout - SPH0645LM4H:* Connect VIN to the power supply voltage (e.g., 3.3V or 5V).* Connect GND to the ground.
+# Connect LRCLK to the LRCLK pin of the RP2040.
+# Connect BCLK to the BCLK pin of the RP2040.* Connect DOUT to the DIN pin of the RP2040.
+
+
 import socketio
 import speech_recognition as sr
 import requests
