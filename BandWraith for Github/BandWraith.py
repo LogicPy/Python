@@ -1,22 +1,5 @@
 # BandWraith
-# Author Wayne Kenney Jr. and the (Magnificent GPT-4 helped significantly on this super well coded project)
-
-import shodan
-import sys, os, time, shodan
-from pathlib import Path
-from scapy.all import *
-show_interfaces()
-from contextlib import contextmanager, redirect_stdout
-import threading
-import time
-
-starttime = time.time()
-
-your_key = Path("./api.txt")
-
-
-# BandWraith
-# Author Wayne Kenney Jr. and the (Magnificent GPT-4 helped significantly on this super well coded project)
+# Author Wayne Kenney Jr. - Refined Memcrashed coding, with multiple function definitions. No longer 100% procedural coded... 
 
 import shodan
 import sys, os, time, shodan
