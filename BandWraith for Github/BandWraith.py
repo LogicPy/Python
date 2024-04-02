@@ -5,6 +5,8 @@ import shodan
 import sys, os, time, shodan
 from pathlib import Path
 from scapy.all import *
+from scapy.all import send, IP, UDP, Raw
+
 show_interfaces()
 from contextlib import contextmanager, redirect_stdout
 import threading
@@ -81,10 +83,6 @@ def display_bots(api_key, ip_list=None):
         print('[+] BandWraith Server (%d) | IP: %s | OS: %s | ISP: %s |' % (counter, x, host.get('os', 'n/a'), host.get('org', 'n/a')))
         time.sleep(1.1 - ((time.time() - starttime) % 1.1))
 
-from scapy.all import send, IP, UDP, Raw
-
-import sys
-from scapy.all import send, IP, UDP, Raw
 
 def send_udp_packet(target, target_port, data, power, iface=None):
     try:
@@ -142,3 +140,4 @@ def main():
      
 if __name__ == "__main__":
     main()
+
