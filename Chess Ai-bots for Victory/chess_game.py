@@ -11,7 +11,7 @@ from stockfish.models import StockfishException
 
 # Stockfish Path:
 # Initialize Stockfish with the path to your Stockfish executable
-stockfish = Stockfish(path="C:/Users/Admin/Downloads/stockfish-windows-x86-64-avx2/stockfish/stockfish-windows-x86-64-avx2")
+stockfish = Stockfish(path="C:/Users/Admin/Downloads/stockfish-windows-x86-64-modern/stockfish/stockfish-windows-x86-64-modern")
 
 dragging = False  # Track whether a piece is being dragged
 dragging_piece = None  # The piece being dragged
@@ -161,34 +161,32 @@ def make_move(move):
     move_history.append(move_info)
     # ...
 
-def apply_stockfish_move(move):
+def apply_stockfish_move(move, color='white'):
     global running
     global move_history
+    global board  # Assuming a 2D list representing the chessboard
+
+    # Assuming get_piece_at_square(), board, and move_history are defined elsewhere
 
     # Convert the move notation to board indices
     cols = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4, 'f': 5, 'g': 6, 'h': 7}
     from_square, to_square = move[:2], move[2:]
-    
     piece_moved = get_piece_at_square(from_square)
     piece_captured = get_piece_at_square(to_square)
-    
+
     from_row = 8 - int(from_square[1])
     from_col = cols[from_square[0]]
     to_row = 8 - int(to_square[1])
     to_col = cols[to_square[0]]
-    
+
     # Perform the move
     moving_piece = board[from_row][from_col]
     board[to_row][to_col] = moving_piece
     board[from_row][from_col] = '--'
-    
-    # Auto-Function responsible for switching Ai's turn auto-ai play-through
-    # Line one - update the turns using new function
-    #update_turn()  # Update the global turn variable after the move
-    # Line two - generated output on fen-feedback
-    #print(f"Generated FEN: {fen}")  # Debug output
+
     # Record the move
     move_info = {
+        'color': color,
         'from': from_square,
         'to': to_square,
         'piece': piece_moved,
@@ -196,9 +194,16 @@ def apply_stockfish_move(move):
     }
     move_history.append(move_info)
 
-    # Continue with any other logic needed to update the game state
-    # Check if move is a capture, for simplicity we'll just move the piece
+    # Output for debugging or information
+    print(f"{color.capitalize()} moved {moving_piece} from {from_square} to {to_square}")
+
+    # Here you might call Stockfish or another chess engine to generate the next move for the opponent
+    # This is where the logic to switch turns and generate moves for black would be integrated
+    # if color == 'white':
+    #     next_move = generate_stockfish_move_for_black()
+    #     apply_move(next_move, 'black')
     print(f"Moved {moving_piece} from {from_square} to {to_square}")
+   # print(f"Moved {moving_piece} from {from_square2} to {to_square}")
     result = is_king_captured(board)
     result = is_king_captured(board)
     if result:
@@ -262,6 +267,12 @@ def notation_to_index(notation):
     row = 8 - int(notation[1])  # Convert row number to array index
     col = col_to_index[notation[0]]  # Convert column letter to array index
     return row, col
+
+def promote_pawn(board):
+    for col in range(8):  # Check each column in the top row
+        if board[0][col] == 'wP':  # Found a white pawn to promote
+            board[0][col] = 'wQ'  # Promote to white Queen
+            print("Pawn promoted to Queen!")
 
 def input_error_check(screen, input_error):
     # Display error message
@@ -339,6 +350,12 @@ while running:
                     
                     # After move, switch turn
                     turn = 'b' if turn == 'w' else 'w'
+
+            if current_color == 'w':  # Right after a white move
+                promote_pawn(board)  # Check and promote the pawn if applicable
+                draw_board()  # Redraw the board to reflect any changes
+                pygame.display.flip()  # Update display
+
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             for row in range(board_size):

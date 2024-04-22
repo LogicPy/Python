@@ -3,6 +3,37 @@ import random
 import asyncio
 import chess
 import chess.engine
+import logging
+from chess.engine import SimpleEngine, CommandState
+import logging
+import sys
+from time import sleep
+
+def handle_exception(exc_type, exc_value, exc_traceback):
+    if issubclass(exc_type, AssertionError):
+        pass  # Ignore AssertionError
+    else:
+        # Handle all other exceptions with the default handler
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
+
+sys.excepthook = handle_exception
+
+# Assuming the chess engine uses standard Python logging
+logger = logging.getLogger('chess.engine')
+logger.setLevel(logging.CRITICAL)  # Only critical errors will be logged
+
+class CustomEngine(SimpleEngine):
+    def _line_received(self, line):
+        try:
+            super()._line_received(line)
+        except AssertionError:
+            # Handle the AssertionError specifically
+            if self.state not in [CommandState.ACTIVE, CommandState.CANCELLING]:
+                # Log or handle the unexpected state
+                pass
+
+
+# Use CustomEngine instead of SimpleEngine
 
 # The ultimate undetectable Chess.com hacking cheat engine bot is here.
 # No more using the crappy Stockfish engine that's super predictable as the admins can pin-point your moves (followed by the inevitable ban), 
@@ -16,6 +47,9 @@ import chess.engine
 # Initialize your chess board and engine
 board = chess.Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
 engine_path = "C:/Program Files (x86)/ShredderChess/Shredder Classic 5/EngineClassic5UCIx64"  # Update with your engine's path
+move_history = []
+running = True
+
 
 # Specify the path to the UCI-compatible executable of Shredder
 #shredder_path = "C:/Program Files (x86)/ShredderChess/Shredder Classic 5/EngineClassic5UCIx64"
@@ -207,7 +241,7 @@ def make_move(board, move_uci):
 
 def draw_board(screen, board, pieces):
     square_size = 60  # Define the size of a square on your board
-    colors = [pygame.Color("white"), pygame.Color("gray")]  # Define board colors
+    colors = [pygame.Color("white"), pygame.Color(gray)]  # Define board colors
 
     for square in chess.SQUARES:
         rank = chess.square_rank(square)
@@ -563,44 +597,63 @@ async def main():
                         except Exception as e:
                             print(f"Error in undo_move: {e}")
                         print("Undo pressed")
+
+                    
                     if event.key == pygame.K_b:  # If 'b' is pressed
-                           # Correctly initiate and manage the engine asynchronously
-                            print_move_history(move_history)
-                            try:
-
-                                with chess.engine.SimpleEngine.popen_uci(engine_path) as engine:
-                                    result = engine.play(board, chess.engine.Limit(time=0.1))
-                                    move = result.move
-                                    if move in board.legal_moves:
-                                        board.push(move)
-                                        move_history.append(move) 
-
-                                    else:
-                                        print(f"Illegal move attempted: {move.uci()}")
-                                        
-                                       # move_history.append(move)
-
-
-                                        
-                                    print("Engine recommends move:", move)
-                                    # Apply the move to your board representation
+                        print_move_history(move_history)
+                        try:
+                            with chess.engine.SimpleEngine.popen_uci(engine_path) as engine:
+                                while running:
                                     
-                                    if move in board.legal_moves:
-                                        
-                                        print(move)
-                                        board.push(move)
-                                    print("Original board and turn:", board, "White" if board.turn == chess.WHITE else "Black")
+                                    try:
+                                        result = engine.play(board, chess.engine.Limit(time=0.1))
+                                        move = result.move
 
-                                    force_change_turn(board)
-                                    print("After turn change:", board, "White" if board.turn == chess.WHITE else "Black")
-                                # Check for end of game
-                                if board.is_game_over():
-                                    print("Game over", board.result())
-                                    running = False
-                            except Exception as e:
-                                print(f"An error occurred: {e}")
-                            finally:
-                                print("Cleanup if needed")
+                                        if move in board.legal_moves:
+                                           
+                                            #print("Move made:", move)
+                                            screen.fill((0, 0, 0))
+                                            source_square = move.from_square
+                                            destination_square = move.to_square
+                                            piece = board.piece_at(source_square)
+
+                                            if piece is not None:
+                                                # Convert squares to algebraic notation for logging
+                                                source_square_name = chess.square_name(source_square)
+                                                destination_square_name = chess.square_name(destination_square)
+
+                                                # Get the piece type (e.g., PAWN, KNIGHT) and convert it to a human-readable name if needed
+                                                piece_type = piece.piece_type
+                                                piece_name = piece.symbol().upper() if piece.color == chess.WHITE else piece.symbol().lower()
+
+                                                log_message = f"Move made: {piece_name} from {source_square_name} to {destination_square_name}"
+                                                print(log_message)
+                                            else:
+                                                print(f"No piece at source square: {chess.square_name(source_square)}")
+
+                                            #print(log_message)
+                                            board.push(move)
+                                            move_history.append(move)
+                                            #pygame.display.flip()  # Update the display
+                                        else:
+                                            print(f"Illegal move attempted: {move.uci()}")
+
+                                        if board.is_game_over():
+                                            print("Game over", board.result())
+                                            running = False
+
+                                    except AssertionError as e:
+                                        print("Caught AssertionError, possibly due to engine state. Attempting to continue.")
+                                        # Optional: Reset or re-initialize the engine here if possible
+
+                                    except Exception as e:
+                                        print("An unexpected error occurred:", e)
+                                    pygame.time.delay(1)  
+                        finally:
+                            print("Cleanup and final operations")
+                            # Any necessary cleanup here
+
+
 
                     # Check for end of game
                     if event.key == pygame.K_q:  # When 'q' key is pressed
