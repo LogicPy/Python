@@ -1,0 +1,37 @@
+function validateInput(input) {
+  for (let i = 0; i < input.length; i++) {
+    if (!isNaN(Number(input[i]))) return false;
+  }
+  return true;
+}
+
+function sortArray(arr) {
+  arr.sort((a, b) => a - b);
+  return arr;
+}
+
+function findDuplicate(arr) {
+  let seen = {};
+  for (let i = 0; i < arr.length; i++) {
+    if (seen[arr[i]]) return arr[i];
+    seen[arr[i]] = true;
+  }
+  return null;
+}
+
+function calculateMedian(arr) {	
+  let sortedArr = arr.sort((a, b) => a - b);
+  let middleIndex = Math.floor(sortedArr.length / 2);
+  if (sortedArr.length % 2 === 0) return (sortedArr[middleIndex - 1] + sortedArr[middleIndex]) / 2;
+  return sortedArr[middleIndex];
+}
+
+function validateDate(dateStr) {
+  let parts = dateStr.split("-");
+  if (parts.length !== 3) return false;
+  for (let i = 0; i < 3; i++) {
+    if (!/^\d{4}$/.test(parts[i])) return false;
+  }
+  let date = new Date(`${parts[0]}-${parts[1]}-${parts[2]}`);
+  return !isNaN(date.getTime());
+}

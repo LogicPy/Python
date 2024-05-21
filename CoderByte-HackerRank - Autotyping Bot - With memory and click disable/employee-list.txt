@@ -1,0 +1,79 @@
+import React from 'react';
+
+class EmployeesList extends React.Component {
+  constructor(props)
+  {
+    super(props);
+    this.state = {
+      employees : this.props.employees,
+      search:""
+    }
+  }
+  handleChange = (e) =>
+  {
+    this.setState({search :e.target.value})
+    e.preventDefault();
+  }
+  render() {
+    const {employees, search} = this.state;
+    return (
+      <React.Fragment>
+        <div className="controls">
+          <input type="text" className="filter-input" data-testid="filter-input" onChange={this.handleChange}/>
+        </div>
+        <ul className="employees-list">
+          { 
+            employees.filter((employee)=>employee.name.toLowerCase().includes(search.toLowerCase())).map(employee => (
+            <li key={employee.name} data-testid="employee">{employee.name}</li>
+          ))
+          }
+        </ul>
+      </React.Fragment>
+    );
+  }
+}
+
+export default EmployeesList;
+
+// Above is EmployeeList.js...
+
+
+import React, { Component } from 'react';
+import './App.css';
+
+import EmployeesList from './EmployeesList';
+
+class App extends Component {
+  render() {
+    const { employees } = this.props;
+    return (
+      <div className="App">
+        <EmployeesList employees={employees} />
+      </div>
+    );
+  }
+}
+
+export default App;
+
+
+// Above is app.jsx...
+
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+import './index.css';
+import App from './App';
+
+const employees=[{name:"Wayne"},{name:"ParisNeo"},{name: "Swanson"},{name:"Cyberdyne Systems Model 101" },{name: "Noel"} ,{name: "Gurvinder"}];
+ReactDOM.render(
+  <React.StrictMode>
+    <App employees = {employees}/>
+  </React.StrictMode>,
+  document.getElementById('root')
+);
+
+
+// Above is index.js...
+
+

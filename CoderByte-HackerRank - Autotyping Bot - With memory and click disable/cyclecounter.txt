@@ -1,0 +1,111 @@
+import React from 'react';
+
+class CycleCounter extends React.Component {
+    constructor()
+    {
+        super();
+        this.state={
+            counter:0
+        }
+    }
+    handleClick =() =>
+    {
+        if(this.state.counter + 1 !== this.props.cycle)
+            this.setState({counter:this.state.counter+1});
+        else
+        this.setState({counter:0});
+    }
+  render() {
+    return (
+      <button
+        data-testid="cycle-counter"
+        style={{ fontSize: '1rem', width: 120, height: 30, }}
+        onClick={this.handleClick}
+    >{this.state.counter}</button>
+    );
+  }
+}
+
+export default CycleCounter;
+
+# Above is CycleCounter.jsx....
+
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
+
+ReactDOM.render(
+  <React.StrictMode>
+    <App cycle={5}/>
+  </React.StrictMode>,
+  document.getElementById('root')
+);
+
+
+# Above is index.js...
+
+
+import React, { Component } from 'react';
+import './App.css';
+
+import CycleCounter from './CycleCounter';
+
+class App extends Component {
+  render() {
+    const { cycle } = this.props;
+    return (
+      <div className="App">
+        <CycleCounter cycle={cycle} />
+      </div>
+    );
+  }
+}
+
+export default App;
+
+
+# Above is App.jsx...
+
+
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+# Above is App.css ...

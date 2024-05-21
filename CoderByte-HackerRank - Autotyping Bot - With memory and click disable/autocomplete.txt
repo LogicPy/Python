@@ -1,0 +1,66 @@
+import React, { useState } from "react";
+import './App.css';
+
+function App() {
+  const [inputString, setInputString] = useState('');
+  const [parsedString, setParsedString] = useState('');
+  const corrections = {
+    'realy': 'really',
+    'wierd': 'weird',
+    "abc": "bc"
+  };
+
+  const handleChange = (e) => {
+    const str = e.target.value;
+    setInputString(str);
+    const strArr = str.split(' ');
+
+    if (strArr.length > 1) {
+      // Get the last word in the array
+      const lastWord = strArr[strArr.length - 1];
+      // Correct the last word if necessary
+      const parsedWord = corrections[lastWord] || lastWord;
+      // Update the last word in the array
+      strArr[strArr.length - 1] = parsedWord;
+      // Join the array back into a string and update the parsed string
+      setParsedString(strArr.join(' '));
+    } else {
+      setParsedString(str);
+    }
+  };
+
+  return (
+    <div className="App">
+      <textarea
+        rows={20}
+        cols={40}
+        name="input-box"
+        onChange={handleChange}
+        value={inputString}
+      />
+      <p>Parsed String: {parsedString}</p>
+    </div>
+  );
+}
+
+export default App;
+
+
+// Auto complete App.js above...
+
+
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+// Above code for Index.js...
+
+

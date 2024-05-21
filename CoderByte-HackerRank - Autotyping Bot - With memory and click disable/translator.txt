@@ -1,0 +1,117 @@
+import React from 'react';
+
+class Translator extends React.Component {
+    constructor(props)
+    {
+        super(props);
+        this.state={
+            text:"",
+            ans:""
+        }
+    }
+    validateAns=()=>{
+        if(this.props.translations.has(this.state.text))
+            this.setState({ans:this.props.translations.get(this.state.text)});
+        else
+            this.setState({ans: ""});
+            
+    }
+    handleChange=(e)=>{
+        this.setState({
+            text:e.target.value,
+        },()=>{this.validateAns();
+        });
+    }
+  render() {
+    return (
+      <React.Fragment>
+        <div className="controls">
+          <div className="input-container">
+            <span>input:</span>
+            <input type="text" className="text-input" value={this.state.text} data-testid="text-input" onChange={this.handleChange}/>
+          </div>
+          <div className="input-container">
+            <span>output:</span>
+            <input type="text" className="text-output" value={this.state.ans !== "" ?this.state.ans:""} data-testid="text-output" readOnly />
+          </div>
+        </div>
+      </React.Fragment>
+    );
+  }
+}
+
+export default Translator;
+
+// Finished coding Translater.js...
+
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+import './index.css';
+import App from './App';
+
+const TRANSLATIONS = new Map([
+  ['ball', 'pelota'],
+  ['house', 'casa'],
+  ['dog', 'perro'],
+  ['dogs', 'perros'],
+  ['milk', 'leche'],
+  ['orange', 'naranja'],
+]);
+
+ReactDOM.render(<App translations={TRANSLATIONS} />, document.getElementById('root'));
+
+
+// Finished coding index.js...
+
+
+import React, { Component } from 'react';
+import './App.css';
+
+import Translator from './Translator';
+
+class App extends Component {
+  render() {
+    const { translations } = this.props;
+    return (
+      <div className="App">
+        <Translator translations={translations} />
+      </div>
+    );
+  }
+}
+
+export default App;
+
+
+
+// Finished coding app.jsx...
+
+
+html, body {
+  font-family: 'Open Sans';
+}
+
+.App {
+  max-width: 600px;
+  margin: 0 auto;
+  margin-top: 50px;
+}
+
+
+.input-container {
+  margin-top: 1rem;
+}
+
+.input-container span {
+  display: inline-block;
+  width: 50px;
+}
+
+.input-container input {
+  margin-left: 1rem;
+  padding: 5px;
+}
+
+
+// Finished app.css...

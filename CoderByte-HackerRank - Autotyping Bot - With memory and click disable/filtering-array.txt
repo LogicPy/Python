@@ -1,0 +1,3 @@
+const filterArray = (array, predicate) => {
+  return array.filter(predicate);
+};

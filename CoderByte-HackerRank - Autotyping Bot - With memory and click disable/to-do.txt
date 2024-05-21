@@ -1,0 +1,64 @@
+import React, { useState } from 'react';
+
+function TodoList() {
+  const [todos, setTodos] = useState([]);
+  const [newTodo, setNewTodo] = useState('');
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    if (newTodo.length > 0) {
+      setTodos([...todos, { text: newTodo, completed: false }]);
+      setNewTodo('');
+    }
+  };
+
+  const handleDelete = (index) => {
+    setTodos(todos.filter((todo, i) => i !== index));
+  };
+
+  return (
+    <div>
+      <h1>Todo List</h1>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          value={newTodo}
+          onChange={(event) => setNewTodo(event.target.value)}
+          placeholder="Enter a new todo item"
+        />
+        <button type="submit">Add Todo</button>
+      </form>
+      <ul>
+        {todos.map((todo, index) => (
+          <li key={index} style={{ textDecoration: todo.completed ? 'line-through' : '' }}>
+            {todo.text}
+            <button onClick={() => handleDelete(index)}>X</button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default TodoList;
+
+
+// Above code is App.js...
+
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+reportWebVitals();
+
+
+// index.js

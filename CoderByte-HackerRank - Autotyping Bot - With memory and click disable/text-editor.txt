@@ -1,0 +1,142 @@
+import React from 'react';
+
+class TextEditor extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      input: '',
+      output: []
+    };
+    this.handleChange = this.handleChange.bind(this);
+    this.appendInput = this.appendInput.bind(this);
+    this.resetInput = this.resetInput.bind(this);
+  }
+
+  handleChange(e) {
+    this.setState({
+      input: e.target.value
+    });
+  }
+
+  appendInput() {
+    this.setState(state => {
+      let output = state.output;
+      output.push(state.input);
+      console.log("Output", output);
+      return {
+        output,
+        input: ''
+      }
+    });
+  }
+
+  resetInput() {
+    this.setState(state => {
+      let output = state.output;
+      output.pop();
+      console.log("New Output", output);
+      return {
+        output
+      }
+    });
+  }
+
+
+  render() {
+    return (
+      <React.Fragment>
+        <div className="controls">
+          <input className="word-input" type="text" data-testid="word-input" onChange={this.handleChange} value={this.state.input}/>
+          <button data-testid="append-button" onClick={this.appendInput} disabled={!this.state.input}>Append</button>
+          <button data-testid="undo-button" onClick={this.resetInput} disabled={this.state.output.length === 0}>Undo</button>
+        </div>
+        <div className="text-field" data-testid="text-field">   
+          {
+            this.state.output.map((values, index) => { 
+              return (
+                 <text key={index}>{values} </text>
+                ) 
+            })
+          }
+        </div>
+      </React.Fragment>
+    );
+  }
+}
+
+export default TextEditor;
+
+// Above is the text-editor.js..
+
+
+import React, { Component } from 'react';
+import './App.css';
+
+import TextEditor from './components/TextEditor';
+
+class App extends Component {
+  render() {
+    return (
+      <div className="App">
+        <TextEditor />
+      </div>
+    );
+  }
+}
+
+export default App;
+
+// Above is app.js...
+
+
+import App from './App.jsx'
+import React from 'react'
+import { createRoot } from 'react-dom/client'
+
+const container = document.getElementById('root')
+const root = createRoot(container)
+root.render(
+  React.createElement(
+    React.StrictMode,
+    null,
+    React.createElement(App)
+  )
+)
+
+
+// Above is index.js
+
+
+html, body {
+  font-family: 'Open Sans';
+}
+
+.App {
+  max-width: 600px;
+  margin: 0 auto;
+  margin-top: 50px;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-around;
+}
+
+.controls button {
+  margin-left: 1rem;
+}
+
+.word-input {
+  flex: 1;
+}
+
+.text-field {
+  margin-top: 1rem;
+  min-height: 200px;
+  min-width: 100%;
+  border: 1px solid #ddd;
+  padding: 5px;
+}
+
+// Above is app.css
+

@@ -1,0 +1,171 @@
+import React from 'react'
+
+class Slides extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      slide: this.props.slides[0],
+      index: 0,
+      restart: true,
+      prev: true,
+      next: false,
+    }
+  }
+
+  Restart() {
+    this.setState({
+      slide: this.props.slides[0],
+      index: 0,
+      restart: true,
+      prev: true,
+      next: false,
+    })
+  }
+
+  Prev() {
+    let cur = this.state.index
+
+    if (this.state.index - 1 === 0) {
+      this.setState({
+        slide: this.props.slides[cur - 1],
+        index: cur - 1,
+        restart: true,
+        prev: true,
+        next: false,
+      })
+    } else {
+      this.setState({
+        slide: this.props.slides[cur - 1],
+        index: cur - 1,
+        next: false,
+      })
+    }
+  }
+
+  Next() {
+    let cur = this.state.index
+
+    if (this.state.index + 1 === 5) {
+      this.setState({
+        slide: this.props.slides[cur + 1],
+        index: cur + 1,
+        restart: false,
+        prev: false,
+        next: true,
+      })
+    } else {
+      this.setState({
+        slide: this.props.slides[cur + 1],
+        index: cur + 1,
+        restart: false,
+        prev: false,
+        next: false,
+      })
+    }
+  }
+
+  render() {
+    return (
+      <div>
+        <div id='navigation' className='text-center'>
+          <button
+            onClick={this.Restart.bind(this)}
+            disabled={this.state.restart}
+            data-testid='button-restart'
+            className='small outlined'>
+            Restart
+          </button>
+          <button
+            data-testid='button-prev'
+            disabled={this.state.prev}
+            className='small'
+            onClick={this.Prev.bind(this)}>
+            Prev
+          </button>
+          <button
+            data-testid='button-next'
+            disabled={this.state.next}
+            className='small'
+            onClick={this.Next.bind(this)}>
+            Next
+          </button>
+        </div>
+
+        <div id='slide' className='card text-center'>
+          <h1 data-testid='title'> {this.state.slide.title} </h1>
+          <p data-testid='text'>{this.state.slide.text}</p>
+        </div>
+      </div>
+    )
+  }
+}
+
+export default Slides
+
+
+// Above is Slides.js...
+
+
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+import './index.css';
+import App from './App';
+import {applyPolyfills, defineCustomElements} from 'h8k-components/loader';
+
+const SLIDES = [
+    {
+        title: "Slide One",
+        text: "Let's do some excercising and stuff."
+    },
+    {
+        title: "Slide Two",
+        text: "This is my cat Zachary."
+    },
+    {
+        title: "Slide Three",
+        text: "Run baby! Run!."
+    },
+    {
+        title: "Slide Four",
+        text: "Let's have a good time playing fair."
+    },
+    {
+        title: "Slide Five",
+        text: "Let's make some Pizza"
+    }
+];
+
+ReactDOM.render(<App slides={SLIDES} />, document.getElementById('root'));
+
+applyPolyfills().then(() => {
+    defineCustomElements(window);
+})
+
+
+
+// Above is index.js....
+
+
+import React from 'react'
+import './App.css'
+
+import Slides from './Slides'
+const title = 'Slideshow App'
+
+function App({ slides }) {
+  return (
+    <div>
+      <h8k-navbar header={title}></h8k-navbar>
+      <div className='App'>
+        <Slides slides={slides} />
+      </div>
+    </div>
+  )
+}
+
+export default App
+
+
+
+// Above is app.js...

@@ -1,0 +1,10 @@
+function FirstFactorial(num) {
+    let result = 1;  // Start result at 1 because multiplying by 1 has no effect
+    for (let i = 1; i <= num; i++) {
+        result *= i;  // Multiply result by i each iteration
+    }
+    return result;
+}
+console.log(FirstFactorial(8));  // This will now correctly log 40320
+
+console.log(FirstFactorial(readline()));

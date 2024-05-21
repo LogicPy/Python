@@ -1,0 +1,15 @@
+function fizzBuzz(number) {
+  const results = [];
+
+  for (let current = 1; current <= number; current++) {
+    let output = '';
+    if (current % 3 === 0) output += 'Fizz';
+    if (current % 5 === 0) output += 'Buzz';
+    results.push(output || current);
+  }
+
+  return results;
+}
+
+const fizzBuzzArray = fizzBuzz(15);
+console.log(fizzBuzzArray);
