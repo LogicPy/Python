@@ -76,6 +76,40 @@ def search_exploits(query):
     except shodan.APIError as e:
         print(f"Error: {e}")
 
+# The IP address you want to scan
+def ipspecificscannerforspecifichost():
+    ip_address = input('ip address - 127.0.0.1: ')
+    try:
+        # Perform the host information lookup
+        host = api.host(ip_address)
+
+        # Print general information
+        print(f"IP: {host['ip_str']}")
+        print(f"Organization: {host.get('org', 'n/a')}")
+        print(f"Operating System: {host.get('os', 'n/a')}")
+
+        # Print all banners
+        for item in host['data']:
+            print(f"Port: {item['port']}")
+            print(f"Banner: {item['data']}")
+
+        # Check for vulnerabilities
+        vulns = api.host(ip_address, history=True, minify=True)
+        if 'vulns' in vulns:
+            print(f"\nVulnerabilities found: {len(vulns['vulns'])}")
+            for item in vulns['vulns']:
+                cve = item.replace('CVE-', '')
+                print(f"CVE: {cve}")
+                vuln = api.exploits.search(cve)
+                print(f"Description: {vuln['description']}")
+                print(f"Exploit URL: {vuln['exploits'][0]['url']}")
+                print(f"Exploit Code: {vuln['exploits'][0]['code']}")
+        else:
+            print("\nNo vulnerabilities found.")
+
+    except shodan.APIError as e:
+        print(f"Error: {e}")
+
 def backdoor_finder():
     # Define the services to search for
     services = [
@@ -228,7 +262,8 @@ def main_menu():
     print("6. Backdoor Finder")
     print("7. Exploit query search")
     print("8. Facet Output Tests")
-    print("9 - Exit")
+    print('9. Specific IP Scanner')
+    print("10 - Exit")
 
     choice = input("Enter your choice (1-7): ")
 
@@ -271,7 +306,9 @@ def main_menu():
     elif choice == '8':
         facetfunction()
     elif choice == '9':
-        print("Exiting ShodanSecuritynScanner tool.")
+        ipspecificscannerforspecifichost()
+    elif choice == '10':
+        print("Exiting ShodanSecurityScanner tool.")
         exit()
     else:
         print("Invalid choice. Please try again.")
