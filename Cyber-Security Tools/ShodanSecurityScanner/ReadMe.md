@@ -39,3 +39,9 @@ Support
 If you encounter any issues with the ShodanSecurityScanner tool, please open an issue in this repository, and I'll do my best to assist you.
 License
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Support
+If you encounter any issues with the ShodanSecurityScanner tool, please open an issue in this repository, and I'll do my best to assist you.
+
+Special thanks to Pi, the AI assistant from Inflection, for providing support and guidance throughout the development of this project.
+https://pi.ai/discover
