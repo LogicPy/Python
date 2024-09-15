@@ -3,6 +3,7 @@ import socket
 
 # Replace 'YOUR_API_KEY' with your actual Shodan API key
 SHODAN_API_KEY = "SHODAN_API_KEY"
+API_KEY = "SHODAN_API_KEY"
 
 # Initialize the Shodan API
 api = shodan.Shodan(SHODAN_API_KEY)
@@ -16,6 +17,64 @@ api = shodan.Shodan(SHODAN_API_KEY)
 # Please note that the code provided here is for educational purposes
 # and should only be used with permission and on systems that you own or
 # have explicit permission to test.
+
+# Define available facets with a description
+facet_options = {
+    1: ("asn", "Autonomous System Numbers (e.g., AS4837)"),
+    2: ("country", "Countries (e.g., US, DE)"),
+    3: ("port", "Ports (e.g., 80)"),
+    4: ("org", "Organizations (e.g., Google)"),
+    5: ("domain", "Domains (e.g., google.com)"),
+    6: ("isp", "Internet Service Providers (e.g., Comcast)"),
+    7: ("product", "Products (e.g., Apache HTTP Server)")
+}
+
+def print_menu():
+    print("\nAvailable Facet Options:\n")
+    for key, (facet, desc) in facet_options.items():
+        print(f"{key}. {desc}")
+
+def facetfunction():
+    while True:
+        print_menu()
+        try:
+            choice = int(input("\nEnter the number of the facet you would like to explore or type 0 to exit: "))
+            if choice == 0:
+                print("Exiting...")
+                break
+
+            if choice in facet_options:
+                facet, _ = facet_options[choice]
+                # Perform a search query to retrieve facet values
+                try:
+                    result = api.count('webcam', facets=[(facet, 10)])
+                    facet_results = result['facets'][facet]
+                    print(f"\nTop values for {facet}:")
+                    for item in facet_results:
+                        print(f"{item['value']} ({item['count']})")
+                except shodan.APIError as e:
+                    print(f"Error: {e}")
+
+            else:
+                print("Invalid selection, please choose a valid option.")
+        except ValueError:
+            print("Invalid input, please enter a number.")
+
+def search_exploits(query):
+    try:
+        # Search Shodan for exploits related to the query
+        results = api.exploits.search(query)
+
+        print(f"Results found: {results['total']}")
+        for exploit in results['matches']:
+            print(f"\nTitle: {exploit.get('description', 'N/A')}")
+            print(f"ID: {exploit.get('_id', 'N/A')}")
+            print(f"Source: {exploit.get('source', 'N/A')}")
+            print(f"Date: {exploit.get('date', 'N/A')}")
+            print(f"Description: {exploit.get('description', 'N/A')}\n")
+
+    except shodan.APIError as e:
+        print(f"Error: {e}")
 
 def backdoor_finder():
     # Define the services to search for
@@ -159,7 +218,7 @@ def shodan_search():
         print(f"Error: {e}")
 
 def main_menu():
-    print("Welcome to ShodanScan tool!")
+    print("Welcome to ShodanSecurityScanner tool!")
     print("Please select an option:")
     print("1. Exploit Search")
     print("2. Gov and Edu Scan")
@@ -167,7 +226,9 @@ def main_menu():
     print("4. OS Fingerprint")
     print("5. Webcam Search")
     print("6. Backdoor Finder")
-    print("7. Quit")
+    print("7. Exploit query search")
+    print("8. Facet Output Tests")
+    print("9 - Exit")
 
     choice = input("Enter your choice (1-7): ")
 
@@ -203,8 +264,14 @@ def main_menu():
             print(f"Error: {e}")
     elif choice == '6':
         backdoor_finder()
+
     elif choice == '7':
-        print("Exiting ShodanScan tool.")
+        query = input("Enter the exploit search query: ")
+        search_exploits(query)
+    elif choice == '8':
+        facetfunction()
+    elif choice == '9':
+        print("Exiting ShodanSecuritynScanner tool.")
         exit()
     else:
         print("Invalid choice. Please try again.")
