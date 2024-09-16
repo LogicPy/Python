@@ -1,2 +1,242 @@
-Create index.html for my-projects Github pages.
-<meta http-equiv="refresh" content="0; URL='https://github.com/logicpy'" />
+<!--<meta http-equiv="refresh" content="0; URL='https://github.com/logicpy'" />
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logicpy's Github</title>
+    <style>
+        body {
+            background-color: #2e2e2e;
+            color: #ffffff;
+            font-family: monospace;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .terminal {
+            background-color: #000000;
+            border: 2px solid #4caf50;
+            width: 80%;
+            max-width: 800px;
+            height: 60%;
+            max-height: 400px;
+            padding: 10px;
+            box-shadow: 0px 0px 10px #4caf50;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+
+        .terminal-output {
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .terminal-input {
+            display: flex;
+            align-items: center;
+        }
+
+        .prompt {
+            color: #4caf50;
+        }
+
+        #terminal-input-field {
+            background-color: transparent;
+            border: none;
+            color: #ffffff;
+            outline: none;
+            flex-grow: 1;
+        }
+
+        ::placeholder {
+            color: #4caf50;
+            opacity: 0.5;
+        }
+
+        .progress-bar {
+            font-family: monospace;
+            white-space: pre;
+        }
+		h3 {
+			position: absolute;
+			top: 75px;
+		}
+		.p-pos {
+		position: absolute;
+		top: 105px;
+	}
+	.p-pos2 {
+    position: absolute;
+    top: 130px;
+    text-align: center;
+	}
+    </style>
+</head>
+<body>
+	<h3>Check my prompt to navigate my Github in Linux style...</h3><br>
+	<p class="p-pos">Enter your first Linux command 'help'</p>
+	<!--<p class="p-pos2">Download the Ollama software that this tutorial emulates: <a href="https://ollama.com/">Download Ollama</a></p>-->
+    <div class="terminal">
+        <div class="terminal-output"></div>
+        <div class="terminal-input">
+            <span class="prompt">$ </span>
+            <input type="text" id="terminal-input-field" placeholder=">>> Send a message (/? for help)" autofocus>
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const inputField = document.getElementById("terminal-input-field");
+            const terminalOutput = document.querySelector(".terminal-output");
+
+			let InstalledModel = "";
+
+
+            inputField.addEventListener("keydown", function(event) {
+                if (event.key === "Enter") {
+					const input = inputField.value.trim().toLowerCase(); // Convert input to lowercase
+
+                    if (input) {
+                        handleCommand(input);
+                        inputField.value = "";
+                    }
+                }
+            });
+
+            function handleCommand(input) {
+                const output = document.createElement("div");
+                output.textContent = `$ ${input}`;
+                terminalOutput.appendChild(output);
+
+                // Add custom commands here
+                const commandOutput = document.createElement("div");
+
+                if (input === "help") {
+					commandOutput.innerHTML = `Usage:<br>
+                    
+                        Available Ollama ai commands:<br>
+                        help       Start ollama<br>
+                        about        Show information for a model<br>
+                        clear         Run a model<br>
+                        ollama        Pull a model from a registry<br><br>
+						
+						Available Github Commands:<br>
+						Check project Repo for:<br> 
+						- ShodanSecurityScanner
+
+						
+                      `;
+                } else if (input === "about") {
+                    commandOutput.textContent = "This is a simple installation emulator for Ollama, designed for my friend Liv. 'Install' your model then 'run' it.";
+                } else if (input === "ollama") {
+                    commandOutput.innerHTML = `Usage:<br>
+                        ollama [flags]<br>
+                        ollama [command]<br><br>
+                        Available Commands:<br>
+                        serve       Start ollama<br>
+                        create      Create a model from a Modelfile<br>
+                        show        Show information for a model<br>
+                        run         Run a model<br>
+                        pull        Pull a model from a registry<br>
+                        push        Push a model to a registry<br>
+                        list        List models<br>
+                        ps          List running models<br>
+                        cp          Copy a model<br>
+                        rm          Remove a model<br>
+                        help        Help about any command`;
+                } else if (input === "ollama pull llama3") {
+					installedModel = "<br>Llama3:latest                           a6990ed6be41    4.7 GB  3 weeks ago &";
+                    commandOutput.textContent = "Executing: ollama pull llama3";
+                    terminalOutput.appendChild(commandOutput);
+                    
+					inputField.disabled = true;
+					
+                    // Add text-based progress bar
+                    const progressBar = document.createElement("div");
+                    progressBar.className = "progress-bar";
+                    terminalOutput.appendChild(progressBar);
+                    
+                    let progress = 0;
+                    const interval = setInterval(() => {
+                        progress += 1;
+                        const progressText = `${progress}% [${'█'.repeat(progress)}${' '.repeat(100 - progress)}]`;
+                        progressBar.textContent = progressText;
+                        if (progress >= 100) {
+                            clearInterval(interval);
+                            const completionMessage = document.createElement("div");
+                            completionMessage.textContent = "Pull complete!";
+                            terminalOutput.appendChild(completionMessage);
+                        }
+                    }, 100);
+					
+                    InstalledModel = "<br>Llama3:latest                           a6990ed6be41    4.7 GB  3 weeks ago &";
+                     
+					inputField.disabled = false;
+					inputField.focus(); 
+                    terminalOutput.scrollTop = terminalOutput.scrollHeight;
+                    return;
+                } 
+				else if(input ==="clear") {
+				     terminalOutput.innerHTML = "";
+
+				}
+				else if(input == "shodansecurityscanner"){
+					window.location.href = "https://github.com/LogicPy/Python/tree/master/Cyber-Security%20Tools/ShodanSecurityScanner";
+				}
+				else if (input === "ollama run llama3" && installedModel == "<br>Llama3:latest                           a6990ed6be41    4.7 GB  3 weeks ago &") {
+					commandOutput.innerHTML = "Congratulations! <br> You've successfully configured your ollama to run Llama3, now to get to the webui framework.<br><br>Check it out here: <a href='https://github.com/ollama-webui/ollama-webui-lite'>Download from their github</a>";
+				}
+				else if (input === "ollama list") {
+					commandOutput.innerHTML = "NAME                                    ID              SIZE    MODIFIED" + InstalledModel;
+				}
+                 
+				else if (input.startsWith("ollama create")) {
+                    const params = input.match(/^ollama create (\S+)$/);
+                    if (params) {
+                        const paramOne = params[1];
+                        commandOutput.textContent = `Creating model "${paramOne}"...`;
+						commandOutput.textContent = 'Error: open C:\Users\Admin\Modelfile: The system cannot find the file specified.';
+                    }
+				}
+				else if (input.startsWith("ollama rm")) {
+                    const params = input.match(/^ollama rm (\S+)$/);
+                    if (params) {
+                        const paramb = params[1];
+                        commandOutput.textContent = `deleted "${paramb}"...`;                  
+					}
+				}
+				else if (input === "ollama ps") {
+					commandOutput.innerHTML = "NAME    ID      SIZE    PROCESSOR       UNTIL";
+				}
+				else if (input == "ollama serve") {
+					commandOutput.innerHTML = "Error: listen tcp 0.0.0.0:11434: bind: Only one usage of each socket address (protocol/network address/port) is normally permitted.";
+				}
+                 else if (input.startsWith("ollama cp")) {
+                    const params = input.match(/^ollama cp (\S+) (\S+)$/);
+                    if (params) {
+                        const paramOne = params[1];
+                        const paramTwo = params[2];
+                        commandOutput.textContent = `Copied "${paramOne}" to "${paramTwo}"`;
+                    } else if (typeof(commandOutput)!="undefined") {
+                        commandOutput.textContent = 'Usage: ollama cp <source> <destination>';
+                    }
+                } else if (input === "ollama list") {
+                    commandOutput.innerHTML = `NAME                                    ID              SIZE    MODIFIED<br>${InstalledModel}`;
+                } else {
+                    commandOutput.textContent = `Command not found: ${input}`;
+                }
+ 
+
+                terminalOutput.appendChild(commandOutput);
+                terminalOutput.scrollTop = terminalOutput.scrollHeight;
+		}
+        });
+    </script>
+	</body>
+</html>
