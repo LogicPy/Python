@@ -22,6 +22,49 @@
   <meta name="og:url" content="https://logicpycode.com">
   <meta name="og:description" content="Discover LogicPy's impressive GitHub projects highlighting expertise in AI, cybersecurity, and web development.">
 	
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src= "https://wayne.cool/js/jquery.youtubebackground.js"></script>
+	
+	
+    <div id="ytbg"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var creativeImg = document.querySelector('img[alt="Creative Portfolio"]');
+            var technicalImg = document.querySelector('img[alt="Technical Portfolio"]');
+           
+            creativeImg.addEventListener('mouseover', function() {
+                this.classList.add('animate__animated', 'animate__bounce');
+            });
+
+            creativeImg.addEventListener('mouseout', function() {
+                this.classList.remove('animate__animated', 'animate__bounce');
+            });
+
+            technicalImg.addEventListener('mouseover', function() {
+                this.classList.add('animate__animated', 'animate__bounce');
+            });
+
+            technicalImg.addEventListener('mouseout', function() {
+                this.classList.remove('animate__animated', 'animate__bounce');
+            });
+        });
+    </script>
+
+    <script>
+    $(document).ready(function() {
+        $('#ytbg').YTPlayer({
+            videoId: 'zy2x6g4IIyQ', // Replace with your YouTube video ID
+            fitToBackground: true,
+            mute: true,
+            repeat: true,
+            start: 0,
+            pauseOnScroll: false
+        });
+    });
+    </script>
+
+	
     <style>
         body {
             background-color: #2e2e2e;
@@ -33,6 +76,20 @@
             align-items: center;
             height: 100vh;
         }
+
+    #ytbg {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    z-index: -100;
+    background-size: cover;
+    overflow: hidden;
+    object-fit: cover; /* This ensures the video covers the area */
+}
 
         .terminal {
             background-color: #000000;
