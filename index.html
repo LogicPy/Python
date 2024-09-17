@@ -29,39 +29,19 @@
     <div id="ytbg"></div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var creativeImg = document.querySelector('img[alt="Creative Portfolio"]');
-            var technicalImg = document.querySelector('img[alt="Technical Portfolio"]');
-           
-            creativeImg.addEventListener('mouseover', function() {
-                this.classList.add('animate__animated', 'animate__bounce');
-            });
-
-            creativeImg.addEventListener('mouseout', function() {
-                this.classList.remove('animate__animated', 'animate__bounce');
-            });
-
-            technicalImg.addEventListener('mouseover', function() {
-                this.classList.add('animate__animated', 'animate__bounce');
-            });
-
-            technicalImg.addEventListener('mouseout', function() {
-                this.classList.remove('animate__animated', 'animate__bounce');
-            });
-        });
-    </script>
-
-    <script>
     $(document).ready(function() {
         $('#ytbg').YTPlayer({
-            videoId: 'zy2x6g4IIyQ', // Replace with your YouTube video ID
+            videoId: 'Z4F3AXvrLKo', // Replace with your YouTube video ID
             fitToBackground: true,
             mute: true,
             repeat: true,
-            start: 0,
-            pauseOnScroll: false
+            start: 30,
+			setStartAt: 20,
+            pauseOnScroll: false,
+			
         });
     });
+	
     </script>
 
 	
