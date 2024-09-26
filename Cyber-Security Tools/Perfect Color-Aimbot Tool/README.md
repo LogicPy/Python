@@ -1,4 +1,4 @@
-![Aimbot Logo](images/Aimbot Logo.png)
+![Aimbot Logo](images/Aimbot_Logo.png)
 
 # initial instructions for aimbot setup
 
