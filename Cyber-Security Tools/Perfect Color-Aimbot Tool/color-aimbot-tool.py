@@ -146,7 +146,7 @@ def scan_screen():
         for center in centers:
             cv2.circle(mask_display, (center[0], center[1]), 10, (0, 0, 255), 2)
 
-        cv2.imshow('Vulnerability Scanner - Detection Feed', mask_display)
+        cv2.imshow("Wayne's Aimbot Auto-Aim Tool - Detection Feed", mask_display)
 
         # Calculate elapsed time and sleep if necessary to control frame rate
         elapsed_time = time.time() - start_time
@@ -165,7 +165,7 @@ def scan_screen():
 # -----------------------------
 
 if __name__ == "__main__":
-    print("[INFO] Starting the Vulnerability Scanner...")
+    print("[INFO] Starting the Aimbot Tool...")
     print("[INFO] Press 'q' at any time to quit.")
 
     # Start the quit listener thread
