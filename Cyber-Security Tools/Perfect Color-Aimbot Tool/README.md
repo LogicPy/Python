@@ -1,4 +1,4 @@
-![TempMem Logo](images/Aimbot Logo.png)
+![Aimbot Logo](images/Aimbot Logo.png)
 
 # initial instructions for aimbot setup
 
