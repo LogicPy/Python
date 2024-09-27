@@ -301,7 +301,15 @@ def analyze_response(response, vuln_type, url):
 # Crawling Function
 # -----------------------------
 
-def scan_url(url, session, selected_vulns):
+from urllib.parse import urljoin, urlparse
+
+# Add a helper function to get the domain from a URL
+def get_domain(url):
+    parsed_url = urlparse(url)
+    return parsed_url.netloc
+
+# Update the scan_url function to check the domain before adding URLs to the queue
+def scan_url(url, session, selected_vulns, root_domain):
     """
     Scan a single URL for selected vulnerabilities.
     """
@@ -316,10 +324,14 @@ def scan_url(url, session, selected_vulns):
                 href = link['href']
                 normalized_href = normalize_url(url, href)
                 parsed_href = urlparse(normalized_href)
-                if is_valid_url(normalized_href):
+
+                # Check if the URL belongs to the root domain
+                if get_domain(normalized_href) == root_domain and is_valid_url(normalized_href):
                     with visited_lock:
                         if normalized_href not in visited_urls:
                             url_queue.put(normalized_href)
+                else:
+                    logger.info(f"Skipping external link: {normalized_href}")
 
             # Extract and handle all forms
             for form in soup.find_all('form'):
@@ -327,6 +339,8 @@ def scan_url(url, session, selected_vulns):
 
     except requests.exceptions.RequestException as e:
         logger.error(f"[-] Error accessing {url}: {e}")
+
+# Update the worker function to pass root_domain to scan_url
 
 def handle_form(base_url, form, session, selected_vulns):
     """
@@ -378,7 +392,7 @@ def handle_form(base_url, form, session, selected_vulns):
 # Worker Function
 # -----------------------------
 
-def worker(session, selected_vulns):
+def worker(session, selected_vulns, root_domain):
     """
     Worker thread to process URLs from the queue.
     """
@@ -392,9 +406,10 @@ def worker(session, selected_vulns):
                 continue
             visited_urls.add(url)
         logger.info(f"Crawling URL: {url}")
-        scan_url(url, session, selected_vulns)
+        scan_url(url, session, selected_vulns, root_domain)
         url_queue.task_done()
         time.sleep(DELAY_BETWEEN_REQUESTS)
+
 
 # -----------------------------
 # Summary Report Function
@@ -472,22 +487,11 @@ def main():
         print("Invalid URL format. Please ensure it starts with http:// or https://")
         return
 
+    # Extract the root domain from the root URL
+    root_domain = get_domain(root_url)
+
     # Initialize session
     session = requests.Session()
-
-    # Optionally, implement login here if scanning requires authentication
-    # Example:
-    # credentials = {
-    #     'log': 'your_username',
-    #     'pwd': 'your_password',
-    #     'wp-submit': 'Log In',
-    #     'redirect_to': root_url + '/wp-admin/',
-    #     'testcookie': '1'
-    # }
-    # login_url = root_url + '/wp-login.php'
-    # if not login(session, login_url, credentials):
-    #     print("Login failed. Exiting scanner.")
-    #     return
 
     # Initialize a thread-safe set for visited URLs
     global visited_urls
@@ -501,7 +505,7 @@ def main():
     # Start worker threads
     threads = []
     for _ in range(MAX_THREADS):
-        t = threading.Thread(target=worker, args=(session, selected_vulns))
+        t = threading.Thread(target=worker, args=(session, selected_vulns, root_domain))
         t.daemon = True
         t.start()
         threads.append(t)
@@ -518,6 +522,7 @@ def main():
     # Generate summary report
     generate_summary()
     print("Scanning completed. Check 'vulnerability_scanner.log' and 'vulnerability_summary.txt' for details.")
+
 
 # -----------------------------
 # Optional: Login Function
