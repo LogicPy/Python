@@ -7,7 +7,7 @@ Apply these steps.
 
 ## 6. Run the Application
 
-Start the Flask application by running:
+Start the Aimboot Tool application by running:
 
 ```bash
 python color-aimbot-tool.py
