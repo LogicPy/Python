@@ -1,3 +1,5 @@
+import os
+import sys
 import tensorflow as tf
 import tensorflow_hub as hub
 import numpy as np
@@ -6,62 +8,32 @@ import pyautogui
 import time
 import threading
 import keyboard  # Install using: pip install keyboard
-import threading
 import win32api, win32con, win32gui
-import tensorflow as tf
-import os
-import logging
 
-pyautogui.FAILSAFE = True  # Enable the fail-safe
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(message)s',
-    handlers=[
-        logging.FileHandler("aimbot.log"),
-        logging.StreamHandler()
-    ]
-)
-
-# Replace print statements with logging
-logging.info("Starting the Aimbot Tool with TensorFlow Hub Object Detection...")
-
-
-# Initialize counters
-detection_count = 0
-shot_count = 0
-
-detection_lock = threading.Lock()
-shot_lock = threading.Lock()
-
+# -----------------------------
+# Suppress TensorFlow Logging
+# -----------------------------
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Suppress INFO and WARNING messages
-# Levels:
-# 0 = all messages are logged (default behavior)
-# 1 = INFO messages are not printed
-# 2 = INFO and WARNING messages are not printed
-# 3 = INFO, WARNING, and ERROR messages are not printed
+tf.get_logger().setLevel('ERROR')  # Further suppress TensorFlow logs
 
-# Define a simple model
-model = tf.keras.Sequential([
-    tf.keras.layers.Dense(128, activation='relu'),
-    tf.keras.layers.Dense(10)  # Assume 10 classes
-])
-
-# Compile the model with Keras loss
-model.compile(optimizer='adam',
-              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-              metrics=['accuracy'])
-
-# Disable the fail-safe (not recommended)
-pyautogui.FAILSAFE = False
+# -----------------------------
+# Configure TensorFlow GPU Usage
+# -----------------------------
+gpus = tf.config.list_physical_devices('GPU')
+if gpus:
+    try:
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)
+        print(f"[INFO] TensorFlow is using GPU: {gpus[0]}")
+    except RuntimeError as e:
+        print(f"[ERROR] {e}")
+else:
+    print("[WARNING] No GPU found. TensorFlow will use CPU.")
 
 # -----------------------------
 # Configuration
 # -----------------------------
-
-# Load the SSD MobileNet V2 model from TensorFlow Hub
-MODEL_URL = "https://tfhub.dev/tensorflow/centernet/hourglass_512x512_kpts/1"  # You can choose other models as well
+MODEL_URL = "https://tfhub.dev/tensorflow/ssd_mobilenet_v2/fpnlite_320x320/1"  # SSD MobileNet V2
 detector = hub.load(MODEL_URL)
 
 # Define the capture region (left, top, width, height)
@@ -76,6 +48,14 @@ MAX_X, MAX_Y = 1820, 980  # Assuming a 1920x1080 screen
 
 # Set the minimum distance (pixels) to move the mouse
 min_distance = 10
+
+# Initialize counters
+detection_count = 0
+shot_count = 0
+
+# Locks for thread-safe operations
+detection_lock = threading.Lock()
+shot_lock = threading.Lock()
 
 # Flag to control the scanning loop
 running = True
@@ -100,6 +80,15 @@ def move_mouse_to_target(target_x, target_y):
 
     time_to_move = distance / movement_speed
     pyautogui.moveTo(target_x, target_y, duration=time_to_move, tween=pyautogui.easeInOutQuad)
+
+def simulate_shot():
+    """
+    Simulate a mouse click to represent a shot.
+    """
+    # Simulate a left mouse button click
+    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
+    time.sleep(0.01)  # Short pause
+    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
 
 def detect_quit():
     """
@@ -130,7 +119,6 @@ def preprocess_image(image):
     image_expanded = np.expand_dims(image_uint8, axis=0)  # Add batch dimension
     return image_expanded
 
-
 def detect_objects(image):
     """
     Perform object detection on the image using the loaded model.
@@ -145,7 +133,6 @@ def detect_objects(image):
     scores = detections['detection_scores'][0].numpy()
 
     return boxes, class_ids, scores
-
 
 def process_frame(screenshot):
     """
@@ -172,21 +159,12 @@ def process_frame(screenshot):
         
         centers.append((center_x, center_y))
         
-        # Optional: Draw bounding boxes and labels for visualization
+        # Draw bounding boxes and labels for visualization
         cv2.rectangle(frame, (int(left), int(top)), (int(right), int(bottom)), (0, 255, 0), 2)
-        #label = f"ID:{cls_id} Score:{score:.2f}"
+        label = f"ID:{cls_id} Score:{score:.2f}"
         cv2.putText(frame, label, (int(left), int(top) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
     
     return frame, centers
-
-def simulate_shot():
-    """
-    Simulate a mouse click to represent a shot.
-    """
-    # Simulate a left mouse button click
-    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
-    time.sleep(0.01)  # Short pause
-    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
 
 def display_counters():
     """
@@ -229,7 +207,7 @@ def scan_screen():
                 shot_count += 1
 
         # Display the frame with detections
-        cv2.imshow("Aimbot Tool - YOLO TensorFlow Detection Feed", frame)
+        cv2.imshow("Aimbot Tool - TensorFlow Hub Detection Feed", frame)
 
         # Display counters in the console
         display_counters()
@@ -251,7 +229,7 @@ def scan_screen():
 # -----------------------------
 
 if __name__ == "__main__":
-    print("[INFO] Starting the Aimbot Tool with TensorFlow Hub Object Detection...")
+    print("[INFO] Starting the Aimbot Tool with SSD MobileNet V2 Object Detection...")
     print("[INFO] Press 'q' or 'Ctrl + E' at any time to quit.")
     print("Detections: 0 | Shots: 0", end='')
 
