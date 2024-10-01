@@ -74,7 +74,7 @@ def get_groq_response(message):
     You are an AI assistant specialized in detecting phishing attempts in email content. 
     Analyze the following email and determine whether it is a phishing attempt. 
     Respond with 'Phishing' or 'Not Phishing' followed by a brief explanation of your reasoning.
-
+    
     Email Content:
     """
     payload = {
@@ -103,6 +103,7 @@ def get_groq_response(message):
     except KeyError as e:
         logging.error(f"Groq API response parsing error: {e}")
         return "Error parsing response."
+
 
 
 @app.route('/')
@@ -145,7 +146,6 @@ def creds_to_dict(creds):
         'scopes': creds.scopes
     }
 
-# Route to handle phishing detection manually
 @app.route('/detect-phishing', methods=['POST'])
 def detect_phishing():
     email_content = request.form.get('email_content')
@@ -156,13 +156,32 @@ def detect_phishing():
     # Send the email content to Groq for phishing detection
     ai_response = get_groq_response(email_content)
     
-    # Simple logic to determine if the response indicates phishing
-    if 'phishing' in ai_response.lower():
-        result = 'This email appears to be a phishing attempt.'
-    else:
-        result = 'This email seems safe.'
+    # Expected AI Response Format:
+    # "Phishing: [Explanation]"
+    # or
+    # "Not Phishing: [Explanation]"
+    
+    try:
+        # Split the AI response into verdict and explanation
+        verdict, explanation = ai_response.split(':', 1)
+        verdict = verdict.strip().lower()
+        explanation = explanation.strip()
+        
+        if verdict == 'phishing':
+            result = 'This email appears to be a phishing attempt.'
+        elif verdict == 'not phishing':
+            result = 'This email seems safe.'
+        else:
+            result = 'Unable to determine the nature of this email.'
+    
+    except ValueError:
+        # If the response doesn't contain a colon, handle it gracefully
+        logging.error("Unexpected AI response format.")
+        result = 'Unable to determine the nature of this email.'
+        explanation = ai_response  # Include the raw AI response for debugging
+    
+    return jsonify({'result': result, 'ai_response': explanation})
 
-    return jsonify({'result': result, 'ai_response': ai_response})
 
 # Function to generate OAuth2 string for IMAP authentication
 def generate_oauth2_string(username, access_token):
@@ -182,9 +201,7 @@ def fetch_emails():
         return redirect(url_for('authorize'))
     
     creds_data = session['credentials']
-    creds = Credentials(
-        **creds_data
-    )
+    creds = Credentials(**creds_data)
     
     if not creds.valid:
         if creds and creds.expired and creds.refresh_token:
@@ -193,9 +210,8 @@ def fetch_emails():
         else:
             return redirect(url_for('authorize'))
     
-    # Gmail address
     try:
-        # To get the email address, you can use the token info endpoint
+        # Retrieve the authenticated user's email address
         token_info_url = 'https://www.googleapis.com/oauth2/v1/tokeninfo'
         params = {'access_token': creds.token}
         token_info_response = requests.get(token_info_url, params=params)
@@ -208,7 +224,7 @@ def fetch_emails():
         logging.error(f"Error fetching token info: {e}")
         return jsonify({'error': 'Failed to retrieve token info.'}), 500
 
-    # Generate OAuth2 string
+    # Generate OAuth2 string for IMAP authentication
     oauth2_string = generate_oauth2_string(email_address, creds.token)
     
     try:
@@ -216,7 +232,7 @@ def fetch_emails():
         mail.authenticate('XOAUTH2', lambda x: oauth2_string)
         mail.select("inbox")  # Connect to inbox.
         
-        # Search for all emails or define specific criteria
+        # Search for all emails
         status, messages = mail.search(None, 'ALL')
         if status != 'OK':
             logging.error("Failed to retrieve emails.")
@@ -271,17 +287,29 @@ def fetch_emails():
                     # Send email body to Groq for phishing detection
                     ai_response = get_groq_response(body)
                     
-                    # Determine phishing
-                    if 'phishing' in ai_response.lower():
-                        result = 'Phishing Attempt Detected'
-                    else:
-                        result = 'No Phishing Detected'
+                    # Determine phishing based on AI response
+                    try:
+                        verdict, explanation = ai_response.split(':', 1)
+                        verdict = verdict.strip().lower()
+                        explanation = explanation.strip()
+                        
+                        if verdict == 'phishing':
+                            result = 'Phishing Attempt Detected'
+                        elif verdict == 'not phishing':
+                            result = 'No Phishing Detected'
+                        else:
+                            result = 'Unable to determine the nature of this email.'
+                    except ValueError:
+                        # If the response doesn't contain a colon, handle it gracefully
+                        logging.error("Unexpected AI response format.")
+                        result = 'Unable to determine the nature of this email.'
+                        explanation = ai_response  # Include the raw AI response for debugging
                     
                     phishing_results.append({
                         'Subject': subject,
                         'From': from_,
                         'Result': result,
-                        'AI Response': ai_response
+                        'AI Response': explanation
                     })
         
         mail.logout()
@@ -294,6 +322,7 @@ def fetch_emails():
     except Exception as e:
         logging.error(f"Unexpected error: {e}")
         return jsonify({'error': 'An unexpected error occurred.'}), 500
+
 
 if __name__ == "__main__":
     app.run(port=5214, debug=True)
