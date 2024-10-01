@@ -1,5 +1,5 @@
 # app.py
-import os 
+import os
 import requests
 import json
 import imaplib
@@ -21,6 +21,9 @@ app.secret_key = os.urandom(24)  # Secret key for session management
 
 # Load environment variables from .env
 load_dotenv()
+
+# Enable OAuthlib to use insecure transport (Development Only)
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'  # Remove or set to '0' in production
 
 # Configure logging
 logging.basicConfig(
@@ -45,7 +48,11 @@ if not all([GROQ_API_KEY, NVD_API_KEY, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET]):
 groq_api_url = "https://api.groq.com/openai/v1/chat/completions"
 
 # OAuth 2.0 setup
-SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
+SCOPES = [
+    'https://www.googleapis.com/auth/gmail.readonly',
+    'openid',
+    'email'
+]
 
 def get_gmail_credentials():
     creds = None
@@ -69,6 +76,7 @@ def get_gmail_credentials():
             pickle.dump(creds, token)
     return creds
 
+# Function to send email content to Groq's API for phishing detection
 def get_groq_response(message):
     instruction = """
     You are an AI assistant specialized in detecting phishing attempts in email content. 
@@ -103,8 +111,6 @@ def get_groq_response(message):
     except KeyError as e:
         logging.error(f"Groq API response parsing error: {e}")
         return "Error parsing response."
-
-
 
 @app.route('/')
 def index():
@@ -146,6 +152,7 @@ def creds_to_dict(creds):
         'scopes': creds.scopes
     }
 
+# Route to handle phishing detection manually
 @app.route('/detect-phishing', methods=['POST'])
 def detect_phishing():
     email_content = request.form.get('email_content')
@@ -180,8 +187,7 @@ def detect_phishing():
         result = 'Unable to determine the nature of this email.'
         explanation = ai_response  # Include the raw AI response for debugging
     
-    return jsonify({'result': result, 'ai_response': explanation})
-
+    return jsonify({'result': result, 'confidence': 'High' if verdict in ['phishing', 'not phishing'] else 'Low', 'ai_response': explanation})
 
 # Function to generate OAuth2 string for IMAP authentication
 def generate_oauth2_string(username, access_token):
@@ -211,20 +217,20 @@ def fetch_emails():
             return redirect(url_for('authorize'))
     
     try:
-        # Retrieve the authenticated user's email address
-        token_info_url = 'https://www.googleapis.com/oauth2/v1/tokeninfo'
-        params = {'access_token': creds.token}
-        token_info_response = requests.get(token_info_url, params=params)
-        token_info_response.raise_for_status()
-        email_address = token_info_response.json().get('email')
+        # Retrieve the authenticated user's email address using the userinfo endpoint
+        userinfo_url = 'https://openidconnect.googleapis.com/v1/userinfo'
+        headers = {'Authorization': f'Bearer {creds.token}'}
+        userinfo_response = requests.get(userinfo_url, headers=headers)
+        userinfo_response.raise_for_status()
+        email_address = userinfo_response.json().get('email')
         if not email_address:
-            logging.error("Failed to retrieve email address from token.")
+            logging.error("Failed to retrieve email address from userinfo.")
             return jsonify({'error': 'Failed to retrieve email address.'}), 400
     except requests.exceptions.RequestException as e:
-        logging.error(f"Error fetching token info: {e}")
-        return jsonify({'error': 'Failed to retrieve token info.'}), 500
+        logging.error(f"Error fetching userinfo: {e}")
+        return jsonify({'error': 'Failed to retrieve user information.'}), 500
 
-    # Generate OAuth2 string for IMAP authentication
+    # Generate OAuth2 string
     oauth2_string = generate_oauth2_string(email_address, creds.token)
     
     try:
@@ -322,7 +328,6 @@ def fetch_emails():
     except Exception as e:
         logging.error(f"Unexpected error: {e}")
         return jsonify({'error': 'An unexpected error occurred.'}), 500
-
 
 if __name__ == "__main__":
     app.run(port=5214, debug=True)
