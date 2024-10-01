@@ -64,5 +64,6 @@ Before setting up the project, ensure you have the following installed:
 1. **Clone the Repository:**
 
    ```bash
-   git clone https://github.com/yourusername/anti-phishing-detection-tool.git
-   cd anti-phishing-detection-tool
+   mkdir ai-based-anti-phishing-detection-tool
+   cd ai-based-anti-phishing-detection-tool
+   python app.py
