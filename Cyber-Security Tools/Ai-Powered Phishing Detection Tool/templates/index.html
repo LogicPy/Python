@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Phishing Detection</title>
+</head>
+<body>
+    <h1>AI-Powered Phishing Detection</h1>
+    <form id="phishingForm" method="POST">
+        <textarea name="email_content" rows="10" cols="50" placeholder="Paste email content here..."></textarea><br><br>
+        <button type="submit">Detect Phishing</button>
+    </form>
+    
+    <div id="result" style="margin-top: 20px;"></div>
+
+    <script>
+        document.getElementById('phishingForm').addEventListener('submit', function(e) {
+            e.preventDefault();  // Prevent form submission
+            
+            const formData = new FormData(this);
+            
+            fetch('/detect-phishing', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').innerHTML = `<h2>${data.result}</h2><p>AI Response: ${data.ai_response}</p>`;
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>
