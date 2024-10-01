@@ -47,53 +47,12 @@ if not all([GROQ_API_KEY, NVD_API_KEY, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET]):
 
 groq_api_url = "https://api.groq.com/openai/v1/chat/completions"
 
-
 # OAuth 2.0 setup
 SCOPES = [
     'https://www.googleapis.com/auth/gmail.readonly',
     'openid',
     'email'
 ]
-
-def detect_phishing_route_logic(email_content):
-    # Initialize variables
-    verdict = None
-    explanation = None
-
-    try:
-        # Send the email content to Groq for phishing detection
-        ai_response = get_groq_response(email_content)
-
-        # Expected AI Response Format:
-        # "Phishing: [Explanation]"
-        # or
-        # "Not Phishing: [Explanation]"
-
-        # Split the AI response into verdict and explanation
-        verdict, explanation = ai_response.split(':', 1)
-        verdict = verdict.strip().lower()
-        explanation = explanation.strip()
-
-        if verdict == 'phishing':
-            result = 'This email appears to be a phishing attempt.'
-        elif verdict == 'not phishing':
-            result = 'This email seems safe.'
-        else:
-            result = 'Unable to determine the nature of this email.'
-
-    except ValueError:
-        # Handle cases where AI response doesn't contain a colon
-        logging.error("Unexpected AI response format.")
-        result = 'Unable to determine the nature of this email.'
-        explanation = ai_response  # Include the raw AI response for debugging
-    except Exception as e:
-        # Handle any other unforeseen errors
-        logging.error(f"Error during phishing detection: {e}")
-        result = 'An error occurred while analyzing the email.'
-        explanation = 'No explanation available.'
-
-    return result, explanation
-
 
 def get_gmail_credentials():
     creds = None
@@ -153,7 +112,6 @@ def get_groq_response(message):
         logging.error(f"Groq API response parsing error: {e}")
         return "Error: Invalid response from the AI service."
 
-
 @app.route('/')
 def index():
     return render_template('index.html')  # Landing page
@@ -167,10 +125,10 @@ def oauth2callback():
         redirect_uri=url_for('oauth2callback', _external=True)
     )
     flow.fetch_token(authorization_response=request.url)
-    
+
     if not flow.credentials:
         return "Failed to authenticate.", 400
-    
+
     # Save the credentials in the session
     creds = Credentials(
         token=flow.credentials.token,
@@ -181,7 +139,7 @@ def oauth2callback():
         scopes=flow.credentials.scopes
     )
     session['credentials'] = creds_to_dict(creds)
-    
+
     return redirect(url_for('index'))
 
 def creds_to_dict(creds):
@@ -208,6 +166,44 @@ def detect_phishing():
 
     return jsonify({'result': result, 'confidence': confidence, 'ai_response': explanation})
 
+def detect_phishing_route_logic(email_content):
+    # Initialize variables
+    verdict = None
+    explanation = None
+
+    try:
+        # Send the email content to Groq for phishing detection
+        ai_response = get_groq_response(email_content)
+
+        # Expected AI Response Format:
+        # "Phishing: [Explanation]"
+        # or
+        # "Not Phishing: [Explanation]"
+
+        # Split the AI response into verdict and explanation
+        verdict, explanation = ai_response.split(':', 1)
+        verdict = verdict.strip().lower()
+        explanation = explanation.strip()
+
+        if verdict == 'phishing':
+            result = 'This email appears to be a phishing attempt.'
+        elif verdict == 'not phishing':
+            result = 'This email seems safe.'
+        else:
+            result = 'Unable to determine the nature of this email.'
+
+    except ValueError:
+        # Handle cases where AI response doesn't contain a colon
+        logging.error("Unexpected AI response format.")
+        result = 'Unable to determine the nature of this email.'
+        explanation = ai_response  # Include the raw AI response for debugging
+    except Exception as e:
+        # Handle any other unforeseen errors
+        logging.error(f"Error during phishing detection: {e}")
+        result = 'An error occurred while analyzing the email.'
+        explanation = 'No explanation available.'
+
+    return result, explanation
 
 # Function to generate OAuth2 string for IMAP authentication
 def generate_oauth2_string(username, access_token):
@@ -219,10 +215,12 @@ def generate_oauth2_string(username, access_token):
 def authorize():
     return get_gmail_credentials()
 
+# Route to fetch latest emails and detect phishing
+@app.route('/fetch-emails', methods=['POST'])
 def fetch_emails():
     creds = None
     if 'credentials' not in session:
-        return redirect(url_for('authorize'))
+        return jsonify({'error': 'Not authenticated. Please authorize your Gmail account.'}), 401
 
     creds_data = session['credentials']
     creds = Credentials(**creds_data)
@@ -232,7 +230,7 @@ def fetch_emails():
             creds.refresh(Request())
             session['credentials'] = creds_to_dict(creds)
         else:
-            return redirect(url_for('authorize'))
+            return jsonify({'error': 'Invalid credentials. Please re-authorize your Gmail account.'}), 401
 
     try:
         # Retrieve the authenticated user's email address using the userinfo endpoint
@@ -346,7 +344,6 @@ def fetch_emails():
     except Exception as e:
         logging.error(f"Unexpected error: {e}")
         return jsonify({'error': 'An unexpected error occurred.'}), 500
-
 
 if __name__ == "__main__":
     app.run(port=5214, debug=True)

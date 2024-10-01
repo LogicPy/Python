@@ -1,21 +1,183 @@
 <!-- templates/index.html -->
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Anti-Phishing Detection Tool</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <style>
+        body {
+            padding-top: 50px;
+        }
+        .result-section {
+            margin-top: 30px;
+        }
+        .ai-response {
+            white-space: pre-line; /* Preserves line breaks */
+        }
+    </style>
 </head>
 <body>
-    <h1>Anti-Phishing Detection Tool</h1>
-    
-    <h2>Manually Check an Email</h2>
-    <form action="/detect-phishing" method="post">
-        <textarea name="email_content" rows="10" cols="50" placeholder="Paste email content here..."></textarea><br>
-        <button type="submit">Check for Phishing</button>
-    </form>
-    
-    <h2>Fetch and Check Latest Emails</h2>
-    <form action="/fetch-emails" method="post">
-        <button type="submit">Fetch Emails</button>
-    </form>
+    <div class="container">
+        <h1 class="text-center">Anti-Phishing Detection Tool</h1>
+
+        <!-- Manual Phishing Detection Form -->
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <form id="manual-detection-form" action="{{ url_for('detect_phishing') }}" method="POST">
+                    <div class="form-group">
+                        <label for="email_content">Paste Email Content:</label>
+                        <textarea class="form-control" id="email_content" name="email_content" rows="10" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Check for Phishing</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Display Errors -->
+        <div class="row result-section" id="error-section" style="display: none;">
+            <div class="col-md-8 offset-md-2">
+                <div class="alert alert-danger" role="alert" id="error-message">
+                    <!-- Error message will be injected here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Display Manual Detection Result -->
+        <div class="row result-section" id="manual-result-section" style="display: none;">
+            <div class="col-md-8 offset-md-2">
+                <div class="card">
+                    <div class="card-header">
+                        Detection Result
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title" id="result-title"></h5>
+                        <p class="card-text ai-response" id="result-explanation"></p>
+                        <p><strong>Confidence:</strong> <span id="result-confidence"></span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fetch Emails Form -->
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <form id="fetch-emails-form" action="{{ url_for('fetch_emails') }}" method="POST">
+                    <button type="submit" class="btn btn-success btn-block">Fetch and Analyze Latest Emails</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Display Fetched Emails Analysis -->
+        <div class="row result-section" id="fetched-emails-section" style="display: none;">
+            <div class="col-md-12">
+                <h3>Phishing Analysis of Latest Emails</h3>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>From</th>
+                            <th>Result</th>
+                            <th>AI Response</th>
+                        </tr>
+                    </thead>
+                    <tbody id="emails-table-body">
+                        <!-- Fetched emails will be injected here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- jQuery and Bootstrap JS (for AJAX functionality) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Handle Manual Phishing Detection Form Submission
+            $('#manual-detection-form').on('submit', function(event) {
+                event.preventDefault();
+                var emailContent = $('#email_content').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: "{{ url_for('detect_phishing') }}",
+                    data: { 'email_content': emailContent },
+                    success: function(response) {
+                        if (response.error) {
+                            $('#error-message').text(response.error);
+                            $('#error-section').show();
+                            $('#manual-result-section').hide();
+                        } else {
+                            $('#result-title').text(response.result);
+                            $('#result-explanation').text(response.ai_response);
+                            $('#result-confidence').text(response.confidence);
+                            $('#manual-result-section').show();
+                            $('#error-section').hide();
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        $('#error-message').text('An unexpected error occurred.');
+                        $('#error-section').show();
+                        $('#manual-result-section').hide();
+                    }
+                });
+            });
+
+            // Handle Fetch Emails Form Submission
+            $('#fetch-emails-form').on('submit', function(event) {
+                event.preventDefault();
+
+                $.ajax({
+                    type: 'POST',
+                    url: "{{ url_for('fetch_emails') }}",
+                    success: function(response) {
+                        if (response.error) {
+                            $('#error-message').text(response.error);
+                            $('#error-section').show();
+                            $('#fetched-emails-section').hide();
+                        } else {
+                            var phishingResults = response.phishing_results;
+                            var tableBody = '';
+
+                            if (phishingResults.length === 0) {
+                                tableBody = '<tr><td colspan="4" class="text-center">No emails found.</td></tr>';
+                            } else {
+                                phishingResults.forEach(function(email) {
+                                    var badgeClass = 'badge badge-warning';
+                                    if (email.Result === 'Phishing Attempt Detected') {
+                                        badgeClass = 'badge badge-danger';
+                                    } else if (email.Result === 'No Phishing Detected') {
+                                        badgeClass = 'badge badge-success';
+                                    }
+
+                                    tableBody += `
+                                        <tr>
+                                            <td>${email.Subject}</td>
+                                            <td>${email.From}</td>
+                                            <td><span class="${badgeClass}">${email.Result}</span></td>
+                                            <td class="ai-response">${email['AI Response'].replace(/\n/g, '<br>')}</td>
+                                        </tr>
+                                    `;
+                                });
+                            }
+
+                            $('#emails-table-body').html(tableBody);
+                            $('#fetched-emails-section').show();
+                            $('#error-section').hide();
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        $('#error-message').text('An unexpected error occurred while fetching emails.');
+                        $('#error-section').show();
+                        $('#fetched-emails-section').hide();
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
