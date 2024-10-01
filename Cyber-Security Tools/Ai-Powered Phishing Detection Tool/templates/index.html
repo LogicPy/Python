@@ -1,35 +1,21 @@
+<!-- templates/index.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Phishing Detection</title>
+    <title>Anti-Phishing Detection Tool</title>
 </head>
 <body>
-    <h1>AI-Powered Phishing Detection</h1>
-    <form id="phishingForm" method="POST">
-        <textarea name="email_content" rows="10" cols="50" placeholder="Paste email content here..."></textarea><br><br>
-        <button type="submit">Detect Phishing</button>
+    <h1>Anti-Phishing Detection Tool</h1>
+    
+    <h2>Manually Check an Email</h2>
+    <form action="/detect-phishing" method="post">
+        <textarea name="email_content" rows="10" cols="50" placeholder="Paste email content here..."></textarea><br>
+        <button type="submit">Check for Phishing</button>
     </form>
     
-    <div id="result" style="margin-top: 20px;"></div>
-
-    <script>
-        document.getElementById('phishingForm').addEventListener('submit', function(e) {
-            e.preventDefault();  // Prevent form submission
-            
-            const formData = new FormData(this);
-            
-            fetch('/detect-phishing', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('result').innerHTML = `<h2>${data.result}</h2><p>AI Response: ${data.ai_response}</p>`;
-            })
-            .catch(error => console.error('Error:', error));
-        });
-    </script>
+    <h2>Fetch and Check Latest Emails</h2>
+    <form action="/fetch-emails" method="post">
+        <button type="submit">Fetch Emails</button>
+    </form>
 </body>
 </html>
