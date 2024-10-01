@@ -1,0 +1,22 @@
+{
+  "phishing_results": [
+    {
+      "Subject": "Win a Free iPhone!",
+      "From": "promo@example.com",
+      "Result": "Phishing Attempt Detected",
+     See response A)
+    },
+    {
+      "Subject": "Meeting Reminder",
+      "From": "colleague@example.com",
+      "Result": "No Phishing Detected",
+     See reponse B)
+    }
+  ]
+}
+
+A)
+AI Response: Phishing This email is a phishing attempt because it is attempting to trick the recipient into providing personal information (likely to respond to the "contest") and contains suspicious links that could potentially compromise the security of the recipient's device, leading to identity theft or other malicious activities.
+
+B)
+"ai_response": "Not Phishing\n\nThe email appears to be from a legitimate sender (colleague@example.com), and the subject is a standard and innocuous meeting reminder, which is a common type of email. There are no suspicious or unusually-worded phrases, links, or attachments that would typically indicate a phishing attempt.",
