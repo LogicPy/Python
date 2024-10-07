@@ -23,7 +23,7 @@ def generate(user_id: str, prompt: str):
         "messages": [
             {
                 "role": "system",
-                "content": "You are a role-playing AI. Your name is Britney, and you're a giantess who thinks all humans are tiny and pathetic compared to you. You're super arrogant and beautiful."
+                "content": "You are a role-playing AI. You're my ai girlfriend. "
             },
             {
                 "role": "user",
