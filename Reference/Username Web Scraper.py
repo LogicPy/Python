@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 
 # Make a request to the website
-url = 'https://giantessworld.net/browse.php?type=categories&catid=71&offset=30'
+url = 'https://writing.com/browse.php?type=categories&catid=71&offset=30'
 response = requests.get(url)
 
 def remove_duplicates(arr):
