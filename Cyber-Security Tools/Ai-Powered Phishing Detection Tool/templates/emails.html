@@ -1,0 +1,99 @@
+<!-- emails.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Email Analysis Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script>
+        function fetchEmailContent(emailId) {
+            console.log('Fetching email content for email ID:', emailId);
+            const url = '/get_email_content/' + encodeURIComponent(emailId);
+            console.log('Request URL:', url);
+
+            fetch(url, {
+                credentials: 'same-origin'
+            })
+            .then(response => {
+                console.log('Response received:', response);
+                if (!response.ok) {
+                    return response.json().then(err => { throw err; });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Data received:', data);
+                if (data.body) {
+                    document.getElementById('email_content').value = data.body;
+                } else {
+                    alert('Unexpected response format.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error: ' + (error.error || 'An unexpected error occurred.'));
+            });
+        }
+    </script>
+</head>
+
+<img src="/static/img2.png" style="width:10%">
+
+<body>
+    <h1>Email Analysis Results</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Subject</th>
+                <th>From</th>
+                <th>Phishing Prediction</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for email in emails %}
+            <tr>
+                <td>
+                    <a href="#" onclick="fetchEmailContent('{{ email['id'] }}'); return false;">{{ email['subject'] }}</a>
+                </td>
+                <td>{{ email['from'] }}</td>
+                <td>{{ email['phishing_prediction'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Email content textarea -->
+    <h2>Email Content:</h2>
+    <textarea id="email_content" cols="100" rows="20"></textarea>
+    <br>
+    <button onclick="analyzeEmail()">Analyze Email</button>
+
+    <script>
+        function analyzeEmail() {
+            let emailContent = document.getElementById('email_content').value;
+            fetch('/ai_inspect_ajax', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({ email_content: emailContent })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw err; });
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert('Phishing Prediction: ' + data.phishing_prediction + '\nAI Response: ' + data.ai_response);
+                // Update the UI to display results if needed
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error: ' + (error.error || 'An unexpected error occurred.'));
+            });
+        }
+    </script>
+</body>
+</html>
