@@ -1,0 +1,22 @@
+<!-- email_detail.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Email Detail</title>
+    <script>
+        function appendToAIInput() {
+            // Send the email body back to the server or handle it via AJAX
+            window.location.href = "{{ url_for('append_email_to_ai', email_id=request.view_args['email_id']) }}";
+        }
+    </script>
+</head>
+<body>
+    <h1>{{ subject }}</h1>
+    <h3>From: {{ from_ }}</h3>
+    <div>
+        <pre>{{ body }}</pre>
+    </div>
+    <button onclick="appendToAIInput()">Analyze with AI</button>
+</body>
+</html>

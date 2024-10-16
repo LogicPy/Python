@@ -1,0 +1,16 @@
+<!-- ai_inspection.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Email Inspection</title>
+</head>
+<body>
+    <h1>AI Email Inspection</h1>
+    <form action="{{ url_for('ai_inspect') }}" method="post">
+        <textarea name="email_content" id="email_content" cols="100" rows="20">{{ email_content }}</textarea>
+        <br>
+        <input type="submit" value="Analyze Email">
+    </form>
+</body>
+</html>

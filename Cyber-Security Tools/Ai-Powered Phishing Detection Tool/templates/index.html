@@ -1,133 +1,302 @@
 <!-- templates/index.html -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Anti-Phishing Detection Tool</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EmailShieldAI</title>
+    <!-- Include External CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <!-- Include Bootstrap CSS (Optional for Styling) -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
-    <style>
-        body {
-            padding-top: 50px;
-        }
-        .result-section {
-            margin-top: 30px;
-        }
-        .ai-response {
-            white-space: pre-line; /* Preserves line breaks */
-        }
-    </style>
+    <!-- jQuery Library -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Optional: Include Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h1 class="text-center">Anti-Phishing Detection Tool</h1>
+    <div class="container mt-5">
+        <h1 class="text-center">EmailShieldAI</h1>
+        <p class="text-center">Protecting you from phishing attacks.</p>
+        
+        <!-- Authentication Links -->
+        <div class="text-center mb-4">
+		<a href="{{ url_for('authorize') }}" class="btn btn-primary">Connect with Google</a>
 
-        <!-- Manual Phishing Detection Form -->
-        <div class="row">
-            <div class="col-md-8 offset-md-2">
-                <form id="manual-detection-form" action="{{ url_for('detect_phishing') }}" method="POST">
+            <a href="{{ url_for('authorize') }}" class="btn btn-primary mr-2">Connect with Gmail</a>
+            <a href="{{ url_for('authorize_outlook') }}" class="btn btn-info">Connect with Outlook</a>
+        </div>
+        
+        <!-- Manual Phishing Detection -->
+        <div class="card mb-4">
+            <div class="card-header">
+                Manual Phishing Detection
+            </div>
+            <div class="card-body">
+                <form id="manual-detection-form">
                     <div class="form-group">
-                        <label for="email_content">Paste Email Content:</label>
-                        <textarea class="form-control" id="email_content" name="email_content" rows="10" required></textarea>
+                        <label for="email_content">Email Content:</label>
+                        <textarea class="form-control" id="email_content" name="email_content" rows="6" placeholder="Paste your email content here..."></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary">Check for Phishing</button>
+                    <button type="submit" class="btn btn-warning">Detect Phishing</button>
                 </form>
-            </div>
-        </div>
-
-        <!-- Display Errors -->
-        <div class="row result-section" id="error-section" style="display: none;">
-            <div class="col-md-8 offset-md-2">
-                <div class="alert alert-danger" role="alert" id="error-message">
-                    <!-- Error message will be injected here -->
+                
+                <div id="manual-result-section" class="mt-4" style="display:none;">
+                    <h3 id="result-title"></h3>
+                    <p id="result-explanation"></p>
+                    <p>Confidence: <span id="result-confidence" class="font-weight-bold"></span></p>
                 </div>
             </div>
         </div>
-
-        <!-- Display Manual Detection Result -->
-        <div class="row result-section" id="manual-result-section" style="display: none;">
-            <div class="col-md-8 offset-md-2">
-                <div class="card">
-                    <div class="card-header">
-                        Detection Result
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title" id="result-title"></h5>
-                        <p class="card-text ai-response" id="result-explanation"></p>
-                        <p><strong>Confidence:</strong> <span id="result-confidence"></span></p>
-                    </div>
+        
+        <!-- Fetch and Analyze Emails -->
+        <div class="card mb-4">
+            <div class="card-header">
+                Fetch and Analyze Latest Emails
+            </div>
+            <div class="card-body">
+                <form id="fetch-emails-form">
+                    <button type="submit" class="btn btn-success">Fetch and Analyze Latest Emails</button>
+                </form>
+                
+                <div id="fetched-emails-section" class="mt-4" style="display:none;">
+                    <h3>Your Latest Emails</h3>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Subject</th>
+                                <th>From</th>
+                                <th>Result</th>
+                                <th>AI Response</th>
+                            </tr>
+                        </thead>
+                        <tbody id="emails-table-body">
+                            <!-- Fetched emails will populate here -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
-
-        <!-- Fetch Emails Form -->
-        <div class="row">
-            <div class="col-md-8 offset-md-2">
-                <form id="fetch-emails-form" action="{{ url_for('fetch_emails') }}" method="POST">
-                    <button type="submit" class="btn btn-success btn-block">Fetch and Analyze Latest Emails</button>
+        
+        <!-- Fetch and Analyze Emails via IMAP -->
+        <div class="card mb-4">
+            <div class="card-header">
+                Fetch and Analyze Emails via IMAP
+            </div>
+            <div class="card-body">
+                <form id="fetch-imap-emails-form">
+                    <div class="form-group">
+                        <label for="imap_provider">Email Provider:</label>
+                        <select class="form-control" id="imap_provider" name="provider" required>
+                            <option value="">Select Provider</option>
+                            <option value="gmail">Gmail</option>
+                            <option value="outlook">Outlook</option>
+                            <option value="yahoo">Yahoo</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="imap_access_token">Access Token:</label>
+                        <input type="text" class="form-control" id="imap_access_token" name="accessToken" placeholder="Enter Access Token" required>
+                    </div>
+                    <button type="submit" class="btn btn-success">Fetch and Analyze Emails via IMAP</button>
                 </form>
+                
+                <div id="fetched-imap-emails-section" class="mt-4" style="display:none;">
+                    <h3>Your Latest Emails via IMAP</h3>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Subject</th>
+                                <th>From</th>
+                                <th>Result</th>
+                                <th>AI Response</th>
+                            </tr>
+                        </thead>
+                        <tbody id="imap-emails-table-body">
+                            <!-- Fetched IMAP emails will populate here -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-
-        <!-- Display Fetched Emails Analysis -->
-        <div class="row result-section" id="fetched-emails-section" style="display: none;">
-            <div class="col-md-12">
-                <h3>Phishing Analysis of Latest Emails</h3>
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Subject</th>
-                            <th>From</th>
-                            <th>Result</th>
-                            <th>AI Response</th>
-                        </tr>
-                    </thead>
-                    <tbody id="emails-table-body">
-                        <!-- Fetched emails will be injected here -->
-                    </tbody>
-                </table>
+        
+		<!-- Custom Email Login -->
+<div class="card mb-4">
+    <div class="card-header">
+        Connect with Custom Email
+    </div>
+    <div class="card-body">
+        <form id="custom-email-form">
+            <div class="form-group">
+                <label for="custom_email_address">Email Address:</label>
+                <input type="email" class="form-control" id="custom_email_address" name="email_address" placeholder="Enter your email address" required>
             </div>
+            <div class="form-group">
+                <label for="custom_email_password">Password:</label>
+                <input type="password" class="form-control" id="custom_email_password" name="email_password" placeholder="Enter your password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Connect and Analyze Emails</button>
+        </form>
+        
+        <div id="custom-email-result-section" class="mt-4" style="display:none;">
+            <h3>Your Emails from {{ email_address }}</h3>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>From</th>
+                        <th>Result</th>
+                        <th>AI Response</th>
+                    </tr>
+                </thead>
+                <tbody id="custom-emails-table-body">
+                    <!-- Fetched emails will populate here -->
+                </tbody>
+            </table>
         </div>
     </div>
+</div>
 
+<style>
+.email-row:hover {
+    cursor: pointer;
+    background-color: #f0f0f0;
+}
 
-    <!-- jQuery and Bootstrap JS (for AJAX functionality) -->
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.bundle.min.js"></script>
+.email-row.selected {
+    background-color: #d0e9c6;
+}
 
-    <script>
-        $(document).ready(function() {
-            // Handle Manual Phishing Detection Form Submission
-            $('#manual-detection-form').on('submit', function(event) {
-                event.preventDefault();
-                var emailContent = $('#email_content').val();
+</style>
+	<!-- Error Section -->
+<div id="error-section" class="alert alert-danger mt-4" style="display:none;">
+    <p id="error-message"></p>
+</div>
 
-                $.ajax({
-                    type: 'POST',
-                    url: "{{ url_for('detect_phishing') }}",
-                    data: { 'email_content': emailContent },
-                    success: function(response) {
-                        if (response.error) {
-                            $('#error-message').text(response.error);
-                            $('#error-section').show();
-                            $('#manual-result-section').hide();
-                        } else {
-                            $('#result-title').text(response.result);
-                            $('#result-explanation').text(response.ai_response);
-                            $('#result-confidence').text(response.confidence);
-                            $('#manual-result-section').show();
-                            $('#error-section').hide();
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        $('#error-message').text('An unexpected error occurred.');
+<script>
+    $(document).ready(function() {
+        // ... [Existing code] ...
+
+        // Handle Custom Email Form Submission
+        $('#custom-email-form').on('submit', function(event) {
+            event.preventDefault();
+            var emailAddress = $('#custom_email_address').val();
+            var emailPassword = $('#custom_email_password').val();
+
+            if (!emailAddress || !emailPassword) {
+                $('#error-message').text('Please enter your email address and password.');
+                $('#error-section').show();
+                $('#custom-email-result-section').hide();
+                return;
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: "{{ url_for('fetch_custom_emails') }}",
+                contentType: 'application/json',
+                dataType: 'json',
+                processData: false,
+                data: JSON.stringify({
+                    'email_address': emailAddress,
+                    'email_password': emailPassword
+                }),
+                success: function(response) {
+                    console.log('Success:', response);
+                    if (response.error) {
+                        $('#error-message').text(response.error);
                         $('#error-section').show();
-                        $('#manual-result-section').hide();
-                    }
-                });
-            });
+                        $('#custom-email-result-section').hide();
+                    } else {
+                        var emails = response.emails;
+                        var tableBody = '';
 
-            // Handle Fetch Emails Form Submission
+                        if (emails.length === 0) {
+                            tableBody = '<tr><td colspan="4" class="text-center">No emails found.</td></tr>';
+                        } else {
+                            emails.forEach(function(email) {
+                                var badgeClass = 'badge badge-warning';
+                                if (email.phishing_prediction.toLowerCase().includes('phishing')) {
+                                    badgeClass = 'badge badge-danger';
+                                } else if (email.phishing_prediction.toLowerCase().includes('not phishing')) {
+                                    badgeClass = 'badge badge-success';
+                                }
+
+                                tableBody += `
+                                    <tr class="email-row" data-email-body="${encodeURIComponent(email.body)}">
+                                        <td>${email.subject}</td>
+                                        <td>${email.from}</td>
+                                        <td><span class="${badgeClass}">${email.phishing_prediction}</span></td>
+                                        <td class="ai-response">${email.ai_response.replace(/\n/g, '<br>')}</td>
+                                    </tr>
+                                `;
+                            });
+                        }
+
+                        $('#custom-emails-table-body').html(tableBody);
+                        $('#custom-email-result-section').show();
+                        $('#error-section').hide();
+
+                        // Add click event listener to email rows
+                        $('.email-row').on('click', function() {
+                            var emailBodyEncoded = $(this).data('email-body');
+                            var emailBody = decodeURIComponent(emailBodyEncoded);
+
+                            // Set the email body in the manual detection textarea
+                            $('#email_content').val(emailBody);
+
+                            // Optionally, scroll to the manual detection section
+                            $('html, body').animate({
+                                scrollTop: $("#manual-detection-form").offset().top
+                            }, 500);
+                        });
+                    }
+                }
+            });
+        });
+    });
+</script>
+
+	
+        <!-- Error Section -->
+        <div id="error-section" class="alert alert-danger mt-4" style="display:none;">
+            <p id="error-message"></p>
+        </div>
+    </div>
+    
+    <!-- Custom Scripts -->
+    <script>
+// Handle Manual Phishing Detection Form Submission
+$('#manual-detection-form').on('submit', function(event) {
+    event.preventDefault();
+    var emailContent = $('#email_content').val();
+
+    $.ajax({
+        type: 'POST',
+        url: "{{ url_for('detect_phishing_route') }}",
+        data: { 'email_content': emailContent },
+        success: function(response) {
+            if (response.error) {
+                $('#error-message').text(response.error);
+                $('#error-section').show();
+                $('#manual-result-section').hide();
+            } else {
+                $('#result-title').text(response.result);
+                $('#result-explanation').text(response.ai_response);
+                $('#result-confidence').text(response.confidence);
+                $('#manual-result-section').show();
+                $('#error-section').hide();
+            }
+        },
+        error: function(xhr, status, error) {
+            $('#error-message').text('An unexpected error occurred.');
+            $('#error-section').show();
+            $('#manual-result-section').hide();
+        }
+    });
+});
+
+
+            // Handle Fetch Emails Form Submission (API-Based)
             $('#fetch-emails-form').on('submit', function(event) {
                 event.preventDefault();
 
@@ -177,7 +346,70 @@
                     }
                 });
             });
-        });
+
+            // Handle Fetch IMAP Emails Form Submission
+            $('#fetch-imap-emails-form').on('submit', function(event) {
+                event.preventDefault();
+
+                var provider = $('#imap_provider').val();
+                var accessToken = $('#imap_access_token').val();
+
+                if (!provider || !accessToken) {
+                    $('#error-message').text('Please select a provider and enter a valid access token.');
+                    $('#error-section').show();
+                    $('#fetched-imap-emails-section').hide();
+                    return;
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    url: "{{ url_for('fetch_emails') }}",
+                    contentType: 'application/json',
+                    data: JSON.stringify({ 'provider': provider, 'accessToken': accessToken }),
+                    success: function(response) {
+                        if (response.error) {
+                            $('#error-message').text(response.error);
+                            $('#error-section').show();
+                            $('#fetched-imap-emails-section').hide();
+                        } else {
+                            var phishingResults = response.emails;
+                            var tableBody = '';
+
+                            if (phishingResults.length === 0) {
+                                tableBody = '<tr><td colspan="4" class="text-center">No emails found.</td></tr>';
+                            } else {
+                                phishingResults.forEach(function(email) {
+                                    var badgeClass = 'badge badge-warning';
+                                    if (email.aiResponse.toLowerCase().includes('phishing')) {
+                                        badgeClass = 'badge badge-danger';
+                                    } else if (email.aiResponse.toLowerCase().includes('not phishing')) {
+                                        badgeClass = 'badge badge-success';
+                                    }
+
+                                    tableBody += `
+                                        <tr>
+                                            <td>${email.subject}</td>
+                                            <td>${email.from}</td>
+                                            <td><span class="${badgeClass}">${email.aiResponse}</span></td>
+                                            <td class="ai-response">${email.aiResponse.replace(/\n/g, '<br>')}</td>
+                                        </tr>
+                                    `;
+                                });
+                            }
+
+                            $('#imap-emails-table-body').html(tableBody);
+                            $('#fetched-imap-emails-section').show();
+                            $('#error-section').hide();
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        $('#error-message').text('An unexpected error occurred while fetching IMAP emails.');
+                        $('#error-section').show();
+                        $('#fetched-imap-emails-section').hide();
+                    }
+                });
+            });
+        
     </script>
 </body>
 </html>

@@ -1,0 +1,46 @@
+<!-- templates/gmail_emails.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Gmail Emails - EmailShieldAI</title>
+    <!-- Include External CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Your Latest Gmail Emails</h1>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Subject</th>
+                    <th>From</th>
+                    <th>Result</th>
+                    <th>AI Response</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for email in phishing_results %}
+                <tr>
+                    <td>{{ email.Subject }}</td>
+                    <td>{{ email.From }}</td>
+                    <td>
+                        {% if email.Result == 'Phishing Attempt Detected' %}
+                            <span class="badge badge-danger">{{ email.Result }}</span>
+                        {% elif email.Result == 'No Phishing Detected' %}
+                            <span class="badge badge-success">{{ email.Result }}</span>
+                        {% else %}
+                            <span class="badge badge-warning">{{ email.Result }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="ai-response">{{ email['AI Response']|safe }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Home</a>
+    </div>
+</body>
+</html>

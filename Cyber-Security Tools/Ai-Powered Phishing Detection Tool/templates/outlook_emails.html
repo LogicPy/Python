@@ -1,0 +1,29 @@
+<!-- outlook_emails.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Outlook Emails - EmailShieldAI</title>
+</head>
+<body>
+    <h1>Your Latest Outlook Emails</h1>
+    <table border="1">
+        <tr>
+            <th>Subject</th>
+            <th>From</th>
+            <th>Result</th>
+            <th>AI Response</th>
+        </tr>
+        {% for email in phishing_results %}
+        <tr>
+            <td>{{ email.Subject }}</td>
+            <td>{{ email.From }}</td>
+            <td>{{ email.Result }}</td>
+            <td>{{ email['AI Response'] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <a href="{{ url_for('index') }}">Back to Home</a>
+</body>
+</html>
