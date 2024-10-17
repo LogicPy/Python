@@ -1,10 +1,5 @@
-os
-json
 requests
 pandas
-datetime
-mem0
+mem0ai
 scikit-learn
-unittest
 pyyaml
-logging
