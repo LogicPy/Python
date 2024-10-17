@@ -145,7 +145,7 @@ def test_for_exploits(target_url):
     """
     Test the target URL for common vulnerabilities using predefined payloads.
     """
-    # Payloads for each type of vulnerability
+    # Payloads for each type of vulnerability  [<img src=x onerror=alert('XSS')>]
     xss_payloads = ["<script>alert(1)</script>", "<img src=x onerror=alert(1)>"]
     sql_injection_payloads = ["' OR '1'='1", "' OR 'x'='x"]
     command_injection_payloads = ["; ls", "| whoami"]
@@ -214,8 +214,10 @@ if __name__ == "__main__":
 
     # Start the AI interaction with optional website validation
     while True:
-        prompt = input("Enter your prompt: ")
-        target_url = input("Enter a URL to validate (or leave blank): ").strip()
+        #prompt = input("Enter your prompt: ")
+        #target_url = input("Enter a URL to validate (or leave blank): ").strip()
+        target_url = "http://giantessworld.net/"
+        prompt = "Can you test this server for me friend? Thank you m8!"
         if target_url:
             generate(user_id, prompt, target_url=target_url)
         else:
