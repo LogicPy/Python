@@ -17,7 +17,7 @@ This tool leverages an AI model to perform threat hunting by identifying common 
 
 1. **Clone the Repository:**
     ```bash
-    git clone https://github.com/yourusername/ai-threat-hunting.git
+    git clone https://github.com/logicpy/ai-threat-hunting.git
     cd ai-threat-hunting
     ```
 
