@@ -18,6 +18,7 @@ from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 import time
 import  sys
+from pydantic import BaseModel, Field, root_validator
 
 sys.setrecursionlimit(5000) 
 
@@ -69,11 +70,14 @@ def log_ai_response(ai_response):
     log_file = "ai_feedback_log.txt"
 
     try:
-        with open(log_file, 'a') as file:
+        with open(log_file, 'a', encoding='utf-8') as file:
             file.write(f"{timestamp} - AI Response:\n{ai_response}\n\n")
         print(f"AI response logged successfully at {timestamp}.")
     except IOError as e:
         logging.error(f"Failed to write AI response to log: {e}")
+        print(f"Failed to write AI response to log: {e}")
+
+
 
 def analyze_response(response):
     """
