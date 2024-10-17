@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>XSS Test Page</title>
+    <script>
+        function displayQueryParam() {
+            const params = new URLSearchParams(window.location.search);
+            const userInput = params.get('input');
+
+            if (userInput) { //Remeber the most vulnerable XSS payloads include the img tag in your modern chomr browser
+							 // example: <img src=x onerror=alert(1)>
+							 // OR: <img src=x onerror=alert('XSS')>
+                // Directly inject user input into innerHTML (vulnerable to XSS)
+                document.getElementById('output').innerHTML = userInput;
+            }
+        }
+    </script>
+</head>
+<body onload="displayQueryParam()">
+    <h2>XSS Test Page</h2>
+    <p>This page displays the 'input' query parameter directly in the HTML.</p>
+    <div id="output"></div>
+</body>
+</html>
