@@ -155,9 +155,7 @@ The Anomaly Detection System consists of four main components:
 
 **Renaming the File:**
 
-```bash
-mv anomoly.py anomaly.py
-```
+No longer needed in this setup...
 
 **Running the Data Generation Script:**
 
