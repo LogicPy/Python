@@ -301,13 +301,7 @@ This script sends multiple test requests to the Flask server, including both nor
 
 ### 1. Typographical Errors
 
-- **Issue:** File named `anomoly.py` instead of `anomaly.py`.
-  
-  **Solution:** Rename the file to `anomaly.py` to maintain consistency and avoid confusion.
-
-  ```bash
-  mv anomoly.py anomaly.py
-  ```
+N/A anymore...
 
 ### 2. Connection Issues with Ollama
 
