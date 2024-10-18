@@ -1,9 +1,15 @@
 import shodan
 import socket
+import time
+import argparse
+import os
+import json
+import time
+from dotenv import load_dotenv
+import sys
 
 # Replace 'YOUR_API_KEY' with your actual Shodan API key
-SHODAN_API_KEY = "SHODAN_API_KEY"
-API_KEY = "SHODAN_API_KEY"
+SHODAN_API_KEY = SHODAN_API_KEY
 
 # Initialize the Shodan API
 api = shodan.Shodan(SHODAN_API_KEY)
@@ -218,9 +224,7 @@ def eduandgov_searches():
             print(f"Error:  {e}")
 
 
-
 def shodan_search():
-    
     query = input("Enter your search query (e.g., 'cve_2022_0778'): ")
 
     # Exploit execution:
@@ -251,6 +255,122 @@ def shodan_search():
     except shodan.APIError as e:
         print(f"Error: {e}")
 
+if not SHODAN_API_KEY:
+    print("Error: Shodan API key not found. Please set it in the .env file.")
+    sys.exit(1)
+
+def search_shodan(api, query, page=1):
+    try:
+        # Perform the search with pagination
+        results = api.search(query, page=page)
+        return results
+    except shodan.APIError as e:
+        print(f"Shodan API Error: {e}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"Unexpected Error: {e}")
+        sys.exit(1)
+
+def display_results(results):
+    print(f"Total Results: {results.get('total', 'N/A')}")
+    for result in results.get('matches', []):
+        ip = result.get('ip_str', 'N/A')
+        port = result.get('port', 'N/A')
+        hostnames = ', '.join(result.get('hostnames', [])) or 'N/A'
+        org = result.get('org', 'N/A')
+        location = result.get('location', {})
+        country = location.get('country_name', 'N/A')
+        city = location.get('city', 'N/A')
+        print(f"IP: {ip}")
+        print(f"Port: {port}")
+        print(f"Hostnames: {hostnames}")
+        print(f"Organization: {org}")
+        print(f"Location: {city}, {country}")
+        print("--------------------")
+
+def save_results(results, output_file):
+    try:
+        with open(output_file, 'w') as f:
+            json.dump(results, f, indent=4)
+        print(f"Results saved to {output_file}")
+    except IOError as e:
+        print(f"File I/O Error: {e}")
+        sys.exit(1)
+
+def get_user_input():
+    """
+    Collects user inputs interactively.
+    
+    Returns:
+        dict: Contains the user's input parameters.
+    """
+    print("=== Shodan Intel Gathering Script ===\n")
+    
+    query = input("Enter Shodan search query (e.g., 'apache', 'nginx'): ").strip()
+    while not query:
+        print("Query cannot be empty. Please enter a valid search query.")
+        query = input("Enter Shodan search query: ").strip()
+    
+    output_choice = input("Do you want to save the results to a file? (y/n): ").strip().lower()
+    output_file = None
+    output_format = 'text'
+    
+    if output_choice == 'y':
+        output_file = input("Enter the output file name (e.g., 'results.json'): ").strip()
+        while not output_file:
+            print("Output file name cannot be empty.")
+            output_file = input("Enter the output file name: ").strip()
+        
+        format_choice = input("Choose output format - JSON or Text (json/text): ").strip().lower()
+        if format_choice in ['json', 'text']:
+            output_format = format_choice
+        else:
+            print("Invalid format choice. Defaulting to 'text'.")
+    
+    pages_input = input("Enter the number of pages to retrieve (default is 1): ").strip()
+    if pages_input.isdigit() and int(pages_input) > 0:
+        total_pages = int(pages_input)
+    else:
+        total_pages = 1
+        print("Invalid input. Defaulting to 1 page.")
+    
+    return {
+        "query": query,
+        "output_file": output_file,
+        "output_format": output_format,
+        "total_pages": total_pages
+    }
+
+def Intel():
+    user_inputs = get_user_input()
+    
+    query = user_inputs["query"]
+    output_file = user_inputs["output_file"]
+    output_format = user_inputs["output_format"]
+    total_pages = user_inputs["total_pages"]
+    
+    api = shodan.Shodan(SHODAN_API_KEY)
+    
+    all_results = {
+        "total": 0,
+        "matches": []
+    }
+    
+    for page in range(1, total_pages + 1):
+        print(f"\nFetching page {page}...")
+        results = search_shodan(api, query, page)
+        if page == 1:
+            all_results["total"] = results.get("total", 0)
+        all_results["matches"].extend(results.get("matches", []))
+        # Optional: Respect Shodan's rate limits
+        time.sleep(1)  # Adjust delay as needed based on your Shodan plan
+    
+    if output_format == 'json' and output_file:
+        save_results(all_results, output_file)
+    else:
+        display_results(all_results)
+
+
 def main_menu():
     print("Welcome to ShodanSecurityScanner tool!")
     print("Please select an option:")
@@ -263,9 +383,10 @@ def main_menu():
     print("7. Exploit query search")
     print("8. Facet Output Tests")
     print('9. Specific IP Scanner')
-    print("10 - Exit")
+    print("10 - Intel Gathering")
+    print("11 - Exit")
 
-    choice = input("Enter your choice (1-7): ")
+    choice = input("Enter your choice (1-9): ")
 
     if choice == '1':
         shodan_search()
@@ -307,7 +428,9 @@ def main_menu():
         facetfunction()
     elif choice == '9':
         ipspecificscannerforspecifichost()
-    elif choice == '10':
+    elif choice == "10":
+        Intel()
+    elif choice == '11':
         print("Exiting ShodanSecurityScanner tool.")
         exit()
     else:
