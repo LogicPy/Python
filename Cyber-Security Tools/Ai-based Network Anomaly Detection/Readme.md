@@ -52,5 +52,4 @@ Before setting up the Anomaly Detection System, ensure you have the following in
 1. **Clone the Repository**
 
    ```bash
-   git clone https://github.com/yourusername/anomaly-detection.git
    cd anomaly-detection
