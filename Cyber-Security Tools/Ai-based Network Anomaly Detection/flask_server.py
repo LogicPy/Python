@@ -30,7 +30,6 @@ logging.basicConfig(
 )
 
 # Configuration for Ollama API
-# Configuration for Ollama API
 OLLAMA_API_URL = "http://localhost:11434/api/chat"  # Ensure this matches Ollama's API endpoint
 OLLAMA_MODEL_NAME = "llama3"  # Replace with your actual model name
 
