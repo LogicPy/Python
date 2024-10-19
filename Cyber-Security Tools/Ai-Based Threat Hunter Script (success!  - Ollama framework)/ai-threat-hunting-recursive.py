@@ -83,7 +83,22 @@ def analyze_response(response):
     Analyze the response to determine if a vulnerability exists.
     """
     if "alert(1)" in response.text or "whoami" in response.text:
-        print("Possible vulnerability detected!")
+        print("Possible XSS vulnerability detected!")
+        return True
+    elif "' OR '1'='1" in response.text or "' OR 'x'='x" in response.text:
+        print("Possible SQL Injection vulnerability detected!")
+        return True
+    elif "<form><input type='hidden' name='csrf_token' value='12345'></form>" in response.text:
+        print("Possible CSRF vulnerability detected!")
+        return True
+    elif "{{7*7}}" in response.text or "${7*7}" in response.text:
+        print("Possible SSTI vulnerability detected!")
+        return True
+    elif "/../../../../etc/passwd" in response.text:
+        print("Possible Directory Traversal vulnerability detected!")
+        return True
+    elif "127.0.0.1; cat /etc/passwd" in response.text:
+        print("Possible RCE vulnerability detected!")
         return True
     else:
         print("No vulnerability detected in this test.")
