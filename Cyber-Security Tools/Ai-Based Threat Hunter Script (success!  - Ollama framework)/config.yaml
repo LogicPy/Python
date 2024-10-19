@@ -1,0 +1,10 @@
+# config.yaml
+api_keys:
+  mem0: "mem0_API_Key"
+
+api_endpoints:
+  chat: "http://localhost:11434/api/chat"
+
+logging:
+  file: "threat_hunting.log"
+  level: "DEBUG"
