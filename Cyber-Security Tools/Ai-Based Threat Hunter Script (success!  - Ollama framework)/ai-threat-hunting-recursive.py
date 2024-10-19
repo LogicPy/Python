@@ -78,7 +78,6 @@ def log_ai_response(ai_response):
         print(f"Failed to write AI response to log: {e}")
 
 
-
 def analyze_response(response):
     """
     Analyze the response to determine if a vulnerability exists.
@@ -90,14 +89,6 @@ def analyze_response(response):
         print("No vulnerability detected in this test.")
         return False
 
-def get_groq_response(email_content):
-    """
-    Placeholder function to interface with the Groq AI model.
-    Replace this with the actual implementation.
-    """
-    # Example implementation (replace with actual AI model call)
-    # For demonstration, returning a mock response
-    return "Phishing: This email contains suspicious links and requests personal information."
 
 def suggest_remediation(vulnerability_type):
     """
@@ -136,7 +127,7 @@ def generate(user_id: str, prompt: str, target_url: str = None):
 
     # Construct the payload for the AI model
     payload = {
-        "model": "llama2-uncensored:latest",  # Choose a more aggressive and suitable model, such as "White Rabbit Neo". ;)
+        "model": "jimscard/blackhat-hacker:latest",  # Choose a more aggressive and suitable model, such as "White Rabbit Neo". ;)
         "messages": [
             {
                 "role": "system",
@@ -148,6 +139,12 @@ def generate(user_id: str, prompt: str, target_url: str = None):
                     "3. **Rate Limiting Bypass**\n"
                     "4. **Command Injection**\n"
                     "5. **SSRF (Server-Side Request Forgery)**\n"
+                    "6. **CSRF (Cross-Site Request Forgery)**\n"
+                    "7. **SSTI (Server-Side Template Injection)**\n"
+                    "8. **Directory Traversal**\n"
+                    "9. **File Inclusion**\n"
+                    "10. **RCE (Remote Code Execution)**\n"
+                    "11. **Zero-Day Exploits**\n"
                     "Run these tests on the target URL and analyze the responses."
                 ),
             },
@@ -280,12 +277,20 @@ def test_for_exploits(target_url):
     xss_payloads = ["<script>alert(1)</script>", "<img src=x onerror=alert(1)>"]
     sql_injection_payloads = ["' OR '1'='1", "' OR 'x'='x"]
     command_injection_payloads = ["; ls", "| whoami"]
+    csrf_payloads = ["<form><input type='hidden' name='csrf_token' value='12345'></form>"]
+    ssti_payloads = ["{{7*7}}", "${7*7}"]
+    directory_traversal_payloads = ["/../../../../etc/passwd"]
+    file_inclusion_payloads = ["/../../../../etc/passwd"]
+    rce_payloads = ["127.0.0.1; cat /etc/passwd"]
+    zero_day_payloads = ["exploit_payload_for_zero_day_vulnerability"]
+    ssrf_payloads = ["http://localhost", "http://127.0.0.1"]
 
     # Test XSS payloads
     for payload in xss_payloads:
         print(f"Testing XSS with payload: {payload}")
         generate(user_id, "test for XSS vulnerabilities", target_url=start_url)
         params = {'input': payload}
+        print(target_url)
         try:
             response = requests.get(target_url, params=params, timeout=10)
             if analyze_response(response):
@@ -298,6 +303,7 @@ def test_for_exploits(target_url):
     for payload in sql_injection_payloads:
         print(f"Testing SQL Injection with payload: {payload}")
         generate(user_id, "test for SQLi vulnerabilities", target_url=start_url)
+        print(target_url)
 
         data = {'input': payload}
         try:
@@ -312,6 +318,7 @@ def test_for_exploits(target_url):
     for payload in command_injection_payloads:
         print(f"Testing Command Injection with payload: {payload}")
         generate(user_id, "test for Command Injection vulnerabilities", target_url=start_url)
+        print(target_url)
 
         data = {'cmd': payload}
         try:
@@ -321,6 +328,97 @@ def test_for_exploits(target_url):
         except requests.exceptions.RequestException as e:
             logging.error(f"Command Injection test failed for {target_url}: {e}")
             print(f"Command Injection test failed for {target_url}: {e}")
+
+    # Test CSRF payloads
+    for payload in csrf_payloads:
+        print(f"Testing CSRF with payload: {payload}")
+        generate(user_id, "test for CSRF vulnerabilities", target_url=start_url)
+        print(target_url)
+        try:
+            response = requests.post(target_url, data=payload, timeout=10)
+            if analyze_response(response):
+                detected_vulnerabilities.append("CSRF")
+        except requests.exceptions.RequestException as e:
+            logging.error(f"CSRF test failed for {target_url}: {e}")
+            print(f"CSRF test failed for {target_url}: {e}")
+
+    # Test SSTI payloads
+    for payload in ssti_payloads:
+        print(f"Testing SSTI with payload: {payload}")
+        generate(user_id, "test for SSTI vulnerabilities", target_url=start_url)
+        print(target_url)
+        try:
+            response = requests.get(target_url, params={'input': payload}, timeout=10)
+            if analyze_response(response):
+                detected_vulnerabilities.append("SSTI")
+        except requests.exceptions.RequestException as e:
+            logging.error(f"SSTI test failed for {target_url}: {e}")
+            print(f"SSTI test failed for {target_url}: {e}")
+
+    # Test Directory Traversal payloads
+    for payload in directory_traversal_payloads:
+        print(f"Testing Directory Traversal with payload: {payload}")
+        generate(user_id, "test for Directory Traversal vulnerabilities", target_url=start_url)
+        print(target_url)
+        try:
+            response = requests.get(target_url, params={'file': payload}, timeout=10)
+            if analyze_response(response):
+                detected_vulnerabilities.append("Directory Traversal")
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Directory Traversal test failed for {target_url}: {e}")
+            print(f"Directory Traversal test failed for {target_url}: {e}")
+
+    # Test File Inclusion payloads
+    for payload in file_inclusion_payloads:
+        print(f"Testing File Inclusion with payload: {payload}")
+        generate(user_id, "test for File Inclusion vulnerabilities", target_url=start_url)
+        print(target_url)
+        try:
+            response = requests.get(target_url, params={'file': payload}, timeout=10)
+            if analyze_response(response):
+                detected_vulnerabilities.append("File Inclusion")
+        except requests.exceptions.RequestException as e:
+            logging.error(f"File Inclusion test failed for {target_url}: {e}")
+            print(f"File Inclusion test failed for {target_url}: {e}")
+
+    # Test RCE payloads
+    for payload in rce_payloads:
+        print(f"Testing RCE with payload: {payload}")
+        generate(user_id, "test for RCE vulnerabilities", target_url=start_url)
+        print(target_url)
+        try:
+            response = requests.get(target_url, params={'cmd': payload}, timeout=10)
+            if analyze_response(response):
+                detected_vulnerabilities.append("RCE")
+        except requests.exceptions.RequestException as e:
+            logging.error(f"RCE test failed for {target_url}: {e}")
+            print(f"RCE test failed for {target_url}: {e}")
+
+    # Test Zero-Day payloads
+    for payload in zero_day_payloads:
+        print(f"Testing Zero-Day with payload: {payload}")
+        generate(user_id, "test for Zero-Day vulnerabilities", target_url=start_url)
+        print(target_url)
+        try:
+            response = requests.post(target_url, data=payload, timeout=10)
+            if analyze_response(response):
+                detected_vulnerabilities.append("Zero-Day")
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Zero-Day test failed for {target_url}: {e}")
+            print(f"Zero-Day test failed for {target_url}: {e}")
+
+    # Test SSRF payloads
+    for payload in ssrf_payloads:
+        print(f"Testing SSRF with payload: {payload}")
+        generate(user_id, "test for SSRF vulnerabilities", target_url=start_url)
+        print(target_url)
+        try:
+            response = requests.get(payload, timeout=10)
+            if analyze_response(response):
+                detected_vulnerabilities.append("SSRF")
+        except requests.exceptions.RequestException as e:
+            logging.error(f"SSRF test failed for {target_url}: {e}")
+            print(f"SSRF test failed for {target_url}: {e}")
 
     return detected_vulnerabilities
 
