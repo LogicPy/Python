@@ -37,7 +37,7 @@ class MSFChatApp(App):
         # Main layout
         self.user_id = "default_user"
         self.user_context = {}
-        self.client = MemoryClient(api_key="m0-ltqgD0YwadthcfiM53LdQTabwf7rYvTBOHHPwyIc")
+        self.client = MemoryClient(api_key="m0-Your_API_Key_Here")
 
         self.layout = BoxLayout(orientation='vertical')
 
