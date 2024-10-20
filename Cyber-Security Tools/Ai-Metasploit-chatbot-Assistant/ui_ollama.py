@@ -9,7 +9,6 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image
 from kivy.uix.textinput import TextInput
-from kivy.uix.button import Button
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.label import Label
 from kivy.uix.behaviors import ButtonBehavior
@@ -17,6 +16,7 @@ from kivy.graphics import Color, Rectangle
 from kivy.clock import Clock
 import pyperclip
 from kivy.core.window import Window
+import threading
 
 # Optional: Set window size for better visibility during development
 Window.size = (800, 600)
@@ -51,47 +51,53 @@ class KeygenButton(ButtonBehavior, Label):
 
 class MSFChatApp(App):
     def build(self):
-        # Main layout
-        self.user_id = "default_user"
-        self.user_context = {}
-        self.client = MemoryClient(api_key="m0-Mem0_api_key")
+        try:
+            # Initialize the main layout
+            self.layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
+            
+            # Initialize user context and client
+            self.user_id = "default_user"
+            self.user_context = {}
+            self.client = MemoryClient(api_key="m0-Mem0_API_Key")
 
-        self.layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
+            # Header Image
+            header = Image(source='header.png', size_hint=(1, 0.2))
+            self.layout.add_widget(header)
 
-        # Header Image
-        header = Image(source='header.png', size_hint=(1, 0.2))
-        self.layout.add_widget(header)
+            # Chat Interface with ScrollView
+            self.chat_content = GridLayout(cols=1, size_hint_y=None, padding=10, spacing=10)
+            self.chat_content.bind(minimum_height=self.chat_content.setter('height'))
+            self.chat_window = ScrollView(size_hint=(1, 0.6), do_scroll_x=False)
+            self.chat_window.add_widget(self.chat_content)
+            self.layout.add_widget(self.chat_window)
 
-        # Chat Interface with ScrollView
-        self.chat_content = GridLayout(cols=1, size_hint_y=None, padding=10, spacing=10)
-        self.chat_content.bind(minimum_height=self.chat_content.setter('height'))
-        self.chat_window = ScrollView(size_hint=(1, 0.6), do_scroll_x=False)
-        self.chat_window.add_widget(self.chat_content)
-        self.layout.add_widget(self.chat_window)
+            # Input and Button Bar
+            input_box = BoxLayout(orientation='horizontal', size_hint=(1, 0.2), spacing=10)
+            self.user_input = TextInput(size_hint=(0.7, 1), multiline=False, hint_text="Type your message here...")
+            input_box.add_widget(self.user_input)
 
-        # Input and Button Bar
-        input_box = BoxLayout(orientation='horizontal', size_hint=(1, 0.2), spacing=10)
-        self.user_input = TextInput(size_hint=(0.7, 1), multiline=False, hint_text="Type your message here...")
-        input_box.add_widget(self.user_input)
+            # SEND Button
+            send_button = KeygenButton(text='SEND')
+            send_button.bind(on_release=self.on_send)
+            input_box.add_widget(send_button)
 
-        # SEND Button
-        send_button = KeygenButton(text='SEND')
-        send_button.bind(on_release=self.on_send)
-        input_box.add_widget(send_button)
+            # CLEAR Button
+            clear_button = KeygenButton(text='CLEAR')
+            clear_button.bind(on_release=self.on_clear)
+            input_box.add_widget(clear_button)
 
-        # CLEAR Button
-        clear_button = KeygenButton(text='CLEAR')
-        clear_button.bind(on_release=self.on_clear)
-        input_box.add_widget(clear_button)
+            # COPY Button
+            copy_button = KeygenButton(text='COPY')
+            copy_button.bind(on_release=self.copy_last_ai_message)
+            input_box.add_widget(copy_button)
 
-        # COPY Button
-        copy_button = KeygenButton(text='COPY')
-        copy_button.bind(on_release=self.copy_last_ai_message)
-        input_box.add_widget(copy_button)
+            self.layout.add_widget(input_box)
 
-        self.layout.add_widget(input_box)
+            return self.layout
 
-        return self.layout
+        except Exception as e:
+            print(f"Error in build method: {e}")
+            return BoxLayout()  # Return an empty layout to prevent crashing
 
     def on_send(self, instance):
         prompt = self.user_input.text
@@ -113,19 +119,22 @@ class MSFChatApp(App):
                 halign='left',
                 valign='middle',
                 text_size=(self.chat_window.width * 0.8, None),
-                color=(0, 0.75, 1, 1)  # Blue text for AI messages
+                color=(0, 0.75, 1, 1)  # Updated color
             )
             # Bind texture_size to dynamically adjust height
-            ai_label.bind(
-                texture_size=self.update_label_height(ai_label)
-            )
+            ai_label.bind(texture_size=lambda instance, size: setattr(instance, 'height', size[1]))
             # Bind width to update text_size dynamically on window resize
-            ai_label.bind(width=lambda *args: self.update_label_text_size(ai_label))
-            ai_box.add_widget(Label(size_hint=(0.1, None), height=ai_label.texture_size[1]))  # Left Spacer
+            ai_label.bind(width=lambda *args: setattr(ai_label, 'text_size', (self.chat_window.width * 0.8, None)))
+            ai_box.add_widget(Label(size_hint=(0.1, None), height=ai_label.height))  # Left Spacer
             ai_box.add_widget(ai_label)
-            ai_box.add_widget(Label(size_hint=(0.1, None), height=ai_label.texture_size[1]))  # Right Spacer
-            ai_box.height = ai_label.texture_size[1] + 20  # Adjust height based on text
+            ai_box.add_widget(Label(size_hint=(0.1, None), height=ai_label.height))  # Right Spacer
+            ai_box.height = ai_label.height + 20  # Adjust height based on text
+
+            # Add AI box to chat content
             self.chat_content.add_widget(ai_box)
+            
+            # Debug Statement
+            print(f"AI Label Height: {ai_label.height}, Texture Size: {ai_label.texture_size}")
         else:
             # User messages aligned to the left
             user_label = Label(
@@ -142,17 +151,12 @@ class MSFChatApp(App):
             )
             user_label.height = user_label.texture_size[1]
             self.chat_content.add_widget(user_label)
+            
+            # Debug Statement
+            print(f"User Label Height: {user_label.height}, Texture Size: {user_label.texture_size}")
         
         # Scroll to the latest message
         Clock.schedule_once(lambda dt: self.chat_window.scroll_to(self.chat_content.children[-1]), 0.1)
-
-    def update_label_height(self, label):
-        def _update_label(instance, size):
-            label.height = size[1]
-        return _update_label
-
-    def update_label_text_size(self, label):
-        label.text_size = (self.chat_window.width * 0.8, None)
 
     def play_audio_from_stream(self, output_text):
         audio_data = self.get_tts_stream(output_text)
@@ -198,6 +202,10 @@ class MSFChatApp(App):
             print("No AI message found to copy.")
 
     def generate(self, user_id, prompt):
+        # Run the generate function in a separate thread to keep the UI responsive
+        threading.Thread(target=self.perform_generate, args=(user_id, prompt)).start()
+
+    def perform_generate(self, user_id, prompt):
         context = self.user_context.get(user_id, "")
         context += f"User: {prompt}\n"
         user_input = context
@@ -268,11 +276,15 @@ Note: The above steps are based on known vulnerabilities in WordPress 5.2.4. Alw
             self.user_context[user_id] = context
 
             ai_output = combined_response.strip()
-            self.append_message("AI", ai_output)
-            self.play_audio_from_stream(ai_output)
+            Clock.schedule_once(lambda dt: self.update_ui_with_ai_response(ai_output), 0.1)
 
         except requests.exceptions.RequestException as e:
             print(f"Error: {e}")
+            Clock.schedule_once(lambda dt: self.append_message("Error", "Failed to get AI response."), 0.1)
+
+    def update_ui_with_ai_response(self, ai_output):
+        self.append_message("AI", ai_output)
+        self.play_audio_from_stream(ai_output)
 
 if __name__ == '__main__':
     MSFChatApp().run()
