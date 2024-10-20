@@ -107,7 +107,26 @@ class MSFChatApp(App):
             self.user_input.text = ""
 
     def on_clear(self, instance):
-        self.user_input.text = ""
+        """
+        Clears all AI messages from the chat content, regardless of their labeling.
+        """
+        # Define all possible prefixes that identify AI messages
+        ai_prefixes = ["AI:", "assistant:"]  # Add any other prefixes used for AI messages
+
+        # Iterate over a copy of the children list to avoid modification during iteration
+        for widget in self.chat_content.children[:]:
+            if isinstance(widget, BoxLayout):
+                for child in widget.children:
+                    if isinstance(child, Label):
+                        text = child.text.lower()  # Case-insensitive comparison
+                        if any(text.startswith(prefix.lower()) for prefix in ai_prefixes):
+                            self.chat_content.remove_widget(widget)
+                            break  # Move to the next widget after removing the current one
+            elif isinstance(widget, Label):
+                text = widget.text.lower()
+                if any(text.startswith(prefix.lower()) for prefix in ai_prefixes):
+                    self.chat_content.remove_widget(widget)
+
 
     def append_message(self, role, message):
         if role == "AI":
