@@ -1,15 +1,19 @@
 import pygame
 import random
 
-# Initialize Pygame
-pygame.init()
+# Add this after your imports and constants
+lines_cleared_total = 0
 
+# Initialize Pygame
+
+pygame.init()
 # Constants
 SCREEN_WIDTH = 300
 SCREEN_HEIGHT = 600
 BLOCK_SIZE = 30
 GRID_WIDTH = SCREEN_WIDTH // BLOCK_SIZE
 GRID_HEIGHT = SCREEN_HEIGHT // BLOCK_SIZE
+
 
 # Colors
 BLACK = (0, 0, 0)
@@ -35,12 +39,20 @@ SHAPES = [
 
 grid = [[0 for _ in range(GRID_WIDTH)] for _ in range(GRID_HEIGHT)]
 
-
-# Grid
-# ... (previous code remains the same until the following changes)
 def new_piece():
     shape = random.choice(SHAPES)
     return {'shape': shape, 'rotation': 0, 'x': GRID_WIDTH // 2 - len(shape[0]) // 2, 'y': 0, 'color': random.choice([CYAN, BLUE, ORANGE, YELLOW, GREEN, PURPLE, RED])}
+
+# Window setup with resizable flag
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Tetris")
+clock = pygame.time.Clock()
+fall_time = 0
+fall_speed = 0.05  # Starting fall speed
+current_piece = new_piece()
+game_over = False
+score = 0
+paused = False
 
 def valid_move(piece, x, y):
     for i, row in enumerate(piece['shape']):
@@ -60,19 +72,11 @@ def clear_lines():
             lines_cleared += 1
     return lines_cleared
 
-
 def add_to_grid(piece):
     for i, row in enumerate(piece['shape']):
         for j, cell in enumerate(row):
             if cell:
                 grid[piece['y'] + i][piece['x'] + j] = piece['color']
-
-def clear_lines():
-    full_lines = [i for i, row in enumerate(grid) if all(row)]
-    for line in sorted(full_lines, reverse=True):
-        del grid[line]
-        grid.insert(0, [0 for _ in range(GRID_WIDTH)])
-    return len(full_lines)
 
 def draw_grid(screen):
     for y, row in enumerate(grid):
@@ -99,61 +103,88 @@ def valid_rotation(piece, rotation):
                     return False
     return True
 
-# ... (previous code remains the same until the main game loop)
-
-# Main game loop
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Tetris")
-clock = pygame.time.Clock()
-fall_time = 0
-fall_speed = 0.5
-current_piece = new_piece()
-game_over = False
-score = 0
-
 while not game_over:
-    fall_time += clock.get_rawtime()
-    clock.tick()
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            game_over = True
+        if event.type == pygame.KEYDOWN:
+            if paused:  # Only handle 'P' key when paused
+                if event.key == pygame.K_p:
+                    paused = False  # Unpause the game
+            else:
+                if event.key == pygame.K_LEFT:
+                    if valid_move(current_piece, current_piece['x'] - 1, current_piece['y']):
+                        current_piece['x'] -= 1
+                if event.key == pygame.K_RIGHT:
+                    if valid_move(current_piece, current_piece['x'] + 1, current_piece['y']):
+                        current_piece['x'] += 1
+                if event.key == pygame.K_DOWN:
+                    if valid_move(current_piece, current_piece['x'], current_piece['y'] + 1):
+                        current_piece['y'] += 1
+                if event.key == pygame.K_UP:  # Rotate piece
+                    new_shape = rotate_piece(current_piece)
+                    if valid_rotation(current_piece, new_shape):
+                        current_piece['shape'] = new_shape
+                if event.key == pygame.K_p:
+                    print("P key pressed.")  # Debug print
+                    paused = not paused  # Toggle pause
+                    if paused:
+                        print(f"Game paused. Current fall speed: {fall_speed:.2f}")
 
+
+
+
+    if not paused:
+        fall_time += clock.get_rawtime()
     if fall_time / 1000 > fall_speed:
         fall_time = 0
         if valid_move(current_piece, current_piece['x'], current_piece['y'] + 1):
             current_piece['y'] += 1
         else:
             add_to_grid(current_piece)
-            score += clear_lines() * 100  # Score increases by 100 per line cleared
+            lines_cleared = clear_lines()
+            lines_cleared_total += lines_cleared
+            print(f"Lines cleared total: {lines_cleared_total}")  # Debug print
+            score += lines_cleared * 100
+            
+            # Adjust fall speed here
+            # Adjust fall speed using a more gradual progression
+            if lines_cleared_total % 5 == 0:  # Speed up every 5 lines cleared
+                fall_speed = max(0.02, 0.05 * (0.9 ** (lines_cleared_total // 5)))
+            print(f"Lines Cleared: {lines_cleared_total}, Current Fall Speed: {fall_speed:.3f}")
+            print(f"Current fall speed: {fall_speed:.2f}")  # Debug print for fall_speed
+
             current_piece = new_piece()
             if not valid_move(current_piece, current_piece['x'], current_piece['y']):
                 game_over = True
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            game_over = True
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT:
-                if valid_move(current_piece, current_piece['x'] - 1, current_piece['y']):
-                    current_piece['x'] -= 1
-            if event.key == pygame.K_RIGHT:
-                if valid_move(current_piece, current_piece['x'] + 1, current_piece['y']):
-                    current_piece['x'] += 1
-            if event.key == pygame.K_DOWN:
-                if valid_move(current_piece, current_piece['x'], current_piece['y'] + 1):
-                    current_piece['y'] += 1
-            if event.key == pygame.K_UP:  # Rotate piece
-                new_shape = rotate_piece(current_piece)
-                if valid_rotation(current_piece, new_shape):
-                    current_piece['shape'] = new_shape
-
+    # Drawing
     screen.fill(BLACK)
     draw_grid(screen)
-    # Draw current piece
-    for i, row in enumerate(current_piece['shape']):
-        for j, cell in enumerate(row):
-            if cell:
-                pygame.draw.rect(screen, current_piece['color'], 
-                                 (BLOCK_SIZE * (current_piece['x'] + j), 
-                                  BLOCK_SIZE * (current_piece['y'] + i), 
-                                  BLOCK_SIZE, BLOCK_SIZE))
+    
+    if paused:
+        font = pygame.font.Font(None, 36)
+        text = font.render("PAUSED - Press P to Resume", True, WHITE)
+        text_rect = text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 20))  # Adjusted for space
+        screen.blit(text, text_rect)
+        
+        # Render fall speed
+        speed_text = font.render(f"Fall Speed: {fall_speed:.2f}", True, WHITE)
+        speed_rect = speed_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 20))  # Below paused text
+        screen.blit(speed_text, speed_rect)
+
+    else:
+        print(fall_speed)
+        # Draw current piece
+        for i, row in enumerate(current_piece['shape']):
+            for j, cell in enumerate(row):
+                if cell:
+                    pygame.draw.rect(screen, current_piece['color'], 
+                                     (BLOCK_SIZE * (current_piece['x'] + j), 
+                                      BLOCK_SIZE * (current_piece['y'] + i), 
+                                      BLOCK_SIZE, BLOCK_SIZE))
+
     pygame.display.flip()
+    clock.tick(60)
 
 pygame.quit()
