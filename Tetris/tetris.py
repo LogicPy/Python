@@ -112,6 +112,19 @@ while not game_over:
                 if event.key == pygame.K_p:
                     paused = False  # Unpause the game
             else:
+                # Inside the main game loop, after the existing key handling code, add:
+
+                if event.key == pygame.K_SPACE:  # Space bar to hard drop
+                    while valid_move(current_piece, current_piece['x'], current_piece['y'] + 1):
+                        current_piece['y'] += 1
+                    add_to_grid(current_piece)
+                    lines_cleared = clear_lines()
+                    lines_cleared_total += lines_cleared
+                    score += lines_cleared * 100
+                    # Adjust fall speed logic here if needed
+                    current_piece = new_piece()
+                    if not valid_move(current_piece, current_piece['x'], current_piece['y']):
+                        game_over = True
                 if event.key == pygame.K_LEFT:
                     if valid_move(current_piece, current_piece['x'] - 1, current_piece['y']):
                         current_piece['x'] -= 1
