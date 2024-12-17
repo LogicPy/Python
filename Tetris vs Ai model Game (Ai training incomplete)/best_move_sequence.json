@@ -1,0 +1,25 @@
+{
+    "I": [
+        "left"
+    ],
+    "O": [
+        "left"
+    ],
+    "T": [
+        "left"
+    ],
+    "S": [
+        "right"
+    ],
+    "Z": [
+        "rotate",
+        "left"
+    ],
+    "J": [
+        "rotate",
+        "right"
+    ],
+    "L": [
+        "right"
+    ]
+}
