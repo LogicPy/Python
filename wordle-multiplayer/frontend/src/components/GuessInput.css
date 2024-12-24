@@ -1,0 +1,33 @@
+/* frontend/src/components/GuessInput.css */
+
+.guess-input {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.guess-input input {
+  width: 200px;
+  padding: 10px;
+  font-size: 16px;
+  text-transform: uppercase;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  margin-right: 10px;
+}
+
+.guess-input button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #6aaa64;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.guess-input button:disabled {
+  background-color: #888;
+  cursor: not-allowed;
+}
+

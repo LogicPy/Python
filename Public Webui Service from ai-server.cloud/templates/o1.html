@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Matrix Rain ChatUI</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: black;
+      font-family: Arial, sans-serif;
+      color: #00ff00;
+    }
+    canvas {
+      display: block;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+    .chat-container {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 600px;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #00ff00;
+    }
+    #chat-log {
+      max-height: 300px;
+      overflow-y: auto;
+      margin-bottom: 10px;
+    }
+    #chat-log p {
+      margin: 5px 0;
+    }
+    #user-input {
+      width: 80%;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      margin-right: 5px;
+    }
+    #send-button, #play-button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      background: #00ff00;
+      color: black;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    #send-button:hover, #play-button:hover {
+      background: #00e600;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+
+<div class="chat-container">
+  <div id="chat-log"></div>
+  <input type="text" id="user-input" placeholder="Type your message here...">
+  <button id="send-button">Send</button>
+  <button id="play-button">Play Audio</button>
+</div>
+
+<script>
+  // Matrix Rain Background Script (as provided)
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const letters = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロゴゾドボポヴッン';
+  const fontSize = 16;
+  let columns = Math.floor(canvas.width / fontSize);
+  const drops = [];
+
+  for (let x = 0; x < columns; x++) {
+    drops[x] = {
+      y: Math.random() * canvas.height,
+      colorHue: Math.random() * 360
+    };
+  }
+
+  function getColor(hue) {
+    return `hsl(${hue}, 100%, 50%)`;
+  }
+
+  function draw() {
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.font = `${fontSize}px monospace`;
+
+    for (let i = 0; i < drops.length; i++) {
+      const text = letters.charAt(Math.floor(Math.random() * letters.length));
+      const x = i * fontSize;
+      const y = drops[i].y * fontSize;
+
+      drops[i].colorHue += 0.5;
+      if (drops[i].colorHue > 360) {
+        drops[i].colorHue -= 360;
+      }
+
+      let color;
+      if (Math.random() < 0.01) {
+        color = Math.random() < 0.5 ? 'red' : 'pink';
+      } else {
+        color = getColor(drops[i].colorHue);
+      }
+
+      ctx.fillStyle = color;
+      ctx.fillText(text, x, y);
+
+      if (y > canvas.height && Math.random() > 0.975) {
+        drops[i].y = 0;
+        drops[i].colorHue = Math.random() * 360;
+      }
+
+      drops[i].y += 1;
+    }
+
+    requestAnimationFrame(draw);
+  }
+
+  draw();
+
+  window.addEventListener('resize', function() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    columns = Math.floor(canvas.width / fontSize);
+    drops.length = 0;
+    for (let x = 0; x < columns; x++) {
+      drops[x] = {
+        y: Math.random() * canvas.height,
+        colorHue: Math.random() * 360
+      };
+    }
+  });
+
+  // Chat Functionality Script
+  const chatLog = document.getElementById('chat-log');
+  const userInput = document.getElementById('user-input');
+  const sendButton = document.getElementById('send-button');
+  const playButton = document.getElementById('play-button');
+  let audioBlob = null;
+
+  sendButton.addEventListener('click', sendMessage);
+  userInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      sendMessage();
+    }
+  });
+
+  function sendMessage() {
+    const message = userInput.value.trim();
+    if (message === '') return;
+
+    appendMessage('You', message);
+    userInput.value = '';
+
+    fetch('/ask', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ prompt: message })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.response) {
+        appendMessage('AI', data.response);
+        if (data.audio_url) {
+          audioBlob = data.audio_url;
+        }
+      } else if (data.error) {
+        appendMessage('Error', data.error);
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      appendMessage('Error', 'Unable to process your request.');
+    });
+  }
+
+  function appendMessage(sender, message) {
+    const p = document.createElement('p');
+    p.innerHTML = `<strong>${sender}:</strong> ${message}`;
+    chatLog.appendChild(p);
+    chatLog.scrollTop = chatLog.scrollHeight;
+  }
+
+  playButton.addEventListener('click', playAudio);
+
+  function playAudio() {
+    if (audioBlob) {
+      const audio = new Audio(audioBlob);
+      audio.play().catch(error => {
+        console.error('Error playing audio:', error);
+      });
+    } else {
+      console.log("No audio available to play.");
+    }
+  }
+</script>
+
+</body>
+</html>
