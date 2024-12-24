@@ -1,0 +1,139 @@
+Let's integrate a **circular buffer** memory system into your `app.py` code to manage the last N user messages. This will ensure your app remembers a fixed number of previous messages for contextual responses.
+
+---
+
+### **Updated `app.py` with Circular Buffer**
+Here's how we can modify your code:
+
+#### 1. **Add the Circular Buffer Class**
+Add this class to your `app.py` file to handle the memory for AI conversations:
+
+```python
+class CircularBuffer:
+    def __init__(self, size):
+        self.size = size
+        self.buffer = [None] * size
+        self.head = 0
+        self.count = 0
+
+    def add(self, item):
+        self.buffer[self.head] = item
+        self.head = (self.head + 1) % self.size
+        self.count = min(self.count + 1, self.size)
+
+    def get_all(self):
+        if self.count < self.size:
+            return self.buffer[:self.count]
+        return self.buffer[self.head:] + self.buffer[:self.head]
+```
+
+#### 2. **Initialize the Circular Buffer**
+Modify the global scope to include an instance of `CircularBuffer` for tracking chat history:
+
+```python
+# Memory size for AI to remember past N messages
+MEMORY_SIZE = 5
+memory = CircularBuffer(size=MEMORY_SIZE)
+```
+
+#### 3. **Update the `/ask` Endpoint**
+Incorporate the memory into your `/ask` endpoint. Use the circular buffer to store and retrieve the last N messages for context:
+
+```python
+@app.route('/ask', methods=['POST'])
+def ask():
+    """Endpoint to handle the chat message."""
+    try:
+        user_prompt = request.json['prompt']
+        model = request.json['model']
+
+        if model not in api_keys:
+            return jsonify({"error": "Invalid model selected"}), 400
+
+        # Add the user prompt to the memory buffer
+        memory.add({"role": "user", "content": user_prompt})
+
+        # Retrieve all memory messages for context
+        memory_messages = memory.get_all()
+
+        # Prepare payload with memory messages
+        payload = {
+            "messages": [{"role": "system", "content": "You are a helpful assistant."}] + memory_messages,
+            "model": "llama3-8b-8192" if model == 'groq' else "grok-beta",
+            "stream": False
+        }
+
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {api_keys[model]}",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36"
+        }
+
+        # Send API request
+        response = requests.post(api_urls[model], headers=headers, json=payload)
+        if response.status_code == 200:
+            json_response = response.json()
+            message_content = json_response['choices'][0]['message']['content']
+
+            # Add AI response to the memory buffer
+            memory.add({"role": "assistant", "content": message_content})
+
+            return jsonify({"response": message_content})
+        else:
+            return jsonify({"error": f"API request failed with status code {response.status_code}"}), response.status_code
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+```
+
+---
+
+### **How This Works**
+1. **Circular Buffer for Memory**:
+   - User messages and AI responses are stored in the circular buffer.
+   - When the buffer is full, the oldest messages are overwritten.
+   
+2. **Contextual Responses**:
+   - Every API call includes the buffered memory, ensuring the AI has context for the conversation.
+
+3. **Seamless Integration**:
+   - The `/ask` endpoint dynamically adjusts to include memory without needing additional database queries or complexity.
+
+---
+
+### **Update the HTML (Optional)**
+If you'd like the chat log to show the retained memory, you can update the JavaScript in your `index.html` file to display messages from the memory buffer:
+
+```javascript
+// Add a function to fetch chat memory
+function fetchChatMemory() {
+    fetch('/memory')
+        .then(response => response.json())
+        .then(memory => {
+            const chatLog = document.getElementById('chat-log');
+            chatLog.innerHTML = ''; // Clear the log
+            memory.forEach(msg => {
+                chatLog.innerHTML += `<p><strong>${msg.role}:</strong> ${escapeHtml(msg.content)}</p>`;
+            });
+        });
+}
+```
+
+---
+
+### **Optional `/memory` Endpoint**
+To allow the front-end to fetch the current memory, you can add an endpoint like this:
+
+```python
+@app.route('/memory', methods=['GET'])
+def get_memory():
+    """Endpoint to fetch the current memory."""
+    return jsonify(memory.get_all())
+```
+
+---
+
+### Final Notes
+- You can set `MEMORY_SIZE` to any value (e.g., 5, 10) based on how much context your AI needs.
+- The buffer handles memory efficiently without using extra resources.
+
+Let me know how this works for you or if you need further adjustments, my brilliant coding friend! 😊 ❤️

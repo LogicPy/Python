@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Explore the ultimate AI web UI featuring advanced models like Grok, Groq, AI21 J1 Jumbo, and Cohere. Perfect for coding, learning, and enhancing your AI projects!">
+    <meta name="keywords" content="AI Web UI, Grok, Groq, AI21 J1 Jumbo, Cohere, Coding AI, AI for Developers, AI Tools, AI API Integration, Circular Buffer Memory System">
+    <meta name="author" content="Wayne Kenney">
+    <meta name="robots" content="index, follow">
+    <meta name="googlebot" content="index, follow">
+    <title>Ultimate AI Web UI for Developers</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+	<link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+    <!-- Animate.css for animations -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+
+    <!-- Font Awesome for better icons (Optional) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    <style>
+        /* Reset margins and paddings */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Define CSS variables for Matrix Rain (Night Mode - Default) */
+        :root {
+            /* Existing CSS variables */
+            --background-color: black;
+            --container-background: rgba(0, 0, 0, 0.8);
+            --text-color: #0F0; /* Green text */
+            --input-background: rgba(0, 0, 0, 0.5);
+            --input-text-color: #0F0;
+            --button-background: #0F0;
+            --button-text-color: black;
+            --button-hover-bg: #05C105;
+            --button-active-bg: #049404;
+            --border-color: #0F0;
+            --box-shadow: 0 8px 16px rgba(0, 255, 0, 0.3);
+
+            /* Matrix Rain Colors */
+            --matrix-bg-trail: rgba(0, 0, 0, 0.05); /* Trail opacity */
+            --matrix-text-color: #0F0; /* Green text */
+
+            /* three.js Object Color */
+            --threejs-object-color: 0x00ff00; /* Green */
+        }
+
+        /* Define CSS variables for Matrix Rain (Day Mode) */
+        body.day-mode {
+            --background-color: #f0f0f0;
+            --container-background: rgba(255, 255, 255, 0.8);
+            --text-color: #FFF; /* Black text */
+            --input-background: rgba(255, 255, 255, 0.5);
+            --input-text-color: #000;
+            --button-background: #0F0; /* Keep buttons green or change as desired */
+            --button-text-color: black;
+            --button-hover-bg: #05C105;
+            --button-active-bg: #049404;
+            --border-color: #0F0;
+            --box-shadow: 0 8px 16px rgba(0, 255, 0, 0.3);
+
+			h1 { color: Black; }
+
+            /* Matrix Rain Colors */
+            --matrix-bg-trail: rgba(255, 255, 255, 0.05); /* Trail opacity for Day Mode */
+            --matrix-text-color: #000; /* Black text for Day Mode */
+
+            /* three.js Object Color */
+            --threejs-object-color: 0x000000; /* Black */
+        }
+
+        /* Apply the CSS variables */
+        body {
+            position: relative;
+            height: 100vh;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background: var(--background-color); /* Use CSS variable */
+            transition: background-color 0.5s, color 0.5s;
+        }
+
+        /* Canvas styling: fixed to cover the entire background */
+        #canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Ensure canvas stays behind all other elements */
+            background: var(--background-color); /* Fallback background */
+            transition: background-color 0.5s;
+        }
+
+        /* Container for the chat UI with higher z-index */
+        .container {
+            position: relative;
+            z-index: 1;
+            padding: 20px;
+            margin-top: 50px;
+            background: var(--container-background); /* Use CSS variable */
+            border-radius: 10px;
+            box-shadow: var(--box-shadow); /* Use CSS variable */
+            color: var(--text-color); /* Use CSS variable */
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            transition: background-color 0.5s, color 0.5s, box-shadow 0.5s;
+        }
+
+        h1 {
+            color: var(--text-color); /* Use CSS variable */
+            text-shadow: 0 0 10px var(--text-color);
+            transition: color 0.5s, text-shadow 0.5s;
+        }
+
+        #chat-log {
+            display: flex;
+            flex-direction: column;
+            height: 400px;
+            overflow-y: scroll;
+            border: 1px solid var(--border-color); /* Use CSS variable */
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background: rgba(0, 0, 0, 0.7); /* Adjust if needed */
+            color: var(--text-color); /* Use CSS variable */
+            font-family: 'Courier New', Courier, monospace;
+            transition: background-color 0.5s, color 0.5s, border-color 0.5s;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+		
+		button {
+			padding: 10px 20px;
+			font-size: 16px;
+			border: none;
+			border-radius: 4px;
+			cursor: pointer;
+		}
+		button {
+			min-width: 100px;
+			min-height: 40px;
+		}
+
+		#theme-toggle 
+		{
+		padding: 0 !important;
+		min-width: 30px !important;
+		min-height: 30px !important;
+		}
+
+        .form-control, .btn {
+            border-radius: 5px;
+            background: var(--input-background); /* Use CSS variable */
+            color: var(--input-text-color); /* Use CSS variable */
+            border: 1px solid var(--border-color); /* Use CSS variable */
+            transition: background-color 0.5s, color 0.5s, border-color 0.5s;
+        }
+
+        .form-control::placeholder {
+            color: var(--input-text-color); /* Use CSS variable */
+        }
+
+        /* Animation classes */
+        .animate-from-right, .animate-from-left {
+            opacity: 0;
+        }
+
+        /* Button Styling */
+        .audio-playback-button {
+            background-color: var(--button-background); /* Use CSS variable */
+            border: none;
+            color: var(--button-text-color); /* Use CSS variable */
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 4px 2px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            border-radius: 5px;
+        }
+
+        .audio-playback-button:hover {
+            background-color: var(--button-hover-bg); /* Use CSS variable */
+            transform: scale(1.05);
+        }
+
+        .audio-playback-button:active {
+            background-color: var(--button-active-bg); /* Use CSS variable */
+            transform: scale(0.95);
+        }
+
+        /* Code Container Styling */
+        .code-container {
+            position: relative;
+            background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent black */
+            border: 1px solid var(--border-color); /* Use CSS variable */
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 10px;
+            transition: background-color 0.5s, border-color 0.5s;
+        }
+
+        .code-container pre {
+            margin: 0;
+            overflow-x: auto;
+            color: var(--text-color); /* Use CSS variable */
+            transition: color 0.5s;
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 12px;
+            padding: 5px 10px;
+            background-color: var(--button-background); /* Use CSS variable */
+            color: var(--button-text-color); /* Use CSS variable */
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .copy-button:hover {
+            background-color: var(--button-hover-bg); /* Use CSS variable */
+            transform: scale(1.05);
+        }
+
+        .copy-button:active {
+            background-color: var(--button-active-bg); /* Use CSS variable */
+            transform: scale(0.95);
+        }
+
+        pre, code {
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        /* Window Management Buttons Styling */
+        .window-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+            align-items: center; /* Vertically center the buttons */
+        }
+
+        .window-button {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background-color: var(--button-background); /* Use CSS variable */
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .window-button:hover {
+            background-color: var(--button-hover-bg); /* Use CSS variable */
+            transform: scale(1.2);
+        }
+
+        .window-button:active {
+            background-color: var(--button-active-bg); /* Use CSS variable */
+            transform: scale(0.9);
+        }
+
+        /* Additional Stylized Elements */
+        .input-group-append {
+            display: flex;
+            align-items: center;
+        }
+
+        /* Scrollbar Styling */
+        #chat-log::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #chat-log::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        #chat-log::-webkit-scrollbar-thumb {
+            background-color: var(--text-color); /* Use CSS variable */
+            border-radius: 4px;
+        }
+
+        /* Maximized Container Styling */
+        .container.maximized {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            border-radius: 0;
+            box-shadow: none;
+        }
+
+        body {
+            overflow-y: auto; /* Allows vertical scrolling */
+        }
+
+        /* Add the following CSS for the textarea */
+        textarea#user-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color); /* Use CSS variable */
+            border-radius: 5px;
+            background: var(--input-background); /* Use CSS variable */
+            color: var(--input-text-color); /* Use CSS variable */
+            resize: none; /* Disable manual resizing */
+            overflow-y: hidden; /* Hide vertical scrollbar */
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            height: 45px !important; /* Initial height */
+            transition: background-color 0.5s, color 0.5s, border-color 0.5s;
+        }
+
+        textarea#user-input:focus {
+            outline: none;
+            border-color: var(--button-hover-bg); /* Use CSS variable */
+            box-shadow: 0 0 5px var(--text-color); /* Use CSS variable */
+        }
+		
+		#myCanvasId {
+    position: fixed; /* Keep the canvas in a fixed position */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none; /* Default to hidden */
+    z-index: -1; /* Ensure it stays behind other elements */
+}
+
+#model-selection
+{
+    font-size: 1.0em;
+    font-weight: bold;
+    padding: 0px;
+    width: 150px;
+    height: 40px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+#model-selection:hover {
+    border-color: rgb(0, 255, 0); /* Changes border color on hover */
+    background-color: rgba(0, 0, 0, 0.7); /* Lightens background on hover */
+}
+    </style>
+</head>
+<body>
+
+    <!-- Canvas for Matrix Rain Background -->
+    <canvas id="canvas"></canvas>
+
+    <!-- Chat UI Container -->
+    <div class="container animate__animated animate__slideInLeft">
+        <!-- Window Management Buttons -->
+        <div class="window-controls">
+            <div class="window-button" id="minimize-btn" title="Minimize"></div>
+            <div class="window-button" id="maximize-btn" title="Maximize"></div>
+            <div class="window-button" id="close-btn" title="Close"></div>
+            
+            <!-- Theme Toggle Button -->
+            <button id="theme-toggle" class="btn btn-sm ml-2" title="Toggle Day/Night Mode" aria-label="Toggle Day and Night Mode">
+                🌙
+            </button>
+        </div>
+
+        <h1 class="text-center mt-5">AI-Server.cloud</h1>
+        <div id="chat-container">
+            <div id="chat-log" class="mb-3"></div>
+            
+            <div class="form-group">
+			<select id="model-selection" class="form-control">
+				<option value="groq">Groq</option>
+				<option value="grok">Grok</option>
+				<option value="ai21_j1-jumbo">AI21 J1 Jumbo</option>
+				<option value="cohere-gen">Cohere model</option>
+				<option value="ollama">Ollama - Aura Writng Ai</option>
+			</select>    
+			</div>
+            <div class="input-group">
+                <!-- Replaced input with textarea -->
+                <div class="animate__animated animate__slideInRight flex-grow-1">
+                    <textarea 
+                        id="user-input" 
+                        class="form-control bg-transparent text-primary-700 outline-none placeholder:text-neutral-600" 
+                        spellcheck="false" 
+                        placeholder="Type your message here..." 
+                        enterkeyhint="send" 
+                        rows="1" 
+                        style="height: 45px !important;"
+                    ></textarea>
+                </div>
+
+                <div class="input-group-append">
+                    <button onclick="sendMessage()" class="btn btn-primary animate__animated animate__fadeInLeft">Send</button>
+                    <div id="audio-controls">
+                        <button class="audio-playback-button" onclick="playAudio()">Talk AI</button>
+
+                        <!-- Additional controls can be added here -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- three.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- jQuery and Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> 
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Animate.css JS (optional, since it's CSS-based) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.js"></script>
+    
+    <script>
+// Function to send user message and receive AI response
+function sendMessage() {
+    const userInput = document.getElementById('user-input').value.trim();
+    if (userInput === '') return; // Do not send empty messages
+
+    const selectedModel = document.getElementById('model-selection').value;
+    const chatLog = document.getElementById('chat-log');
+    chatLog.innerHTML += `<p class="animate__animated animate__fadeInRight"><strong>You:</strong> ${escapeHtml(userInput)}</p>`;
+    document.getElementById('user-input').value = '';
+
+    // Check if the input is an image generation command
+    if (userInput.toLowerCase().startsWith("generate me an image of") || userInput.toLowerCase().startsWith("generate an image of")) {
+        const prompt = userInput.split("of")[1].trim();
+        generateImage(chatLog, prompt);
+    } else {
+        // Regular chat message
+        fetch('/ask', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            credentials: 'include',  // Include cookies in the request
+            body: JSON.stringify({prompt: userInput, model: selectedModel})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.response) {
+                const formattedResponse = formatResponse(data.response);
+                chatLog.innerHTML += `<div class="animate__animated animate__fadeInLeft"><strong>AI (${selectedModel}):</strong> ${formattedResponse}</div>`;
+                // Scroll to the bottom
+                chatLog.scrollTop = chatLog.scrollHeight;
+                // Generate audio for the AI's response
+                generateAudio(data.response);
+            } else if (data.error) {
+                chatLog.innerHTML += `<p class="animate__animated animate__fadeInLeft"><strong>Error:</strong> ${escapeHtml(data.error)}</p>`;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            chatLog.innerHTML += `<p class="animate__animated animate__fadeInLeft"><strong>Error:</strong> Unable to process your request.</p>`;
+        });
+    }
+}
+
+// Function to generate and display the image inside the chat log
+function generateImage(chatLog, prompt) {
+    // Show a loading indicator in the chat log
+    chatLog.innerHTML += `<p class="animate__animated animate__fadeInLeft"><strong>AI:</strong> Generating image for: <strong>${escapeHtml(prompt)}</strong> - Loading...</p>`;
+
+    fetch('/generate_image', {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ prompt }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.image_url) {
+            // Remove the loading message and add the image
+            chatLog.lastElementChild.remove(); // Remove the "Loading..." message
+            chatLog.innerHTML += `
+                <div class="animate__animated animate__fadeInLeft">
+                    <strong>AI:</strong>
+                    <p>Generated Image for: <strong>${escapeHtml(prompt)}</strong></p>
+                    <img src="${data.image_url}" alt="Generated Image of ${escapeHtml(prompt)}" style="max-width: 100%; height: auto; border: 2px solid var(--border-color); border-radius: 5px; box-shadow: var(--box-shadow);">
+                </div>
+            `;
+        } else {
+            // Replace loading message with error message
+            chatLog.lastElementChild.innerHTML = `<p class="animate__animated animate__fadeInLeft"><strong>Error:</strong> ${escapeHtml(data.error)}</p>`;
+        }
+        // Scroll to the bottom after adding content
+        chatLog.scrollTop = chatLog.scrollHeight;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        // Replace loading message with error message
+        chatLog.lastElementChild.innerHTML = `<p class="animate__animated animate__fadeInLeft"><strong>Error:</strong> Unable to generate image. Please try again later.</p>`;
+    });
+}
+
+        // Function to escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+
+        // Function to format AI response and add copy buttons to code snippets
+        function formatResponse(text) {
+            // Regex to detect code blocks enclosed in triple backticks
+            const codeBlockRegex = /```(?:\w+)?\n([\s\S]*?)```/g;
+            return text.replace(codeBlockRegex, (match, code) => {
+                const escapedCode = escapeHtml(code);
+                const uniqueId = 'code-' + Math.random().toString(36).substr(2, 9);
+                return `
+                    <div class="code-container">
+                        <button class="copy-button btn btn-sm btn-secondary" data-clipboard-target="#${uniqueId}">Copy</button>
+                        <pre><code id="${uniqueId}">${escapedCode}</code></pre>
+                    </div>
+                `;
+            });
+        }
+
+        // Copy to Clipboard functionality using Clipboard API
+        document.addEventListener('click', function(e) {
+            if (e.target && e.target.classList.contains('copy-button')) {
+                const targetId = e.target.getAttribute('data-clipboard-target');
+                const codeElement = document.querySelector(targetId);
+                if (codeElement) {
+                    navigator.clipboard.writeText(codeElement.innerText)
+                        .then(() => {
+                            e.target.textContent = 'Copied!';
+                            e.target.classList.remove('btn-secondary');
+                            e.target.classList.add('btn-success');
+                            setTimeout(() => {
+                                e.target.textContent = 'Copy';
+                                e.target.classList.remove('btn-success');
+                                e.target.classList.add('btn-secondary');
+                            }, 2000);
+                        })
+                        .catch(err => {
+                            console.error('Failed to copy: ', err);
+                        });
+                }
+            }
+        });
+
+      function sendModelRequest() {
+            const selectedModel = document.getElementById("model-selection").value;
+            const question = document.getElementById("question-input").value || "Hello AI! Can you answer this?";
+            fetch('/call-model', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ model: selectedModel, question: question }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("response-container").innerText = `Response: ${data.response}`;
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                document.getElementById("response-container").innerText = "An error occurred. Check the console for details.";
+            });
+        }
+
+        // Function to generate audio from AI response
+        function generateAudio(text) {
+            const apiKey = 'sk_89cdeeb1c46ac9e7a1a521f36293dc5014a9d48fb5eba7ea'; // Replace with your actual API key
+            const voiceId = 'cgSgspJ2msm6clMCkdW9'; // Replace with your actual Voice ID from ElevenLabs
+
+            fetch('https://api.elevenlabs.io/v1/text-to-speech/' + voiceId, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'audio/mpeg',
+                    'xi-api-key': apiKey,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    text: text,
+                    model_id: 'eleven_monolingual_v1',
+                    voice_settings: {
+                        stability: 0.5,
+                        similarity_boost: 0.5
+                    }
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.arrayBuffer();
+            })
+            .then(arrayBuffer => {
+                const blob = new Blob([arrayBuffer], { type: 'audio/mpeg' });
+                const url = URL.createObjectURL(blob);
+                const audio = new Audio(url);
+                // Uncomment the line below to play audio automatically
+                // audio.play();
+                window.audio = audio; // Storing audio for later play/pause/stop functions
+            })
+            .catch(error => {
+                console.error('Error generating audio:', error);
+            });
+        }
+
+        // Function to play the generated audio
+        function playAudio() {
+            if (window.audio) {
+                window.audio.play();
+            } else {
+                console.log("No audio available to play.");
+            }
+        }
+
+        // Window Management Buttons Functionality
+        document.getElementById('close-btn').addEventListener('click', function() {
+            // For demonstration, we'll just hide the container
+            document.querySelector('.container').style.display = 'none';
+            // In a real application, you might implement more complex functionality
+        });
+
+document.getElementById('minimize-btn').addEventListener('click', function () {
+    const chatContainer = document.querySelector('.container'); // Your chat container
+    const canvasElement = document.getElementById('myCanvasId'); // Three.js canvas
+
+    if (chatContainer.style.display === 'none') {
+        // Show the chat container and hide the Three.js canvas
+        chatContainer.style.display = 'block';
+        if (canvasElement) canvasElement.style.display = 'none';
+    } else {
+        // Hide the chat container and ensure the canvas is hidden
+        chatContainer.style.display = 'none';
+        if (canvasElement) canvasElement.style.display = 'none'; // Ensure canvas is hidden
+    }
+});
+
+
+        document.getElementById('maximize-btn').addEventListener('click', function() {
+            const chatContainer = document.querySelector('.container');
+            if (!chatContainer.classList.contains('maximized')) {
+                chatContainer.classList.add('maximized');
+                chatContainer.style.width = '100%';
+                chatContainer.style.height = '100%';
+                chatContainer.style.margin = '0';
+                chatContainer.style.borderRadius = '0';
+                chatContainer.style.boxShadow = 'none';
+            } else {
+                chatContainer.classList.remove('maximized');
+                chatContainer.style.width = '800px';
+                chatContainer.style.height = 'auto';
+                chatContainer.style.margin = '50px auto';
+                chatContainer.style.borderRadius = '10px';
+                chatContainer.style.boxShadow = 'var(--box-shadow)';
+            }
+        });
+
+        // Theme Toggle Functionality
+        const themeToggleBtn = document.getElementById('theme-toggle');
+
+        // Function to toggle theme
+        function toggleTheme() {
+            document.body.classList.toggle('day-mode');
+            
+            // Change the button icon based on the current theme
+            if (document.body.classList.contains('day-mode')) {
+                themeToggleBtn.textContent = '🌞'; // Sun icon for Day mode
+                // If using Font Awesome icons:
+                // themeToggleBtn.innerHTML = '<i class="fas fa-sun"></i>';
+            } else {
+                themeToggleBtn.textContent = '🌙'; // Moon icon for Night mode
+                // If using Font Awesome icons:
+                // themeToggleBtn.innerHTML = '<i class="fas fa-moon"></i>';
+            }
+            
+            // Persist theme in localStorage
+            if (document.body.classList.contains('day-mode')) {
+                localStorage.setItem('theme', 'day');
+            } else {
+                localStorage.setItem('theme', 'night');
+            }
+        }
+
+        // Event listener for the toggle button
+        themeToggleBtn.addEventListener('click', toggleTheme);
+
+        // Initialize theme based on user's preference
+        window.addEventListener('DOMContentLoaded', (event) => {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'day') {
+                document.body.classList.add('day-mode');
+                themeToggleBtn.textContent = '🌞';
+                // If using Font Awesome icons:
+                // themeToggleBtn.innerHTML = '<i class="fas fa-sun"></i>';
+            } else {
+                document.body.classList.remove('day-mode');
+                themeToggleBtn.textContent = '🌙';
+                // If using Font Awesome icons:
+                // themeToggleBtn.innerHTML = '<i class="fas fa-moon"></i>';
+            }
+        });
+    </script>
+    
+    <!-- three.js Object Script -->
+    <script>
+let scene, camera, renderer, cube;
+
+// Initialize three.js
+function initThreeJS(canvasElement, glContext) {
+    console.log("Initializing Three.js...");
+
+    // Create the WebGLRenderer
+    renderer = new THREE.WebGLRenderer({
+        canvas: canvasElement,
+        context: glContext,
+        alpha: true,
+        antialias: false,
+        powerPreference: "high-performance",
+    });
+
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    // Create the scene
+    scene = new THREE.Scene();
+
+    // Create the camera
+    camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+    );
+    camera.position.z = 5;
+
+    // Create a rotating cube
+    const geometry = new THREE.BoxGeometry();
+    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    cube = new THREE.Mesh(geometry, material);
+    scene.add(cube);
+
+    console.log("Three.js initialized successfully.");
+}
+
+// Handle window resizing
+function onWindowResize() {
+    if (!renderer) {
+        console.error("Renderer is not initialized. Skipping resize.");
+        return;
+    }
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+// Animate the scene
+function animateThreeJS() {
+    if (!renderer) {
+        console.error("Renderer is not initialized. Skipping animation.");
+        return;
+    }
+
+    requestAnimationFrame(animateThreeJS);
+
+    // Rotate the cube
+    cube.rotation.x += 0.01;
+    cube.rotation.y += 0.01;
+
+    // Render the scene
+    renderer.render(scene, camera);
+}
+
+// Initialize three.js when the DOM is fully loaded
+window.addEventListener("DOMContentLoaded", () => {
+    const chatContainer = document.querySelector('.container');
+    const canvasElement = document.getElementById('myCanvasId');
+
+    if (chatContainer) chatContainer.style.display = 'block'; // Ensure chat UI is visible
+    if (canvasElement) canvasElement.style.display = 'none'; // Ensure canvas is hidden
+});
+
+        // Listen for theme changes to update three.js object colors
+        const observerThreeJS = new MutationObserver(() => {
+            updateThreeJSObjectColor();
+        });
+
+        // Observe changes to the class attribute on the body
+        observerThreeJS.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+        function updateThreeJSObjectColor() {
+            // Fetch updated color from CSS variable
+            const objectColorHex = getComputedStyle(document.body).getPropertyValue('--threejs-object-color').trim();
+            const objectColor = parseInt(objectColorHex.replace('0x', ''), 16);
+
+            // Update the material color
+            if (cube && cube.material) {
+                cube.material.color.setHex(objectColor);
+            }
+        }
+    </script>
+
+    <!-- Matrix Rain Animation Script (Updated) -->
+    <script>
+        // Get the canvas element and set up the context
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Set canvas dimensions to full screen
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+
+        // Characters to display
+        const letters = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロゴゾドボポヴッン';
+        const fontSize = 16;
+        let columns = Math.floor(canvas.width / fontSize);
+
+        // An array of drops - one per column
+        let drops = [];
+        for (let x = 0; x < columns; x++) {
+            drops[x] = Math.random() * canvas.height;
+        }
+
+        // Initialize Matrix Colors
+        let matrixBgTrail = getComputedStyle(document.body).getPropertyValue('--matrix-bg-trail').trim();
+        let matrixTextColor = getComputedStyle(document.body).getPropertyValue('--matrix-text-color').trim();
+
+        // Listen for theme changes to update Matrix colors
+        const observerMatrix = new MutationObserver(() => {
+            matrixBgTrail = getComputedStyle(document.body).getPropertyValue('--matrix-bg-trail').trim();
+            matrixTextColor = getComputedStyle(document.body).getPropertyValue('--matrix-text-color').trim();
+        });
+
+        // Observe changes to the class attribute on the body
+        observerMatrix.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+        // Draw function
+        function drawMatrix() {
+            // Use the updated matrixBgTrail for the background
+            ctx.fillStyle = matrixBgTrail;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Set the text color based on the current theme
+            ctx.fillStyle = matrixTextColor;
+            ctx.font = `${fontSize}px monospace`;
+
+            // Loop over the drops
+            for (let i = 0; i < drops.length; i++) {
+                // Randomly select a character
+                const text = letters.charAt(Math.floor(Math.random() * letters.length));
+
+                // x and y coordinates of the drop
+                const x = i * fontSize;
+                const y = drops[i] * fontSize;
+
+                // Draw the character
+                ctx.fillText(text, x, y);
+
+                // Reset the drop to the top randomly after it has gone past the screen
+                if (y > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+
+                // Increment the y coordinate
+                drops[i]++;
+            }
+
+            requestAnimationFrame(drawMatrix);
+        }
+
+        // Start the animation
+        drawMatrix();
+
+        // Adjust canvas size when the window is resized
+        window.addEventListener('resize', function() {
+            resizeCanvas();
+            // Recalculate columns and reset drops
+            columns = Math.floor(canvas.width / fontSize);
+            drops = [];
+            for (let x = 0; x < columns; x++) {
+                drops[x] = Math.random() * canvas.height;
+            }
+        });
+    </script>
+</body>
+</html>

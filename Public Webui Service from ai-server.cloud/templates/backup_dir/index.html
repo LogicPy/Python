@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI ChatUI with Matrix Rain Background</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    
+    <!-- Animate.css for animations -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    
+    <style>
+        /* Reset margins and paddings */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Ensure the body takes full height and has a relative position */
+        body {
+            position: relative;
+            height: 100vh;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background: black; /* Ensure body background is black */
+        }
+
+        /* Canvas styling: fixed to cover the entire background */
+        #canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Ensure canvas stays behind all other elements */
+            background: black; /* Fallback background */
+        }
+
+        /* Container for the chat UI with higher z-index */
+        .container {
+            position: relative;
+            z-index: 1;
+            padding: 20px;
+            margin-top: 50px;
+            background: rgba(0, 0, 0, 0.8); /* Semi-transparent black background */
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 255, 0, 0.3); /* Green shadow for Matrix effect */
+            color: #0F0; /* Green text to match Matrix theme */
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        h1 {
+            color: #0F0; /* Green color for the header */
+            text-shadow: 0 0 10px #0F0;
+        }
+
+        #chat-log {
+            height: 400px;
+            overflow-y: scroll;
+            border: 1px solid #0F0;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background: rgba(0, 0, 0, 0.7); /* Slightly transparent black */
+            color: #0F0; /* Green text */
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        .form-control, .btn {
+            border-radius: 5px;
+            background: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+            color: #0F0; /* Green text */
+            border: 1px solid #0F0; /* Green border */
+        }
+
+        .form-control::placeholder {
+            color: #0F0; /* Green placeholder text */
+        }
+
+        /* Animation classes */
+        .animate-from-right, .animate-from-left {
+            opacity: 0;
+        }
+
+        /* Button Styling */
+        .audio-playback-button {
+            background-color: #0F0; /* Green background */
+            border: none;
+            color: black; /* Black text */
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 4px 2px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            border-radius: 5px;
+        }
+
+        .audio-playback-button:hover {
+            background-color: #05C105; /* Darker green on hover */
+            transform: scale(1.05);
+        }
+
+        .audio-playback-button:active {
+            background-color: #049404; /* Even darker green when active */
+            transform: scale(0.95);
+        }
+
+        /* Code Container Styling */
+        .code-container {
+            position: relative;
+            background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent black */
+            border: 1px solid #0F0; /* Green border */
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        .code-container pre {
+            margin: 0;
+            overflow-x: auto;
+            color: #0F0; /* Green text */
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 12px;
+            padding: 5px 10px;
+            background-color: #0F0; /* Green background */
+            color: black; /* Black text */
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .copy-button:hover {
+            background-color: #05C105; /* Darker green on hover */
+            transform: scale(1.05);
+        }
+
+        .copy-button:active {
+            background-color: #049404; /* Even darker green when active */
+            transform: scale(0.95);
+        }
+
+        pre, code {
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        /* Window Management Buttons Styling */
+        .window-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .window-button {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background-color: #0F0; /* Green background */
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .window-button:hover {
+            background-color: #05C105; /* Darker green on hover */
+            transform: scale(1.2);
+        }
+
+        .window-button:active {
+            background-color: #049404; /* Even darker green when active */
+            transform: scale(0.9);
+        }
+
+        /* Additional Stylized Elements */
+        .input-group-append {
+            display: flex;
+            align-items: center;
+        }
+
+        /* Scrollbar Styling */
+        #chat-log::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #chat-log::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        #chat-log::-webkit-scrollbar-thumb {
+            background-color: #0F0;
+            border-radius: 4px;
+        }
+
+        /* Maximized Container Styling */
+        .container.maximized {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            border-radius: 0;
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Canvas for Matrix Rain Background -->
+    <canvas id="canvas"></canvas>
+
+    <!-- Chat UI Container -->
+    <div class="container animate__animated animate__slideInLeft">
+        <!-- Window Management Buttons -->
+        <div class="window-controls">
+            <div class="window-button" id="minimize-btn" title="Minimize"></div>
+            <div class="window-button" id="maximize-btn" title="Maximize"></div>
+            <div class="window-button" id="close-btn" title="Close"></div>
+        </div>
+
+        <h1 class="text-center mt-5">AI-Server.cloud</h1>
+        <div id="chat-container">
+            <div id="chat-log" class="mb-3"></div>
+            
+            <div class="form-group">
+                <select id="model-selection" class="form-control animate__animated animate__fadeInLeft">
+                    {% for model in models %}
+                    <option value="{{model}}">{{model.capitalize()}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="input-group">
+                <input type="text" id="user-input" class="form-control animate__animated animate__fadeInRight" placeholder="Type your message here...">
+                <div class="input-group-append">
+                    <button onclick="sendMessage()" class="btn btn-primary animate__animated animate__fadeInLeft">Send</button>
+                    <div id="audio-controls">
+                        <button class="audio-playback-button" onclick="playAudio()">Talk AI</button>
+                        <!-- Additional controls can be added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery and Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> 
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Animate.css JS (optional, since it's CSS-based) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.js"></script>
+    
+    <script>
+        // Function to send user message and receive AI response
+        function sendMessage() {
+            const userInput = document.getElementById('user-input').value.trim();
+            if (userInput === '') return; // Do not send empty messages
+
+            const selectedModel = document.getElementById('model-selection').value;
+            const chatLog = document.getElementById('chat-log');
+            chatLog.innerHTML += `<p><strong>You:</strong> ${escapeHtml(userInput)}</p>`;
+            document.getElementById('user-input').value = '';
+
+            fetch('/ask', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({prompt: userInput, model: selectedModel})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.response) {
+                    const formattedResponse = formatResponse(data.response);
+                    chatLog.innerHTML += `<div><strong>AI (${selectedModel}):</strong> ${formattedResponse}</div>`;
+                    // Scroll to the bottom
+                    chatLog.scrollTop = chatLog.scrollHeight;
+                    // Generate audio for the AI's response
+                    generateAudio(data.response);
+                } else if (data.error) {
+                    chatLog.innerHTML += `<p><strong>Error:</strong> ${escapeHtml(data.error)}</p>`;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                chatLog.innerHTML += `<p><strong>Error:</strong> ${escapeHtml(error)}</p>`;
+            });
+        }
+
+        // Function to escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+
+        // Function to format AI response and add copy buttons to code snippets
+        function formatResponse(text) {
+            // Regex to detect code blocks enclosed in triple backticks
+            const codeBlockRegex = /```(?:\w+)?\n([\s\S]*?)```/g;
+            return text.replace(codeBlockRegex, (match, code) => {
+                const escapedCode = escapeHtml(code);
+                const uniqueId = 'code-' + Math.random().toString(36).substr(2, 9);
+                return `
+                    <div class="code-container">
+                        <button class="copy-button btn btn-sm btn-secondary" data-clipboard-target="#${uniqueId}">Copy</button>
+                        <pre><code id="${uniqueId}">${escapedCode}</code></pre>
+                    </div>
+                `;
+            });
+        }
+
+        // Copy to Clipboard functionality using Clipboard API
+        document.addEventListener('click', function(e) {
+            if (e.target && e.target.classList.contains('copy-button')) {
+                const targetId = e.target.getAttribute('data-clipboard-target');
+                const codeElement = document.querySelector(targetId);
+                if (codeElement) {
+                    navigator.clipboard.writeText(codeElement.innerText)
+                        .then(() => {
+                            e.target.textContent = 'Copied!';
+                            e.target.classList.remove('btn-secondary');
+                            e.target.classList.add('btn-success');
+                            setTimeout(() => {
+                                e.target.textContent = 'Copy';
+                                e.target.classList.remove('btn-success');
+                                e.target.classList.add('btn-secondary');
+                            }, 2000);
+                        })
+                        .catch(err => {
+                            console.error('Failed to copy: ', err);
+                        });
+                }
+            }
+        });
+
+        // Function to generate audio from AI response
+        function generateAudio(text) {
+            const apiKey = 'sk_0d83d320dcb1f2b91482c88463f390279ea97bd6c36aecb3'; // Replace with your actual API key
+            const voiceId = 'EK24G072aVmu2YXYMBfZ'; // Replace with your actual Voice ID from ElevenLabs
+
+            fetch('https://api.elevenlabs.io/v1/text-to-speech/' + voiceId, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'audio/mpeg',
+                    'xi-api-key': apiKey,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    text: text,
+                    model_id: 'eleven_monolingual_v1',
+                    voice_settings: {
+                        stability: 0.5,
+                        similarity_boost: 0.5
+                    }
+                })
+            })
+            .then(response => response.arrayBuffer())
+            .then(arrayBuffer => {
+                const blob = new Blob([arrayBuffer], { type: 'audio/mpeg' });
+                const url = URL.createObjectURL(blob);
+                const audio = new Audio(url);
+                // Uncomment the line below to play audio automatically
+                // audio.play();
+                window.audio = audio; // Storing audio for later play/pause/stop functions
+            })
+            .catch(error => {
+                console.error('Error generating audio:', error);
+            });
+        }
+
+        // Function to play the generated audio
+        function playAudio() {
+            if (window.audio) {
+                window.audio.play();
+            } else {
+                console.log("No audio available to play.");
+            }
+        }
+
+        // Window Management Buttons Functionality
+        document.getElementById('close-btn').addEventListener('click', function() {
+            // For demonstration, we'll just hide the container
+            document.querySelector('.container').style.display = 'none';
+            // In a real application, you might implement more complex functionality
+        });
+
+        document.getElementById('minimize-btn').addEventListener('click', function() {
+            const chatContainer = document.querySelector('.container');
+            if (chatContainer.style.display === 'none' || chatContainer.style.display === '') {
+                chatContainer.style.display = 'block';
+            } else {
+                chatContainer.style.display = 'none';
+            }
+        });
+
+        document.getElementById('maximize-btn').addEventListener('click', function() {
+            const chatContainer = document.querySelector('.container');
+            if (!chatContainer.classList.contains('maximized')) {
+                chatContainer.classList.add('maximized');
+                chatContainer.style.width = '100%';
+                chatContainer.style.height = '100%';
+                chatContainer.style.margin = '0';
+                chatContainer.style.borderRadius = '0';
+                chatContainer.style.boxShadow = 'none';
+            } else {
+                chatContainer.classList.remove('maximized');
+                chatContainer.style.width = '800px';
+                chatContainer.style.height = 'auto';
+                chatContainer.style.margin = '50px auto';
+                chatContainer.style.borderRadius = '10px';
+                chatContainer.style.boxShadow = '0 8px 16px rgba(0, 255, 0, 0.3)';
+            }
+        });
+    </script>
+    
+    <!-- Matrix Rain Animation Script -->
+    <script>
+        // Get the canvas element and set up the context
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Set canvas dimensions to full screen
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+
+        // Characters to display
+        const letters = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロゴゾドボポヴッン';
+        const fontSize = 16;
+        let columns = Math.floor(canvas.width / fontSize);
+
+        // An array of drops - one per column
+        let drops = [];
+        for (let x = 0; x < columns; x++) {
+            drops[x] = Math.random() * canvas.height;
+        }
+
+        // Draw function
+        function draw() {
+            // Black background with opacity to create the trail effect
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Set the text color to green and font size
+            ctx.fillStyle = '#0F0';
+            ctx.font = `${fontSize}px monospace`;
+
+            // Loop over the drops
+            for (let i = 0; i < drops.length; i++) {
+                // Randomly select a character
+                const text = letters.charAt(Math.floor(Math.random() * letters.length));
+
+                // x and y coordinates of the drop
+                const x = i * fontSize;
+                const y = drops[i] * fontSize;
+
+                // Draw the character
+                ctx.fillText(text, x, y);
+
+                // Reset the drop to the top randomly after it has gone past the screen
+                if (y > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+
+                // Increment the y coordinate
+                drops[i]++;
+            }
+
+            requestAnimationFrame(draw);
+        }
+
+        // Start the animation
+        draw();
+
+        // Adjust canvas size when the window is resized
+        window.addEventListener('resize', function() {
+            resizeCanvas();
+            // Recalculate columns and reset drops
+            columns = Math.floor(canvas.width / fontSize);
+            drops = [];
+            for (let x = 0; x < columns; x++) {
+                drops[x] = Math.random() * canvas.height;
+            }
+        });
+    </script>
+</body>
+</html>

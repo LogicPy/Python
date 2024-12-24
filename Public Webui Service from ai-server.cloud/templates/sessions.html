@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Your head content here -->
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Chat Sessions</h1>
+        <div id="sessions-list" class="list-group"></div>
+        <button class="btn btn-primary mt-3" onclick="createSession()">Create New Session</button>
+    </div>
+
+    <script>
+        function createSession() {
+            fetch('/create_session', {
+                method: 'POST',
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.session_id) {
+                    addSessionToList(data.session_id);
+                }
+            })
+            .catch(error => console.error('Error creating session:', error));
+        }
+
+        function addSessionToList(session_id) {
+            const sessionsList = document.getElementById('sessions-list');
+            const newSessionItem = document.createElement('a');
+            newSessionItem.href = `/chat/${session_id}`;
+            newSessionItem.className = 'list-group-item list-group-item-action session-item';
+            newSessionItem.textContent = `Chat Session ${session_id}`;
+            sessionsList.appendChild(newSessionItem);
+        }
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            fetch('/get_sessions')
+                .then(response => response.json())
+                .then(data => {
+                    data.sessions.forEach(session_id => addSessionToList(session_id));
+                })
+                .catch(error => console.error('Error fetching sessions:', error));
+        });
+    </script>
+</body>
+</html>

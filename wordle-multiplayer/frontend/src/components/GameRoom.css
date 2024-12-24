@@ -1,0 +1,62 @@
+/* frontend/src/components/GameRoom.css */
+
+.game-room {
+  padding: 20px;
+  background-color: var(--header-background);
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  color: var(--text-color);
+}
+
+.guesses {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.guess-row {
+  display: flex;
+  margin: 5px 0;
+}
+
+.letter {
+  width: 40px;
+  height: 40px;
+  margin: 0 2px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  text-transform: uppercase;
+  border: 2px solid #3a3a3c;
+  border-radius: 4px;
+}
+
+.letter.correct {
+  background-color: #6aaa64; /* Green */
+  border-color: #6aaa64;
+  color: white;
+}
+
+.letter.present {
+  background-color: #c9b458; /* Yellow */
+  border-color: #c9b458;
+  color: white;
+}
+
+.letter.absent {
+  background-color: #787c7e; /* Grey */
+  border-color: #787c7e;
+  color: white;
+}
+
+.letter.pending {
+  background-color: #121213; /* Dark background */
+  border-color: #3a3a3c;
+  color: white;
+}
+
+.game-over {
+  text-align: center;
+  margin-top: 30px;
+}
