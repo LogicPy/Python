@@ -458,5 +458,5 @@ if __name__ == "__main__":
         stealth_mode=True  # Enable stealth mode
     )
     
-    target_url = input("https://website.com/")  # Always get proper authorization
+    target_url = input("Enter URL (https://website.com/): ")  # Always get proper authorization
     scanner.scan_without_rest_api(target_url)
