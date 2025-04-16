@@ -5,12 +5,15 @@ from packaging import version
 import time
 import re
 import random
+# Requires: pip install fpdf
+from threading import Lock
 from fpdf import FPDF
 from colorama import Fore, Style
 from colorama import init
 from fpdf import FPDF
 from datetime import datetime
-
+from urllib.parse import urlparse
+    
 init(autoreset=True)  # Automatically resets colors after each print
 
 #  ,___  
@@ -21,25 +24,21 @@ init(autoreset=True)  # Automatically resets colors after each print
 # Project Owl by Wayne Kenney
 # WordPress scanning hacking vulnerability scanner for attack payloads
 
-pdf = FPDF()
-pdf.add_page()
-pdf.set_font("Arial", size=12)
-pdf.cell(200, 10, txt="Project Owl Security Report", ln=1, align='C')
-pdf.output("security_report.pdf")
-
 time.sleep(random.uniform(0.5, 2.5))  # Random delay between checks
 
 CISA_API = "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json"
 
 class ProjectOwlScanner:
-    def __init__(self, shodan_api_key=None, nvd_api_key=None, wpvulndb_api_key=None, stealth_mode=False):
+    def __init__(self, shodan_api_key=None, nvd_api_key=None, wpvulndb_api_key=None, wpscan_api_key=None, stealth_mode=False):
         self.shodan_api_key = shodan_api_key
         self.nvd_api_key = nvd_api_key
         self.wpvulndb_api_key = wpvulndb_api_key
+        self.wpscan_api_key = wpscan_api_key
         self.stealth_mode = stealth_mode
         self.report_data = []
         self.nvd_rate_limit_delay = 6  # NVD API requires 6 seconds between requests
-
+        self.wpvulndb_lock = Lock()
+        self.nvd_lock = Lock()
         self.wp_vuln_db_url = "https://wpvulndb.com/api/v3/vulnerabilities"
         self.wpscan_api_url = "https://wpscan.com/api/v3/"  # Premium (More detailed)
 
@@ -73,6 +72,14 @@ class ProjectOwlScanner:
             'twentytwentythree': {'path': 'wp-content/themes/twentytwentythree/'}
         }
 
+    def validate_url(self, url):
+        if not url.startswith(('http://', 'https://')):
+            url = f"https://{url}"
+        parsed = urlparse(url)
+        if not parsed.scheme or not parsed.netloc:
+            raise ValueError("Invalid URL format")
+        return url.rstrip('/')
+
     def threaded_scan(self, url, paths):
         """Use threading for faster scanning"""
         from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -96,11 +103,12 @@ class ProjectOwlScanner:
                     print(f"  [+] Found accessible: {path}")
 
     def check_wpvulndb(self, plugin_name, version=None):
-        """Check WPVulnDB for known vulnerabilities"""
-        if not self.wpvulndb_api_key:
-            return
-               
-        now = time.time()
+        with self.wpvulndb_lock:
+            now = time.time()
+            if now - self.wpvulndb_last_call < self.wpvulndb_delay:
+                time.sleep(self.wpvulndb_delay - (now - self.wpvulndb_last_call))
+            self.wpvulndb_last_call = time.time()
+        
         if now - self.wpvulndb_last_call < self.wpvulndb_delay:
             time.sleep(self.wpvulndb_delay - (now - self.wpvulndb_last_call))
         self.wpvulndb_last_call = time.time()
@@ -109,7 +117,14 @@ class ProjectOwlScanner:
         try:
             headers = {'Authorization': f'Token token={self.wpvulndb_api_key}'}
             response = self.session.get(f"{self.wp_vuln_db_url}/{plugin_name}", headers=headers)
-            
+            if response.status_code == 200:
+                vulns = response.json()
+                for vuln in vulns:
+                    fixed_in = vuln.get('fixed_in')
+                    if version and fixed_in and version.parse(version) < version.parse(fixed_in):
+                        print(f"[!] VULNERABLE: {plugin_name} {version} < {fixed_in}")
+                        self.report_data.append(f"Vulnerable: {plugin_name} {version} (fixed in {fixed_in})")
+
             if response.status_code == 200:
                 vulns = response.json()
                 print(f"[!] Found {len(vulns)} vulnerabilities in WPVulnDB")
@@ -126,6 +141,33 @@ class ProjectOwlScanner:
         if self.stealth_mode:
             delay = random.uniform(1.0, 3.5)
             time.sleep(delay)
+
+    def detect_waf(self, url):
+        """Detect Web Application Firewall presence"""
+        print("\n[*] Checking for WAF...")
+        self.report_data.append("\nWAF Detection:")
+        try:
+            response = self.session.get(url, timeout=5)
+            headers = {k.lower(): v.lower() for k, v in response.headers.items()}
+            
+            waf_detected = None
+            if 'server' in headers and 'cloudflare' in headers['server']:
+                waf_detected = "Cloudflare"
+            elif 'x-sucuri-id' in headers:
+                waf_detected = "Sucuri"
+            elif 'x-waf' in headers:
+                waf_detected = "Generic WAF"
+            
+            if waf_detected:
+                print(f"[*] WAF detected: {waf_detected}")
+                self.report_data.append(f"WAF Detection: {waf_detected} detected")
+            else:
+                print("[+] No known WAF detected")
+                self.report_data.append("WAF Detection: No known WAF detected")
+                
+        except requests.RequestException as e:
+            print(f"[-] WAF detection failed: {str(e)}")
+            self.report_data.append(f"WAF Detection: Error - {str(e)}")
 
     def scan_without_rest_api(self, url):
         """Enhanced scanning with new features"""
@@ -147,18 +189,22 @@ class ProjectOwlScanner:
         print("[+] WordPress detected, beginning scan...")
         self.report_data.append("WordPress verification: Positive")
         
-        # Core scanning functions
+        # WAF detection first (affects stealth)
+        self.detect_waf(url)
+        
+        # Core scanning
         self.detect_version(url)
         self.detect_plugins_themes(url)
         self.enumerate_users(url)
         self.security_checks(url)
+        self.check_malware(url)
         
         # Intelligence modules
         if self.shodan_api_key:
             self.shodan_scan(url)
             
         if self.nvd_api_key:
-            self.check_cisa_kev()  # Check CISA's Known Exploited Vulnerabilities
+            self.check_cisa_kev()
             
         # Generate report
         self.generate_report()
@@ -192,27 +238,61 @@ class ProjectOwlScanner:
             print(f"[-] Error checking CISA KEV: {str(e)}")
             self.report_data.append(f"CISA KEV Check: Error - {str(e)}")
 
+    def check_malware(self, url):
+        """Check for potential malware in wp-content/uploads/"""
+        print("\n[*] Checking for malware in uploads...")
+        self.report_data.append("\nMalware Scan:")
+        try:
+            response = self.session.get(f"{url}wp-content/uploads/", timeout=5)
+            if response.status_code == 200:
+                soup = BeautifulSoup(response.text, 'html.parser')
+                suspicious_files = []
+                for link in soup.find_all('a'):
+                    href = link.get('href', '')
+                    if href.endswith('.php'):
+                        suspicious_files.append(href)
+                        print(f"{Fore.RED}[!]{Style.RESET_ALL} Suspicious PHP file in uploads: {href}")
+                        self.report_data.append(f"CRITICAL: Suspicious PHP file in uploads: {href}")
+                if not suspicious_files:
+                    print("[+] No suspicious PHP files found in uploads")
+                    self.report_data.append("Malware Scan: No suspicious PHP files detected")
+            else:
+                print("[*] Uploads directory not accessible")
+                self.report_data.append("Malware Scan: Uploads directory not accessible")
+        except requests.RequestException as e:
+            print(f"[-] Malware check failed: {str(e)}")
+            self.report_data.append(f"Malware Scan: Error - {str(e)}")
+
     def generate_report(self):
         """Enhanced PDF reporting with executive summary"""
         try:
             pdf = FPDF()
             pdf.add_page()
             
-            # Executive Summary
+            # Header with Owl ASCII
             pdf.set_font("Arial", 'B', 16)
             pdf.cell(200, 10, txt="Project Owl Security Assessment", ln=1, align='C')
-            pdf.set_font("Arial", '', 12)
+            pdf.set_font("Courier", '', 10)
+            pdf.multi_cell(0, 5, txt="  ,___  \n  {O,O}  \n  /)__)\n  _\"_\"_", align='C')
             pdf.ln(10)
+            
+            # Executive Summary
+            pdf.set_font("Arial", '', 12)
+            pdf.cell(200, 10, txt=f"Scan completed: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", ln=1)
+            pdf.ln(5)
             
             # Risk Summary
             pdf.set_font("Arial", 'B', 14)
             pdf.cell(200, 10, txt="Risk Summary", ln=1)
             pdf.set_font("Arial", '', 12)
             
-            # Add risk heatmap visualization (text-based)
-            pdf.cell(200, 10, txt="Critical Findings: 2", ln=1)
-            pdf.cell(200, 10, txt="High Risk Findings: 5", ln=1)
-            pdf.cell(200, 10, txt="Medium Risk Findings: 3", ln=1)
+            critical = sum(1 for line in self.report_data if "CRITICAL" in line)
+            high = sum(1 for line in self.report_data if "Security Issue" in line)
+            medium = sum(1 for line in self.report_data if "Security Warning" in line or "Security Note" in line)
+            
+            pdf.cell(200, 10, txt=f"Critical Findings: {critical}", ln=1)
+            pdf.cell(200, 10, txt=f"High Risk Findings: {high}", ln=1)
+            pdf.cell(200, 10, txt=f"Medium Risk Findings: {medium}", ln=1)
             pdf.ln(10)
             
             # Detailed Findings
@@ -220,19 +300,32 @@ class ProjectOwlScanner:
             pdf.cell(200, 10, txt="Detailed Findings", ln=1)
             pdf.set_font("Arial", '', 12)
             
+            current_section = ""
             for line in self.report_data:
-                # Color code based on severity
+                # Section headers
+                if line.startswith(("\nSecurity Checks:", "\nShodan Intelligence:")):
+                    pdf.set_font("Arial", 'B', 12)
+                    pdf.cell(200, 10, txt=line.lstrip('\n'), ln=1)
+                    current_section = line.lstrip('\n')
+                    pdf.set_font("Arial", '', 12)
+                    continue
+                
+                # Color coding
                 if "CRITICAL" in line:
                     pdf.set_text_color(255, 0, 0)
-                elif "Warning" in line:
+                elif "Security Issue" in line:
                     pdf.set_text_color(255, 165, 0)
+                elif "Security Warning" in line or "Security Note" in line:
+                    pdf.set_text_color(255, 255, 0)
                 else:
                     pdf.set_text_color(0, 0, 0)
-                    
-                pdf.multi_cell(0, 10, txt=line)
+                
+                # Indent Shodan matches
+                indent = "  " if current_section == "Shodan Intelligence:" and "Shodan Match:" in line else ""
+                pdf.multi_cell(0, 10, txt=f"{indent}{line}")
                 pdf.ln(2)
             
-            # Remediation Section
+            # Remediations
             pdf.add_page()
             pdf.set_font("Arial", 'B', 14)
             pdf.cell(200, 10, txt="Recommended Remediations", ln=1)
@@ -245,18 +338,19 @@ class ProjectOwlScanner:
                 "4. Implement Web Application Firewall",
                 "5. Change default admin username"
             ]
+            if medium > 0 and any("XML-RPC" in line for line in self.report_data):
+                remediations.append("6. Add to wp-config.php: define('DISALLOW_XMLRPC', true);")
             
             for item in remediations:
                 pdf.cell(200, 10, txt=item, ln=1)
             
-            #pdf.output("enhanced_security_report.pdf")
             report_filename = f"enhanced_security_report{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
             pdf.output(report_filename)
             print(f"[+] Report generated: {report_filename}")
-
+            
         except Exception as e:
             print(f"[-] Error generating enhanced report: {str(e)}")
-
+        
     def is_wordpress(self, url):
         """Check if site is WordPress"""
         for path in self.common_paths:
@@ -398,6 +492,19 @@ class ProjectOwlScanner:
                         print(f"  [+] Found plugin directory: {href.rstrip('/')}")
         except:
             pass
+        if self.wpscan_api_key:
+            try:
+                headers = {'Authorization': f'Bearer {self.wpscan_api_key}'}
+                response = self.session.get(f"{self.wpscan_api_url}plugins", headers=headers)
+                if response.status_code == 200:
+                    plugins = response.json()
+                    for plugin, data in plugins.items():
+                        print(f"  [+] Found plugin via WPScan API: {plugin}")
+                        if data.get('version'):
+                            print(f"    Version: {data['version']}")
+                            self.check_wpvulndb(plugin, data['version'])
+            except Exception as e:
+                print(f"[-] WPScan API error: {str(e)}")
         
         # New method: Check common plugin readme files
         common_plugins = ['akismet', 'hello', 'jetpack', 'woocommerce']
@@ -444,15 +551,13 @@ class ProjectOwlScanner:
         print("\n[*] Performing security checks...")
         self.report_data.append("\nSecurity Checks:")
         
-        # 1. First check debug.log (critical finding)
+        # Debug.log
         try:
             debug_log_url = f"{url}wp-content/debug.log"
             response = self.session.get(debug_log_url, timeout=5)
             if response.status_code == 200:
                 print(f"{Fore.RED}[!]{Style.RESET_ALL} Found debug.log at '{debug_log_url}'")
                 self.report_data.append("Critical: debug.log file exposed")
-                
-                # Protection steps should appear WHEN vulnerable
                 protection_steps = [
                     "Immediate Actions Required:",
                     "1. Add to wp-config.php:",
@@ -469,12 +574,40 @@ class ProjectOwlScanner:
                     self.report_data.append(step)
             else:
                 print(f"[+] debug.log not found (good practice)")
-                
+                self.report_data.append("Security Checks: debug.log not exposed")
         except Exception as e:
             print(f"[-] Debug log check failed: {str(e)}")
         
-        # 2. Then ALWAYS check plugins (separate from debug.log check)
-        if self.wpvulndb_api_key:  # Only if API key exists
+        # wp-config.php
+        try:
+            response = self.session.get(f"{url}wp-config.php")
+            if response.status_code == 200 and "DB_PASSWORD" in response.text:
+                print(f"{Fore.RED}[!]{Style.RESET_ALL} wp-config.php exposed!")
+                self.report_data.append("CRITICAL: wp-config.php file exposed")
+        except:
+            pass
+        
+        # XML-RPC
+        try:
+            response = self.session.post(f"{url}xmlrpc.php", 
+                                       data="<methodCall><methodName>system.listMethods</methodName></methodCall>")
+            if response.status_code == 200 and "methodResponse" in response.text:
+                print(f"{Fore.YELLOW}[!]{Style.RESET_ALL} XML-RPC enabled (may be needed for plugins)")
+                self.report_data.append("Security Note: XML-RPC enabled - disable via wp-config.php if unused")
+        except:
+            pass
+        
+        # Directory listing
+        try:
+            response = self.session.get(f"{url}wp-content/uploads/")
+            if response.status_code == 200 and "Index of" in response.text:
+                print(f"{Fore.RED}[!]{Style.RESET_ALL} Directory listing enabled at wp-content/uploads/")
+                self.report_data.append("Security Issue: Directory listing enabled")
+        except:
+            pass
+        
+        # Plugin vuln checks
+        if self.wpvulndb_api_key:
             print("\n[*] Scanning WordPress vulnerability databases...")
             for plugin_name, plugin_data in self.vulnerable_assets.items():
                 print(f"  [→] Checking {plugin_name}...")
@@ -485,51 +618,52 @@ class ProjectOwlScanner:
         else:
             print("[*] WP VulnDB API key not configured - skipping plugin checks")
 
-            try:
-                response = self.session.get(f"{url}wp-content/uploads/")
-                if response.status_code == 200 and "Index of" in response.text:
-                    print(f"{Fore.RED}[!]{Style.RESET_ALL} Directory listing enabled at wp-content/uploads/")
-                    self.report_data.append("Security Issue: Directory listing enabled")
-            except:
-                pass
-        
-        # New: Check for vulnerable wp-config.php
-        try:
-            response = self.session.get(f"{url}wp-config.php")
-            if response.status_code == 200 and "DB_PASSWORD" in response.text:
-                print(f"{Fore.RED}[!]{Style.RESET_ALL} wp-config.php exposed!")
-                self.report_data.append("CRITICAL: wp-config.php file exposed")
-        except:
-            pass
-        
-        # New: Check XML-RPC status
-        try:
-            response = self.session.post(f"{url}xmlrpc.php", 
-                                       data="<methodCall><methodName>system.listMethods</methodName></methodCall>")
-            if response.status_code == 200 and "methodResponse" in response.text:
-                print(f"{Fore.YELLOW}[!]{Style.RESET_ALL} XML-RPC is enabled (potential brute force vector)")
-                self.report_data.append("Security Warning: XML-RPC enabled")
-        except:
-            pass
-
     def shodan_scan(self, url):
         """Use Shodan to gather additional intelligence"""
         print("\n[*] Querying Shodan for additional intelligence...")
+        self.report_data.append("\nShodan Intelligence:")
         try:
-            domain = url.split('//')[1].split('/')[0]
+            from urllib.parse import urlparse
+            domain = urlparse(url).netloc
             api = shodan.Shodan(self.shodan_api_key)
-            results = api.search(f"hostname:{domain}")
-            
+            query = f"hostname:{domain} wordpress"
+            results = api.search(query)
             print(f"[+] Shodan found {results['total']} results for {domain}")
-            for result in results['matches'][:3]:
-                print(f"  - IP: {result['ip_str']}")
-                print(f"    Port: {result['port']}")
-                print(f"    Organization: {result.get('org', 'N/A')}")
-                print(f"    Banner: {result['data'][:100]}...")
-                
+            self.report_data.append(f"Shodan Results: Found {results['total']} matches for {domain}")
+            
+            if results['total'] == 0:
+                print("[*] No Shodan results - trying IP-based search...")
+                self.report_data.append("No hostname matches - attempting IP-based search")
+                import socket
+                try:
+                    ip = socket.gethostbyname(domain)
+                    results = api.search(f"ip:{ip} wordpress")
+                    print(f"[+] Shodan found {results['total']} results for IP {ip}")
+                    self.report_data.append(f"Shodan IP Search: Found {results['total']} matches for IP {ip}")
+                except socket.gaierror:
+                    print("[-] Could not resolve domain to IP")
+                    self.report_data.append("Shodan IP Search: Failed to resolve domain")
+                    return
+            
+            for result in results['matches'][:5]:  # Limit to 5 for brevity
+                ip_port = f"IP: {result['ip_str']}, Port: {result['port']}"
+                print(f"  - {ip_port}")
+                self.report_data.append(f"Shodan Match: {ip_port}")
+                if 'org' in result:
+                    print(f"    Organization: {result.get('org', 'N/A')}")
+                    self.report_data.append(f"Organization: {result.get('org', 'N/A')}")
+                if 'data' in result:
+                    banner = result['data'][:100].replace('\n', ' ')
+                    print(f"    Banner: {banner}...")
+                    self.report_data.append(f"Banner: {banner}...")
+                    
+        except shodan.APIError as e:
+            print(f"[-] Shodan API error: {str(e)}")
+            self.report_data.append(f"Shodan Error: API error - {str(e)}")
         except Exception as e:
-            print(f"[-] Shodan error: {str(e)}")
-
+            print(f"[-] Shodan scan error: {str(e)}")
+            self.report_data.append(f"Shodan Error: {str(e)}")
+            
     def check_nvd(self, asset_name, asset_version, asset_type='plugin'):
         """Check NVD for known vulnerabilities"""
         print(f"\n[*] Checking NVD for {asset_type} {asset_name} version {asset_version}...")
@@ -598,12 +732,16 @@ class ProjectOwlScanner:
                     return version_match.group(1).strip()
         except:
             return None
-            
+
 if __name__ == "__main__":
+    from dotenv import load_dotenv
+    import os
+    load_dotenv()
     scanner = ProjectOwlScanner(
-        shodan_api_key="API_Key",
-        nvd_api_key="API_Key",
-        wpvulndb_api_key="API_Key",
+        shodan_api_key="key_#1",
+        nvd_api_key="key_#2",
+        wpvulndb_api_key="key_#3",
+        wpscan_api_key='key_#4',
         stealth_mode=True  # Enable stealth mode
     )
     
