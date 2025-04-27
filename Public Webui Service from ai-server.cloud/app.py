@@ -14,10 +14,10 @@ import json
 # API Configuration
 
 # Your API keys
-openai.api_key = "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"
+openai.api_key = "API Key here."
 
-os.environ['GROQ_API_KEY'] = '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'
-os.environ['XAI_API_KEY'] = 'xai-6btA44cuxiMae89fxs87RNHEsI7ORMaXAG0TE55JtxRuZF3dNfESAKXExaFFhYBDKzHC8X6JnhYnx74G'
+os.environ['GROQ_API_KEY'] = 'API Key here'
+os.environ['XAI_API_KEY'] = 'API Key here'
 
 from flask import Flask, render_template, request, jsonify
 import os
@@ -26,8 +26,8 @@ import requests
 app = Flask(__name__)
 
 API_KEYS = {
-    "ai21_j1-jumbo": "kOXX2rKZsnCPN5NW4UQDxv86H1bKEcvP",
-    "codellama_34b": "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"
+    "ai21_j1-jumbo": "API Key Here",
+    "codellama_34b": "API Key Here"
 }
 
 API_ENDPOINTS = {
@@ -38,8 +38,8 @@ API_ENDPOINTS = {
 api_keys = {
     'groq': os.environ.get('GROQ_API_KEY'),
     'grok': os.environ.get('XAI_API_KEY'),
-    'ai21_j1-jumbo': "kOXX2rKZsnCPN5NW4UQDxv86H1bKEcvP",  # Use environment variables in production
-    'cohere-gen': "JiQu6i98yc2Q42VZYpv5pp8YPIrprSKPsDBeblGk",  # Cohere API Key
+    'ai21_j1-jumbo': "API Key Here",  # Use environment variables in production
+    'cohere-gen': "API Key Here",  # Cohere API Key
     'ollama': None,
 }
 
