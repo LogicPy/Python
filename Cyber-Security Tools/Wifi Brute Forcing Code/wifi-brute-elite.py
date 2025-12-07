@@ -3,9 +3,18 @@
 WiFi Password Cracker - Enhanced Version
 A tool for testing WiFi network security through brute-force password attacks.
 """
+# First command before running the script:
+#   pip install -r requirements.txt
 
 # Main execution command - 
-#   "python3 wifi_cracker.py --interactive"
+#   python3 wifi_cracker.py --interactive
+
+# Command-line mode
+#   python3 wifi_cracker.py -s "TargetNetwork" -l 4 5 6
+
+# With verbose logging
+#   python3 wifi_cracker.py --interactive -v
+
 
 import subprocess
 import requests
