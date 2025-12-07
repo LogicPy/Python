@@ -533,7 +533,7 @@ def get_password_lengths() -> List[int]:
         except ValueError:
             print("❌ Invalid input. Please enter numbers separated by spaces.")
 
-def show_advanced_options() -&gt; dict:
+def show_advanced_options() -> dict:
     """
     Interactive prompt for advanced configuration options.
     
@@ -588,7 +588,6 @@ def show_advanced_options() -&gt; dict:
         options['sequential'] = False  # Explicitly set default
     
     return options
-
 # -----------------------------
 # Utility Functions
 # -----------------------------
@@ -707,10 +706,10 @@ def main() -> None:
         # Update args with interactive inputs
         args.ssid = ssid
         args.lengths = password_lengths
-        args.max_workers = advanced_options.get('max_workers', args.workers or config.max_workers)
-        args.delay_between_attempts = advanced_options.get('delay_between_attempts', args.delay or config.delay_between_attempts)
+        args.max_workers = advanced_options.get('max_workers') or args.workers or config.max_workers
+        args.delay_between_attempts = advanced_options.get('delay_between_attempts') or args.delay or config.delay_between_attempts
         args.sequential = advanced_options.get('sequential', args.sequential)
-        
+                
     else:
         # Use command-line arguments
         if not args.lengths:
@@ -722,10 +721,10 @@ def main() -> None:
         
         print_banner()
     
-    # Update config with arguments
+    # Update config with arguments - FIXED VERSION
     config.characters = args.charset
-    config.max_workers = args.workers
-    config.delay_between_attempts = args.delay
+    config.max_workers = args.max_workers  # ✅ Fixed!
+    config.delay_between_attempts = args.delay_between_attempts  # ✅ Fixed!
     
     # Setup logging
     setup_logging(args.verbose)
