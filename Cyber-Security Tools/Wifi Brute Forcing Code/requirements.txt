@@ -1,0 +1,11 @@
+# WiFi Password Cracker - Enhanced Version
+# Dependencies for WiFi network security testing tool
+
+# Core Dependencies
+requests>=2.31.0          # HTTP library for captive portal detection
+psutil>=5.9.0             # System resource monitoring (CPU, memory)
+
+# Optional: For enhanced features
+colorama>=0.4.6         # For colored terminal output
+tqdm>=4.66.0            # Progress bars
+rich>=13.0.0            # Rich text formatting
