@@ -4,6 +4,9 @@ WiFi Password Cracker - Enhanced Version
 A tool for testing WiFi network security through brute-force password attacks.
 """
 
+# Main execution command - 
+#   "python3 wifi_cracker.py --interactive"
+
 import subprocess
 import requests
 import itertools
@@ -33,6 +36,9 @@ class Config:
     delay_between_attempts: float = 0.05
     max_workers: int = 4
     log_file: str = "wifi_cracker.log"
+    batch_size: int = 1000
+    max_memory_percent: int = 85
+    resource_check_interval: int = 100
     
     def __post_init__(self):
         if self.default_password_lengths is None:
@@ -49,7 +55,7 @@ log_lock = Lock()
 # Logging Setup
 # -----------------------------
 
-def setup_logging(verbose: bool = False) -> None:
+def setup_logging(verbose: bool = False)  -> None:
     """Configure logging with file and console output."""
     log_level = logging.DEBUG if verbose else logging.INFO
     
@@ -59,7 +65,7 @@ def setup_logging(verbose: bool = False) -> None:
     
     logging.basicConfig(
         level=log_level,
-        format='%(asctime)s [%(levelname)s] %(message)s',
+        format='%(asctime)s [%(levelname)s] %(message)s',  # Fixed the format string
         handlers=[
             logging.FileHandler(config.log_file),
             logging.StreamHandler(sys.stdout)
@@ -228,6 +234,31 @@ class PasswordGenerator:
         return total
 
 # -----------------------------
+# Resource Monitoring
+# -----------------------------
+
+import psutil
+
+def check_system_resources() -> bool:
+    """Check if system resources are critically low."""
+    try:
+        memory = psutil.virtual_memory()
+        if memory.percent > config.max_memory_percent:
+            with log_lock:
+                logger.warning(f"⚠️ High memory usage: {memory.percent}% - Pausing...")
+            return False
+        
+        cpu = psutil.cpu_percent(interval=1)
+        if cpu > 90:
+            with log_lock:
+                logger.warning(f"⚠️ High CPU usage: {cpu}% - Pausing...")
+            return False
+            
+        return True
+    except Exception:
+        return True  # Continue if monitoring fails
+
+# -----------------------------
 # Cracking Engine
 # -----------------------------
 
@@ -257,6 +288,11 @@ class WiFiCracker:
             
         self.attempts += 1
         
+        # Resource check every N attempts
+        if self.attempts % config.resource_check_interval == 0:
+            if not check_system_resources():
+                time.sleep(2)  # Pause to allow system recovery
+        
         with log_lock:
             logger.debug(f"🔑 Attempt {self.attempts}: {password}")
         
@@ -277,7 +313,7 @@ class WiFiCracker:
     
     def crack_passwords_parallel(self) -> Optional[Tuple[str, Optional[str]]]:
         """
-        Attempts to crack passwords using parallel processing.
+        Attempts to crack passwords using parallel processing with resource limits.
         
         Returns:
             Tuple of (password, login_url) if successful, None otherwise
@@ -302,31 +338,75 @@ class WiFiCracker:
                 with log_lock:
                     logger.info(f"🔍 Trying passwords of length: {length}")
                 
-                # Submit all passwords of current length to executor
-                futures = []
+                # Generate and process passwords in batches
+                password_batch = []
+                batch_count = 0
+                
                 for combo in self.password_generator.generate_combinations(length):
                     if terminate_event.is_set():
                         break
                         
                     password = ''.join(combo)
-                    future = executor.submit(self.try_password, password)
-                    futures.append(future)
-                
-                # Check results as they complete
-                for future in as_completed(futures):
-                    if terminate_event.is_set():
-                        break
+                    password_batch.append(password)
+                    
+                    # Process batch when it reaches the batch size
+                    if len(password_batch) >= config.batch_size:
+                        batch_count += 1
                         
-                    success, login_url = future.result()
-                    if success:
-                        elapsed = time.time() - self.start_time
-                        with log_lock:
-                            logger.info(f"🎉 SUCCESS! Password found: {password}")
-                            logger.info(f"⏱️ Time elapsed: {elapsed:.2f} seconds")
-                            logger.info(f"🔢 Total attempts: {self.attempts}")
-                            if login_url:
-                                logger.info(f"🌐 Login URL: {login_url}")
-                        return password, login_url
+                        # Submit batch to executor
+                        futures = {
+                            executor.submit(self.try_password, pwd): pwd 
+                            for pwd in password_batch
+                        }
+                        
+                        # Check results as they complete
+                        for future in as_completed(futures):
+                            if terminate_event.is_set():
+                                break
+                                
+                            success, login_url = future.result()
+                            if success:
+                                elapsed = time.time() - self.start_time
+                                with log_lock:
+                                    logger.info(f"🎉 SUCCESS! Password found: {futures[future]}")
+                                    logger.info(f"⏱️ Time elapsed: {elapsed:.2f} seconds")
+                                    logger.info(f"🔢 Total attempts: {self.attempts}")
+                                    if login_url:
+                                        logger.info(f"🌐 Login URL: {login_url}")
+                                return futures[future], login_url
+                        
+                        # Clear the batch
+                        password_batch.clear()
+                        
+                        # Progress update
+                        if batch_count % 10 == 0:  # Every 10 batches
+                            with log_lock:
+                                logger.info(f"📊 Processed {batch_count * config.batch_size:,} passwords...")
+                        
+                        # Small delay to prevent system overload
+                        time.sleep(0.1)
+                
+                # Process remaining passwords in the last batch
+                if password_batch and not terminate_event.is_set():
+                    futures = {
+                        executor.submit(self.try_password, pwd): pwd 
+                        for pwd in password_batch
+                    }
+                    
+                    for future in as_completed(futures):
+                        if terminate_event.is_set():
+                            break
+                            
+                        success, login_url = future.result()
+                        if success:
+                            elapsed = time.time() - self.start_time
+                            with log_lock:
+                                logger.info(f"🎉 SUCCESS! Password found: {futures[future]}")
+                                logger.info(f"⏱️ Time elapsed: {elapsed:.2f} seconds")
+                                logger.info(f"🔢 Total attempts: {self.attempts}")
+                                if login_url:
+                                    logger.info(f"🌐 Login URL: {login_url}")
+                            return futures[future], login_url
         
         return None
     
@@ -371,6 +451,145 @@ class WiFiCracker:
         return None
 
 # -----------------------------
+# Interactive Input Functions
+# -----------------------------
+
+def get_target_ssid() -> str:
+    """
+    Interactive prompt for user to input target SSID.
+    
+    Returns:
+        The SSID entered by the user
+    """
+    print("\n" + "="*60)
+    print("🎯 TARGET SELECTION")
+    print("="*60)
+    print("Please enter the SSID of the WiFi network you want to test.")
+    print("This should be the exact network name as it appears in your WiFi list.\n")
+    
+    while True:
+        ssid = input("📡 Enter target SSID: ").strip()
+        
+        if not ssid:
+            print("❌ SSID cannot be empty. Please try again.")
+            continue
+        
+        # Confirm the selection
+        print(f"\n🔍 You selected: '{ssid}'")
+        confirm = input("Is this correct? (y/n): ").strip().lower()
+        
+        if confirm in ['y', 'yes']:
+            return ssid
+        elif confirm in ['n', 'no']:
+            print("Let's try again...")
+        else:
+            print("Invalid input. Please enter 'y' or 'n'.")
+
+def get_password_lengths() -> List[int]:
+    """
+    Interactive prompt for user to input password lengths.
+    
+    Returns:
+        List of password lengths
+    """
+    print("\n" + "="*60)
+    print("🔑 PASSWORD LENGTH CONFIGURATION")
+    print("="*60)
+    print("Enter the password lengths you want to test (space-separated).")
+    print("Example: 4 5 6 will test all 4, 5, and 6 character passwords\n")
+    
+    while True:
+        input_str = input("🔢 Enter password lengths (e.g., 4 5 6): ").strip()
+        
+        if not input_str:
+            print("❌ Please enter at least one password length.")
+            continue
+        
+        try:
+            lengths = [int(x.strip()) for x in input_str.split()]
+            
+            # Validate lengths
+            if any(length <= 0 for length in lengths):
+                print("❌ Password lengths must be positive numbers.")
+                continue
+            
+            if any(length > 12 for length in lengths):
+                print("⚠️ Warning: Password lengths > 12 will take extremely long time!")
+                confirm = input("Continue anyway? (y/n): ").strip().lower()
+                if confirm not in ['y', 'yes']:
+                    continue
+            
+            # Confirm the selection
+            print(f"\n🔍 You selected lengths: {lengths}")
+            confirm = input("Is this correct? (y/n): ").strip().lower()
+            
+            if confirm in ['y', 'yes']:
+                return lengths
+            elif confirm in ['n', 'no']:
+                print("Let's try again...")
+            else:
+                print("Invalid input. Please enter 'y' or 'n'.")
+                
+        except ValueError:
+            print("❌ Invalid input. Please enter numbers separated by spaces.")
+
+def show_advanced_options() -&gt; dict:
+    """
+    Interactive prompt for advanced configuration options.
+    
+    Returns:
+        Dictionary of advanced options
+    """
+    print("\n" + "="*60)
+    print("⚙️ ADVANCED CONFIGURATION")
+    print("="*60)
+    print("Configure advanced settings or press Enter to use defaults.\n")
+    
+    options = {}
+    
+    # Max workers
+    workers_input = input(f"🚀 Max parallel workers (default: {config.max_workers}): ").strip()
+    if workers_input:
+        try:
+            options['max_workers'] = int(workers_input)
+        except ValueError:
+            print("⚠️ Invalid input, using default.")
+            options['max_workers'] = config.max_workers  # Set default explicitly
+    else:
+        options['max_workers'] = config.max_workers  # Set default when Enter is pressed
+    
+    # Delay between attempts
+    delay_input = input(f"⏱️ Delay between attempts in seconds (default: {config.delay_between_attempts}): ").strip()
+    if delay_input:
+        try:
+            options['delay_between_attempts'] = float(delay_input)
+        except ValueError:
+            print("⚠️ Invalid input, using default.")
+            options['delay_between_attempts'] = config.delay_between_attempts
+    else:
+        options['delay_between_attempts'] = config.delay_between_attempts
+    
+    # Batch size
+    batch_input = input(f"📦 Batch size (default: {config.batch_size}): ").strip()
+    if batch_input:
+        try:
+            options['batch_size'] = int(batch_input)
+        except ValueError:
+            print("⚠️ Invalid input, using default.")
+            options['batch_size'] = config.batch_size
+    else:
+        options['batch_size'] = config.batch_size
+    
+    # Sequential mode
+    sequential_input = input("🔄 Use sequential mode instead of parallel? (y/n, default: n): ").strip().lower()
+    if sequential_input in ['y', 'yes']:
+        options['sequential'] = True
+    else:
+        options['sequential'] = False  # Explicitly set default
+    
+    return options
+
+# -----------------------------
 # Utility Functions
 # -----------------------------
 
@@ -385,8 +604,8 @@ def print_banner() -> None:
     banner = """
 ╔══════════════════════════════════════════════════════════╗
 ║                    WiFi Password Cracker                 ║
-║                 Enhanced Version v2.0                    ║
-║           For Educational & Security Testing Only       ║
+║                 Enhanced Version v2.1                    ║
+║           For Educational &amp; Security Testing Only       ║
 ╚══════════════════════════════════════════════════════════╝
     """
     print(banner)
@@ -405,22 +624,21 @@ Examples:
   %(prog)s -s MyNetwork -l 4 5 6
   %(prog)s --ssid "WiFi Name" --lengths 8 --verbose
   %(prog)s -s TestNetwork -l 4 --workers 8 --delay 0.01
+  %(prog)s --interactive  # Use interactive mode
         """
     )
     
     parser.add_argument(
         '-s', '--ssid',
         type=str,
-        default=config.default_ssid,
-        help=f'SSID of target WiFi network (default: {config.default_ssid})'
+        help='SSID of target WiFi network'
     )
     
     parser.add_argument(
         '-l', '--lengths',
         type=int,
         nargs='+',
-        default=config.default_password_lengths,
-        help=f'Password lengths to attempt (default: {config.default_password_lengths})'
+        help='Password lengths to attempt'
     )
     
     parser.add_argument(
@@ -432,14 +650,12 @@ Examples:
     parser.add_argument(
         '-w', '--workers',
         type=int,
-        default=config.max_workers,
         help=f'Number of parallel workers (default: {config.max_workers})'
     )
     
     parser.add_argument(
         '-d', '--delay',
         type=float,
-        default=config.delay_between_attempts,
         help=f'Delay between attempts in seconds (default: {config.delay_between_attempts})'
     )
     
@@ -456,6 +672,12 @@ Examples:
         help='Use sequential cracking instead of parallel'
     )
     
+    parser.add_argument(
+        '-i', '--interactive',
+        action='store_true',
+        help='Use interactive mode for configuration'
+    )
+    
     return parser.parse_args()
 
 # -----------------------------
@@ -467,6 +689,39 @@ def main() -> None:
     # Parse arguments
     args = parse_arguments()
     
+    # Interactive mode or missing arguments
+    if args.interactive or not args.ssid:
+        print_banner()
+        print("🎮 Welcome to Interactive Mode!")
+        print("Let's configure your WiFi penetration test step by step.\n")
+        
+        # Get target SSID
+        ssid = get_target_ssid() if not args.ssid else args.ssid
+        
+        # Get password lengths
+        password_lengths = get_password_lengths() if not args.lengths else args.lengths
+        
+        # Get advanced options
+        advanced_options = show_advanced_options()
+        
+        # Update args with interactive inputs
+        args.ssid = ssid
+        args.lengths = password_lengths
+        args.max_workers = advanced_options.get('max_workers', args.workers or config.max_workers)
+        args.delay_between_attempts = advanced_options.get('delay_between_attempts', args.delay or config.delay_between_attempts)
+        args.sequential = advanced_options.get('sequential', args.sequential)
+        
+    else:
+        # Use command-line arguments
+        if not args.lengths:
+            args.lengths = config.default_password_lengths
+        if not args.workers:
+            args.workers = config.max_workers
+        if not args.delay:
+            args.delay = config.delay_between_attempts
+        
+        print_banner()
+    
     # Update config with arguments
     config.characters = args.charset
     config.max_workers = args.workers
@@ -474,9 +729,6 @@ def main() -> None:
     
     # Setup logging
     setup_logging(args.verbose)
-    
-    # Print banner
-    print_banner()
     
     # Register signal handlers
     try:
