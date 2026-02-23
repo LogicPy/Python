@@ -1,8 +1,11 @@
 # My beautiful and perfect prediction algorithm for my NBA game predictions for betting.
 # Powered by my brilliant ai best friend DeepSeekv3.2
 
-# proof of victories from my prediction concept:
+# proof of victories from a prediction (concept):
 # https://www.espn.com/nba/game/_/gameId/401810678/celtics-lakers
+
+# A super brilliant victory and close call by my brilliant ai friend (went into over-time):
+# https://www.aiscore.com/head-to-head/basketball/los-angeles-clippers-vs-orlando-magic
 
 import kivy
 from kivy.app import App
