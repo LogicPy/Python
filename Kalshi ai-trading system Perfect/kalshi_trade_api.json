@@ -1,0 +1,92 @@
+[
+  {
+    "url": "https://docs.kalshi.com/api-reference/orders/create-order-v2",
+    "name": "Create Order (V2) - Kalshi's API Documentation",
+    "snippet": "Endpoint for submitting event-market orders using the V2 request/response shape (single-book bid/ask side and fixed-point dollar prices).",
+    "host_name": "docs.kalshi.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://docs.kalshi.com/getting_started/quick_start_authenticated_requests",
+    "name": "Quick Start: Authenticated Requests - Kalshi's API Documentation",
+    "snippet": "Step 1: Get Your API Keys. Log in to your Kalshi account (demo or production); Navigate to Account & security → API Keys; Click Create Key; Save both:.",
+    "host_name": "docs.kalshi.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://docs.kalshi.com/getting_started/quick_start_create_order",
+    "name": "Quick Start: Create your first order - Kalshi's API Documentation",
+    "snippet": "This guide will walk you through the complete lifecycle of placing and managing orders on Kalshi.",
+    "host_name": "docs.kalshi.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://docs.kalshi.com/welcome",
+    "name": "Introduction - API Documentation - Kalshi",
+    "snippet": "Welcome to Kalshi's API Documentation. This documentation covers the Kalshi Exchange API for real-time market data and trade execution.",
+    "host_name": "docs.kalshi.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://docs.kalshi.com/getting_started/quick_start_market_data",
+    "name": "Quick Start: Market Data - Kalshi's API Documentation",
+    "snippet": "This guide will walk you through accessing Kalshi's public market data endpoints without authentication. You'll learn how to retrieve series information, ...",
+    "host_name": "docs.kalshi.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://docs.kalshi.com/api-reference/orders/get-orders",
+    "name": "Get Orders - Kalshi's API Documentation",
+    "snippet": "Orders that have been canceled or fully executed before the historical cutoff are only available via GET /historical/orders . Resting orders will always be ...",
+    "host_name": "docs.kalshi.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://zuplo.com/learning-center/kalshi-api",
+    "name": "Kalshi API: The Complete Developer's Guide - Zuplo",
+    "snippet": "The Kalshi API offers comprehensive order management, letting you place, modify, and cancel orders programmatically across all markets. You can ...",
+    "host_name": "zuplo.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://docs.kalshi.com/api-reference/orders/create-order",
+    "name": "Create Order - Kalshi's API Documentation",
+    "snippet": "Create Order. Endpoint for submitting orders in a market. Each user is limited to 200 000 open orders at a time.",
+    "host_name": "docs.kalshi.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://lobehub.com/skills/ammario-kalshi-docs",
+    "name": "kalshi-docs | Skills Marketplace - LobeHub",
+    "snippet": "Kalshi API Documentation provides a complete reference for interacting with Kalshi's prediction markets via REST and WebSocket APIs.",
+    "host_name": "lobehub.com",
+    "rank": 8,
+    "date": "May 2, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://docs.kalshi.com/api-reference/orders/get-order",
+    "name": "Get Order - Kalshi's API Documentation",
+    "snippet": "POST. Batch Create Orders (V2) · DEL. Batch Cancel Orders (V2) · DEL. Cancel Order (V2) · POST. Amend ...",
+    "host_name": "docs.kalshi.com",
+    "rank": 9,
+    "date": "",
+    "favicon": ""
+  }
+]

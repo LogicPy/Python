@@ -1,0 +1,92 @@
+[
+  {
+    "url": "https://docs.kalshi.com/getting_started/demo_env",
+    "name": "Test In The Demo Environment",
+    "snippet": "For testing purposes, Kalshi offers a demo environment with mock funds. You can access the Demo environment at https://demo.kalshi.co /. Read more",
+    "host_name": "docs.kalshi.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://kalshi.com/sign-in",
+    "name": "Sign in to your Account",
+    "snippet": "By continuing, you acknowledge and agree to Kalshi's legal terms, which we recommend reviewing. Log in . Forgot password? No account? Create one. Company. Read more",
+    "host_name": "kalshi.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://docs.kalshi.com/welcome",
+    "name": "Introduction - API Documentation - Kalshi",
+    "snippet": "Welcome to Kalshi's API Documentation . This documentation covers the Kalshi Exchange API for real-time market data and trade execution. Read more",
+    "host_name": "docs.kalshi.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://help.kalshi.com/en/articles/13823854-kalshi-api",
+    "name": "Kalshi API",
+    "snippet": "Mar 10, 2026 — Through Kalshi's API , you'll gain access to information about your own orders, trades , portfolio, and portfolio history, as well as all ... Read more\nKalshi API . March 10, 2026 . To get started with the API , please check the API documentation and follow the tutorials and instructions there. Read more\n10 Mar 2026 — Through Kalshi's API , you'll gain access to information about your own orders, trades , portfolio, and portfolio history, as well as all ...",
+    "host_name": "help.kalshi.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=E2mgWN4ReqQ",
+    "name": "Prediction Markets with the Kalshi API (Python Tutorial)",
+    "snippet": "0:00 Kalshi - Why is this interesting to me? 1:35 Comparison with Polymarket 3:56 Semantic matching of bets across markets 4:36 Kalshi API ...",
+    "host_name": "www.youtube.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://docs.kalshi.com/getting_started/quick_start_authenticated_requests",
+    "name": "Quick Start: Authenticated Requests",
+    "snippet": "Step 1: Get Your API Keys. Log in to your Kalshi account ( demo or production); Navigate to Account & security → API Keys; Click Create Key; Save both:. Read more",
+    "host_name": "docs.kalshi.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://docs.kalshi.com/python-sdk/api/MarketsApi",
+    "name": "Markets - API Documentation",
+    "snippet": "Use this file to discover all available pages before exploring further. All URIs are relative to https:// api .elections. kalshi . com / trade - api / v2 . Method, HTTP ... Read more",
+    "host_name": "docs.kalshi.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://kalshi.com/account/api",
+    "name": "Kalshi - Prediction Market for Trading the Future",
+    "snippet": "Kalshi is a regulated exchange & prediction market where you can trade on the outcome of real-world events. Buy and sell Event Contracts.",
+    "host_name": "kalshi.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://help.kalshi.com/en/articles/13823775-how-do-i-set-up-and-use-a-kalshi-demo-account",
+    "name": "How Do I Set Up and Use a Kalshi Demo Account?",
+    "snippet": "Mar 24, 2026 — How Do I Set Up and Use a Kalshi Demo Account? Kalshi's demo environment lets you explore the platform and practice trading using mock funds. Read more",
+    "host_name": "help.kalshi.com",
+    "rank": 8,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://docs.kalshi.com/typescript-sdk/api/MarketsApi",
+    "name": "Markets - API Documentation",
+    "snippet": "Use this file to discover all available pages before exploring further. All URIs are relative to https:// api .elections. kalshi . com / trade - api / v2 . Method, HTTP ... Read more",
+    "host_name": "docs.kalshi.com",
+    "rank": 9,
+    "date": "",
+    "favicon": ""
+  }
+]

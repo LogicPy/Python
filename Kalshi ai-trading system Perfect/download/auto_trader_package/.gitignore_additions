@@ -1,0 +1,9 @@
+# Add these lines to your existing .gitignore:
+
+# Auto-trader secrets
+.env
+kalshi_private_key.pem
+
+# Auto-trader data
+data/positions.json
+data/trade_logs/

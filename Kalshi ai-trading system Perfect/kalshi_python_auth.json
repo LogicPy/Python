@@ -1,0 +1,92 @@
+[
+  {
+    "url": "https://docs.kalshi.com/getting_started/quick_start_authenticated_requests",
+    "name": "Quick Start: Authenticated Requests - Kalshi's API Documentation",
+    "snippet": "Step 1: Get Your API Keys. Log in to your Kalshi account (demo or production); Navigate to Account & security → API Keys; Click Create Key; Save both:.",
+    "host_name": "docs.kalshi.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://docs.kalshi.com/api-reference/orders/create-order",
+    "name": "Create Order - Kalshi's API Documentation",
+    "snippet": "Create Order. Endpoint for submitting orders in a market. Each user is limited to 200 000 open orders at a time. Missing: python code",
+    "host_name": "docs.kalshi.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/sswadkar/kalshi-interface",
+    "name": "GitHub - sswadkar/kalshi-interface: FastAPI-based trading",
+    "snippet": "It supports market polling, position tracking, and order execution using Kalshi's PSS-signed authentication flow. Features. Secure Authentication – Uses RSA ...",
+    "host_name": "github.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://docs.kalshi.com/getting_started/api_keys",
+    "name": "API Keys - Kalshi's API Documentation",
+    "snippet": "For example, if your request is to /trade-api/v2/portfolio/orders?limit=5 , sign only /trade-api/v2/portfolio/orders (strip the ? and everything after it).",
+    "host_name": "docs.kalshi.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://apidog.com/blog/kalshi-api-devolpers-guide",
+    "name": "How to Use the Kalshi API: Prediction Markets Guide - Apidog",
+    "snippet": "Technical guide to Kalshi API integration including RSA-PSS authentication, market data retrieval, order placement, WebSocket streaming, and ...",
+    "host_name": "apidog.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://docs.kalshi.com/getting_started/quick_start_create_order",
+    "name": "Quick Start: Create your first order - Kalshi's API Documentation",
+    "snippet": "Before you begin, you'll need: A Kalshi account with API access configured; Python with the requests and cryptography libraries installed; Your authentication ... Missing: RSA- | Show results with: RSA-",
+    "host_name": "docs.kalshi.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://docs.kalshi.com/getting_started/quick_start_websockets",
+    "name": "Quick Start: WebSockets - Kalshi's API Documentation",
+    "snippet": "To connect to the WebSocket API, you need to: Generate authentication headers (same as REST API); Create a WebSocket connection with those headers; Handle the ...",
+    "host_name": "docs.kalshi.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://docs.kalshi.com/fix/authentication",
+    "name": "Authentication & Sessions - Kalshi's API Documentation",
+    "snippet": "Generate a 2048-bit RSA key pair and register the public key in your account profile. The resulting API Key ID (UUID) is your SenderCompID . Missing: example code",
+    "host_name": "docs.kalshi.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://roundproxies.com/blog/scrape-kalshi",
+    "name": "How to Scrape Kalshi in 2026: 4 Working Methods - Roundproxies",
+    "snippet": "Scrape Kalshi market data with Python. 4 methods with working code: REST API, WebSockets, and more.",
+    "host_name": "roundproxies.com",
+    "rank": 8,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://newyorkcityservers.com/blog/best-prediction-market-apis",
+    "name": "Best Prediction Market APIs for Developers and Traders - Forex VPS",
+    "snippet": "Compare the best prediction market APIs for Polymarket, Kalshi, and more. Covers endpoints, authentication, rate limits, SDKs, and code examples ...",
+    "host_name": "newyorkcityservers.com",
+    "rank": 9,
+    "date": "",
+    "favicon": ""
+  }
+]

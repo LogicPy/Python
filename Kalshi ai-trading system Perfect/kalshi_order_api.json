@@ -1,0 +1,92 @@
+[
+  {
+    "url": "https://docs.kalshi.com/api-reference/orders/create-order-v2",
+    "name": "Create Order (V2) - API Documentation",
+    "snippet": "Create Order ( V2 ) ... Endpoint for submitting event-market orders using the V2 request/response shape (single-book bid / ask side and fixed-point dollar prices). Read more",
+    "host_name": "docs.kalshi.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://docs.kalshi.com/api-reference/orders/create-order",
+    "name": "Create Order - API Documentation",
+    "snippet": "String representation of the order quantity in contracts. Provide count or count_fp; if both provided they must match. Example : \"10.00\". ​. yes_price. integer. Read more",
+    "host_name": "docs.kalshi.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.reddit.com/r/Kalshi/comments/vt3tpi/request_example_of_python_code_to_make_order_via",
+    "name": "Example of Python Code to Make Order via Kalshi API",
+    "snippet": "Here is a snippet that should outline common practices for placing an order through the UI. order = { 'contentType':'application/json ', 'headers ... Read more",
+    "host_name": "www.reddit.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://docs.kalshi.com/getting_started/quick_start_create_order",
+    "name": "Quick Start: Create your first order",
+    "snippet": "This guide will walk you through the complete lifecycle of placing and managing orders on Kalshi . Read more",
+    "host_name": "docs.kalshi.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=yYjo1lzNoGI",
+    "name": "How to Use the Kalshi API with Python (Full Guide)",
+    "snippet": "... 2 :30 Events & Markets 5:47 Finding a Specific Market 9:48 Order Book & Recent Trades 10:22 API Keys & Authentication 13:20 Placing a Market ...",
+    "host_name": "www.youtube.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/AndrewNolte/KalshiPythonClient/blob/main/docs/AccountApi.md",
+    "name": "KalshiPythonClient/docs/AccountApi.md at main",
+    "snippet": "This end-point is very useful for users that have a large volume of orders and don't want to be email notified whenever an order is submitted / edited / ... Read more",
+    "host_name": "github.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://zuplo.com/learning-center/kalshi-api",
+    "name": "Kalshi API: The Complete Developer's Guide",
+    "snippet": "Apr 2, 2025 — Limit Orders : Place orders at specific prices, letting you set your desired entry or exit points. These wait in the order book until matched or ... Read more",
+    "host_name": "zuplo.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://docs.kalshi.com/api-reference/orders/batch-create-orders-v2",
+    "name": "Batch Create Orders (V2)",
+    "snippet": "Batch Create Orders ( V2 ). Endpoint for submitting a batch of event-market orders using the V2 request/response shape. The maximum batch size scales with your ... Read more",
+    "host_name": "docs.kalshi.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=E2mgWN4ReqQ",
+    "name": "Prediction Markets with the Kalshi API (Python Tutorial)",
+    "snippet": "Prediction Markets with the Kalshi API (Python Tutorial). 29K views ... Kalshi Order Book Watcher: Websockets For Real-Time Data in Python.",
+    "host_name": "www.youtube.com",
+    "rank": 8,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://docs.kalshi.com/api-reference/orders/get-order",
+    "name": "Get Order - API Documentation",
+    "snippet": "POST. Batch Create Orders (V2) · DEL. Batch Cancel Orders (V2) · DEL. Cancel Order (V2) · POST. Amend Order (V2) · POST. Decrease Order (V2) ... Read more",
+    "host_name": "docs.kalshi.com",
+    "rank": 9,
+    "date": "",
+    "favicon": ""
+  }
+]

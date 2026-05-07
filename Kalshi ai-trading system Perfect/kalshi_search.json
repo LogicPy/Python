@@ -1,0 +1,92 @@
+[
+  {
+    "url": "https://docs.kalshi.com/getting_started/quick_start_market_data",
+    "name": "Quick Start: Market Data",
+    "snippet": "This guide will walk you through accessing Kalshi's public market data endpoints without authentication. You'll learn how to retrieve series information, ...",
+    "host_name": "docs.kalshi.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://docs.kalshi.com/typescript-sdk/api/MarketsApi",
+    "name": "Markets - API Documentation",
+    "snippet": "Get a single market by its ticker . A market represents a specific binary outcome within an event that users can trade on (e.g., “Will candidate X win?”).",
+    "host_name": "docs.kalshi.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://docs.kalshi.com/api-reference/market/get-market",
+    "name": "Get Market - API Documentation",
+    "snippet": "Endpoint for getting data about a specific market by its ticker . A market represents a specific binary outcome within an event that users can trade on (e.g. ...",
+    "host_name": "docs.kalshi.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://help.kalshi.com/en/articles/13823838-crypto-markets",
+    "name": "Crypto Markets",
+    "snippet": "Kalshi offers a variety of cryptocurrency price markets that allow users to trade contracts based on the price movements of a cryptocurrency , ...",
+    "host_name": "help.kalshi.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://docs.kalshi.com/welcome",
+    "name": "Introduction - API Documentation - Kalshi",
+    "snippet": "Welcome to Kalshi's API Documentation . This documentation covers the Kalshi Exchange API for real-time market data and trade execution.",
+    "host_name": "docs.kalshi.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/kurushdubash/dome-sdk-ts",
+    "name": "kurushdubash/dome-sdk-ts: Dome's Typescript SDK",
+    "snippet": "A comprehensive TypeScript SDK for interacting with the Dome API . Features include market data, wallet analytics, order tracking, and cross-platform market ...",
+    "host_name": "github.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.scribd.com/document/1014915441/Kalshi-Arbitrage-Trading-Bot-Technical-Specification",
+    "name": "Kalshi Arbitrage Trading Bot – Technical Specification | PDF",
+    "snippet": "The document outlines the technical specifications for a Streamlit-based Kalshi Arbitrage Trading Bot that integrates real-time crypto price data and Kalshi ...",
+    "host_name": "www.scribd.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://docs.kalshi.com/python-sdk/api/MarketsApi",
+    "name": "Markets - API Documentation",
+    "snippet": "Get Market Get a single market by its ticker . A market represents a specific binary outcome within an event that users can trade on (e.g., “Will candidate X ...",
+    "host_name": "docs.kalshi.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.quiverquant.com/news/A+Trader+Just+Bet+%2422%2C038+Against+Ethereum+Price+Being+%244%2C530+or+Above+by+October+3%2C+2025",
+    "name": "A Trader Just Bet $22038 Against Ethereum Price Being",
+    "snippet": "Oct 3, 2025 — A trader just put $22,038 into contracts betting against \"$4,530 or above\" in a \" Ethereum price at Oct 3, 2025 at 4pm EDT?\" market .",
+    "host_name": "www.quiverquant.com",
+    "rank": 8,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://zuplo.com/learning-center/kalshi-api",
+    "name": "Kalshi API: The Complete Developer's Guide",
+    "snippet": "Apr 2, 2025 — The Kalshi API gives you direct access to CFTC-regulated event-based markets , opening up a world of opportunities to trade on future outcomes— ...",
+    "host_name": "zuplo.com",
+    "rank": 9,
+    "date": "",
+    "favicon": ""
+  }
+]
