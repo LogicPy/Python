@@ -3,6 +3,12 @@ Neon cyber-punk Tetris renderer and game loop using pygame.
 
 Visual style: glowing 3D blocks with neon edges, dark grid background,
 particle effects on line clears, scanline overlay, animated background.
+
+Play game:
+'Python neon_tetris.py'
+
+Coded by LogicPy and GLM 5.2
+
 """
 
 import math
