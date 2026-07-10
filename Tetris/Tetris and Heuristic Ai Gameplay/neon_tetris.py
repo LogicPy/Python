@@ -44,6 +44,72 @@ ACCENT_COLOR = (255, 0, 200)
 
 BAG_QUEUE_SIZE = 3
 
+# ---- Theme palettes ----
+
+# Classic Tetris color scheme (traditional NES-style)
+CLASSIC_COLORS = {
+    "I": (0, 240, 240),
+    "O": (240, 240, 0),
+    "T": (160, 0, 240),
+    "S": (0, 240, 0),
+    "Z": (240, 0, 0),
+    "J": (0, 0, 240),
+    "L": (240, 160, 0),
+}
+
+# 8-bit Game Boy-style palette (limited green tones)
+EIGHTBIT_COLORS = {
+    "I": (136, 192, 112),
+    "O": (208, 208, 136),
+    "T": (104, 80, 64),
+    "S": (64, 96, 48),
+    "Z": (176, 96, 48),
+    "J": (48, 64, 96),
+    "L": (160, 128, 64),
+}
+
+# Theme definitions: name -> (colors, bg, grid, panel, text, accent, scanlines)
+THEMES = {
+    "neon": {
+        "colors": NEON_COLORS,
+        "bg": (8, 8, 18),
+        "grid": (22, 22, 40),
+        "panel": (14, 14, 30),
+        "panel_border": (35, 35, 70),
+        "text": (0, 240, 255),
+        "accent": (255, 0, 200),
+        "scanlines": True,
+        "title": "NEON BLOCKS",
+        "subtitle": "Cyber-Punk Tetris",
+    },
+    "classic": {
+        "colors": CLASSIC_COLORS,
+        "bg": (20, 20, 24),
+        "grid": (40, 40, 44),
+        "panel": (28, 28, 32),
+        "panel_border": (60, 60, 68),
+        "text": (220, 220, 230),
+        "accent": (240, 160, 0),
+        "scanlines": False,
+        "title": "CLASSIC BLOCKS",
+        "subtitle": "Traditional Tetris",
+    },
+    "8bit": {
+        "colors": EIGHTBIT_COLORS,
+        "bg": (15, 24, 15),
+        "grid": (30, 48, 30),
+        "panel": (20, 32, 20),
+        "panel_border": (60, 80, 48),
+        "text": (136, 192, 112),
+        "accent": (208, 208, 136),
+        "scanlines": True,
+        "title": "8-BIT BLOCKS",
+        "subtitle": "Retro Pixel Tetris",
+    },
+}
+
+THEME_NAMES = ["neon", "classic", "8bit"]
+
 
 class NeonButton:
     """A glowing neon toggle button with hover and click effects."""
@@ -113,6 +179,7 @@ class NeonRenderer:
         self.flash_timer = 0
         self.scanline_offset = 0
         self.time = 0
+        self.theme = "neon"
         self._init_fonts()
         self._init_background()
         self._init_buttons()
@@ -128,23 +195,43 @@ class NeonRenderer:
         self.font_small = pygame.font.Font(font_name, 16)
 
     def _init_background(self):
+        td = self.theme_data
+        bg = td["bg"]
+        grid = td["grid"]
         self.bg_surface = pygame.Surface((SCREEN_W, SCREEN_H))
-        self.bg_surface.fill(BG_COLOR)
-        for y in range(0, SCREEN_H, 3):
-            shade = max(0, int(8 + 10 * math.sin(y * 0.01)))
-            shade2 = min(shade + 8, 255)
-            pygame.draw.line(
-                self.bg_surface,
-                (shade, shade, shade2),
-                (0, y),
-                (SCREEN_W, y),
-            )
-        for _ in range(60):
-            x = random.randint(0, SCREEN_W - 1)
-            y = random.randint(0, SCREEN_H - 1)
-            brightness = random.randint(20, 60)
-            b2 = min(brightness + 20, 255)
-            self.bg_surface.set_at((x, y), (brightness, brightness, b2))
+        self.bg_surface.fill(bg)
+        if self.theme == "neon":
+            for y in range(0, SCREEN_H, 3):
+                shade = max(0, int(8 + 10 * math.sin(y * 0.01)))
+                shade2 = min(shade + 8, 255)
+                pygame.draw.line(
+                    self.bg_surface,
+                    (shade, shade, shade2),
+                    (0, y),
+                    (SCREEN_W, y),
+                )
+            for _ in range(60):
+                x = random.randint(0, SCREEN_W - 1)
+                y = random.randint(0, SCREEN_H - 1)
+                brightness = random.randint(20, 60)
+                b2 = min(brightness + 20, 255)
+                self.bg_surface.set_at((x, y), (brightness, brightness, b2))
+        elif self.theme == "classic":
+            for _ in range(80):
+                x = random.randint(0, SCREEN_W - 1)
+                y = random.randint(0, SCREEN_H - 1)
+                v = random.randint(22, 30)
+                self.bg_surface.set_at((x, y), (v, v, v + 2))
+        elif self.theme == "8bit":
+            # Pixel grid background
+            for y in range(0, SCREEN_H, 4):
+                for x in range(0, SCREEN_W, 4):
+                    v = 15 + ((x + y) // 4 % 3) * 4
+                    pygame.draw.rect(
+                        self.bg_surface,
+                        (v, v + 8, v),
+                        (x, y, 4, 4),
+                    )
 
     def _init_buttons(self):
         rx = BOARD_OFFSET_X + BOARD_PX_W + 20
@@ -156,6 +243,33 @@ class NeonRenderer:
             TEXT_COLOR,
             ACCENT_COLOR,
         )
+        # Theme selector buttons (3 small buttons in a row)
+        ty = BOARD_OFFSET_Y + 605
+        tw = 76
+        tg = 6
+        self.theme_buttons = []
+        for i, name in enumerate(THEME_NAMES):
+            btn = NeonButton(
+                (rx + i * (tw + tg), ty, tw, 30),
+                name.upper(),
+                self.font_small,
+                (100, 100, 120),
+                THEMES[name]["accent"],
+            )
+            btn.active = (name == self.theme)
+            self.theme_buttons.append(btn)
+
+    @property
+    def theme_data(self):
+        return THEMES[self.theme]
+
+    def set_theme(self, name):
+        if name not in THEMES:
+            return
+        self.theme = name
+        self._init_background()
+        for i, n in enumerate(THEME_NAMES):
+            self.theme_buttons[i].active = (n == name)
 
     # ---- Block rendering ----
 
@@ -230,63 +344,143 @@ class NeonRenderer:
             gfxdraw.filled_circle(surface, sx, sy, r, (*sparkle, a))
         gfxdraw.pixel(surface, sx, sy, (255, 255, 255))
 
-    def draw_ghost_block(self, surface, rect, color):
-        """Draw a translucent ghost preview block."""
+    def draw_classic_block(self, surface, rect, color, intensity=1.0):
+        """Draw a traditional flat-shaded Tetris block with beveled edges."""
         x, y, w, h = rect
-        pad = 5
+        # Solid fill
+        pygame.draw.rect(surface, color, rect)
+        # Top-left highlight (lighter)
+        light = tuple(min(255, c + 80) for c in color)
+        pygame.draw.line(surface, light, (x, y), (x + w - 1, y))
+        pygame.draw.line(surface, light, (x, y), (x, y + h - 1))
+        # Bottom-right shadow (darker)
+        dark = tuple(max(0, c - 60) for c in color)
+        pygame.draw.line(surface, dark, (x + w - 1, y), (x + w - 1, y + h - 1))
+        pygame.draw.line(surface, dark, (x, y + h - 1), (x + w - 1, y + h - 1))
+        # Inner highlight band
+        inner_light = tuple(min(255, c + 40) for c in color)
+        pygame.draw.rect(surface, inner_light, (x + 2, y + 2, w - 4, h - 4), 1)
+
+    def draw_8bit_block(self, surface, rect, color, intensity=1.0):
+        """Draw a chunky 8-bit pixel-art style block."""
+        x, y, w, h = rect
+        # Solid fill
+        pygame.draw.rect(surface, color, rect)
+        # Pixel-art dithering pattern (checkerboard)
+        dark = tuple(max(0, c - 30) for c in color)
+        light = tuple(min(255, c + 40) for c in color)
+        px = 4  # pixel size
+        for py in range(y, y + h, px):
+            for pxpos in range(x, x + w, px):
+                checker = ((pxpos - x) // px + (py - y) // px) % 2
+                if checker == 0:
+                    pygame.draw.rect(surface, dark, (pxpos, py, px, px))
+        # Top-left pixel highlight (2px thick)
+        pygame.draw.rect(surface, light, (x, y, w, px))
+        pygame.draw.rect(surface, light, (x, y, px, h))
+        # Bottom-right pixel shadow (2px thick)
+        pygame.draw.rect(surface, dark, (x + w - px, y, px, h))
+        pygame.draw.rect(surface, dark, (x, y + h - px, w, px))
+        # Outer border
+        border = tuple(max(0, c - 50) for c in color)
+        pygame.draw.rect(surface, border, rect, 1)
+
+    def draw_block(self, surface, rect, color, intensity=1.0):
+        """Draw a block using the current theme's style."""
+        if self.theme == "neon":
+            self.draw_neon_block(surface, rect, color, intensity)
+        elif self.theme == "classic":
+            self.draw_classic_block(surface, rect, color, intensity)
+        elif self.theme == "8bit":
+            self.draw_8bit_block(surface, rect, color, intensity)
+
+    def draw_ghost_block(self, surface, rect, color):
+        """Draw a translucent ghost preview block using the current theme style."""
+        x, y, w, h = rect
         ghost_surf = pygame.Surface((w, h), pygame.SRCALPHA)
-        border_color = (*color, 80)
-        inner_color = (*color, 20)
-        pygame.draw.rect(
-            ghost_surf, inner_color,
-            (pad, pad, w - pad * 2, h - pad * 2),
-            border_radius=3,
-        )
-        pygame.draw.rect(
-            ghost_surf, border_color,
-            (pad, pad, w - pad * 2, h - pad * 2),
-            width=1, border_radius=3,
-        )
-        # Dashed effect
-        for i in range(pad, w - pad, 6):
+        if self.theme == "8bit":
+            # Pixelated outline only
+            border = tuple(max(0, c - 20) for c in color)
+            inner = (*border, 40)
+            pygame.draw.rect(ghost_surf, inner, (0, 0, w, h))
+            pygame.draw.rect(ghost_surf, (*color, 100), (0, 0, w, h), 1)
+            # Pixel corner accents
+            for cx, cy in [(0, 0), (w-1, 0), (0, h-1), (w-1, h-1)]:
+                ghost_surf.set_at((cx, cy), (*color, 200))
+        elif self.theme == "classic":
+            # Simple dashed outline
+            pad = 3
+            border_color = (*color, 60)
             pygame.draw.rect(
-                ghost_surf, (*color, 60),
-                (i, pad, 3, 1),
+                ghost_surf, border_color,
+                (pad, pad, w - pad * 2, h - pad * 2),
+                width=2,
+            )
+            for i in range(pad, w - pad, 8):
+                pygame.draw.rect(
+                    ghost_surf, (*color, 100),
+                    (i, pad, 4, 2),
+                )
+                pygame.draw.rect(
+                    ghost_surf, (*color, 100),
+                    (i, h - pad - 2, 4, 2),
+                )
+        else:
+            # Neon ghost (original)
+            pad = 5
+            border_color = (*color, 80)
+            inner_color = (*color, 20)
+            pygame.draw.rect(
+                ghost_surf, inner_color,
+                (pad, pad, w - pad * 2, h - pad * 2),
+                border_radius=3,
             )
             pygame.draw.rect(
-                ghost_surf, (*color, 60),
-                (i, h - pad - 1, 3, 1),
+                ghost_surf, border_color,
+                (pad, pad, w - pad * 2, h - pad * 2),
+                width=1, border_radius=3,
             )
+            for i in range(pad, w - pad, 6):
+                pygame.draw.rect(
+                    ghost_surf, (*color, 60),
+                    (i, pad, 3, 1),
+                )
+                pygame.draw.rect(
+                    ghost_surf, (*color, 60),
+                    (i, h - pad - 1, 3, 1),
+                )
         surface.blit(ghost_surf, (x, y))
 
     # ---- Board ----
 
     def draw_board_background(self, surface):
+        td = self.theme_data
         # Board panel
         panel = pygame.Rect(
             BOARD_OFFSET_X - 4, BOARD_OFFSET_Y - 4,
             BOARD_PX_W + 8, BOARD_PX_H + 8
         )
-        pygame.draw.rect(surface, PANEL_COLOR, panel, border_radius=6)
-        pygame.draw.rect(surface, (30, 30, 60), panel, width=2, border_radius=6)
+        pygame.draw.rect(surface, td["panel"], panel, border_radius=6)
+        pygame.draw.rect(surface, td["panel_border"], panel, width=2, border_radius=6)
 
         # Grid
         for x in range(BOARD_WIDTH + 1):
             px = BOARD_OFFSET_X + x * CELL
             pygame.draw.line(
-                surface, GRID_COLOR,
+                surface, td["grid"],
                 (px, BOARD_OFFSET_Y),
                 (px, BOARD_OFFSET_Y + BOARD_PX_H),
             )
         for y in range(BOARD_HEIGHT + 1):
             py = BOARD_OFFSET_Y + y * CELL
             pygame.draw.line(
-                surface, GRID_COLOR,
+                surface, td["grid"],
                 (BOARD_OFFSET_X, py),
                 (BOARD_OFFSET_X + BOARD_PX_W, py),
             )
 
     def draw_locked_blocks(self, surface, engine):
+        td = self.theme_data
         for y, row in enumerate(engine.board):
             for x, cell in enumerate(row):
                 if cell != 0:
@@ -300,13 +494,16 @@ class NeonRenderer:
                         intensity = 1.0 + min(
                             1.0, self.flash_timer * 0.15
                         )
-                    color = NEON_COLORS.get(cell, (100, 100, 100))
-                    self.draw_neon_block(surface, rect, color, intensity)
+                    color = td["colors"].get(cell, (100, 100, 100))
+                    self.draw_block(surface, rect, color, intensity)
 
     def draw_current_piece(self, surface, engine):
         if not engine.current_piece:
             return
-        color = engine.current_piece.color
+        td = self.theme_data
+        color = td["colors"].get(
+            engine.current_piece.shape_type, engine.current_piece.color
+        )
         for cx, cy in engine.current_piece.cells():
             if cy < 0:
                 continue
@@ -315,12 +512,15 @@ class NeonRenderer:
                 BOARD_OFFSET_Y + cy * CELL,
                 CELL, CELL,
             )
-            self.draw_neon_block(surface, rect, color, 1.0)
+            self.draw_block(surface, rect, color, 1.0)
 
     def draw_ghost(self, surface, engine):
         if engine.state != GameState.PLAYING:
             return
-        color = engine.current_piece.color if engine.current_piece else (100, 100, 100)
+        td = self.theme_data
+        color = td["colors"].get(
+            engine.current_piece.shape_type, (100, 100, 100)
+        ) if engine.current_piece else (100, 100, 100)
         for cx, cy in engine.ghost_cells():
             if cy < 0:
                 continue
@@ -334,11 +534,12 @@ class NeonRenderer:
     # ---- HUD / Panels ----
 
     def draw_panel(self, surface, x, y, w, h, title=None):
+        td = self.theme_data
         panel = pygame.Rect(x, y, w, h)
-        pygame.draw.rect(surface, PANEL_COLOR, panel, border_radius=8)
-        pygame.draw.rect(surface, (35, 35, 70), panel, width=1, border_radius=8)
+        pygame.draw.rect(surface, td["panel"], panel, border_radius=8)
+        pygame.draw.rect(surface, td["panel_border"], panel, width=1, border_radius=8)
         if title:
-            label = self.font_small.render(title, True, TEXT_COLOR)
+            label = self.font_small.render(title, True, td["text"])
             surface.blit(label, (x + 12, y + 8))
 
     def draw_hud(self, surface, engine):
@@ -362,7 +563,7 @@ class NeonRenderer:
             ly = ry + 160 + 40 + i * 30
             lbl = self.font_small.render(label, True, (120, 120, 160))
             surface.blit(lbl, (rx + 14, ly))
-            v = self.font_mid.render(val, True, TEXT_COLOR)
+            v = self.font_mid.render(val, True, self.theme_data["text"])
             surface.blit(v, (rx + 100, ly - 4))
 
         # Controls panel
@@ -373,9 +574,9 @@ class NeonRenderer:
             "↓     Soft Drop",
             "SPACE Hard Drop",
             "A     Toggle AI",
+            "1/2/3 Switch Theme",
             "P     Pause",
             "R     Restart",
-            "ESC   Quit",
         ]
         for i, line in enumerate(controls):
             txt = self.font_small.render(line, True, (110, 110, 150))
@@ -385,14 +586,22 @@ class NeonRenderer:
         self.ai_button.label = "AI: ON" if self.ai_button.active else "AI: OFF"
         self.ai_button.draw(surface)
 
+        # Theme selector buttons
+        for btn in self.theme_buttons:
+            btn.draw(surface)
+
         # Left side: title
-        title = self.font_title.render("NEON", True, TEXT_COLOR)
-        title2 = self.font_title.render("BLOCKS", True, ACCENT_COLOR)
+        td = self.theme_data
+        title_parts = td["title"].split(" ", 1)
+        title = self.font_title.render(title_parts[0], True, td["text"])
         surface.blit(title, (40, 40))
-        surface.blit(title2, (40, 100))
+        if len(title_parts) > 1:
+            title2 = self.font_title.render(title_parts[1], True, td["accent"])
+            surface.blit(title2, (40, 100))
 
     def _draw_mini_piece(self, surface, piece, ox, oy):
-        color = piece.color
+        td = self.theme_data
+        color = td["colors"].get(piece.shape_type, piece.color)
         cells = piece.cells()
         min_x = min(c[0] for c in cells)
         max_x = max(c[0] for c in cells)
@@ -408,7 +617,7 @@ class NeonRenderer:
                 start_y + (cy - min_y) * 24,
                 24, 24,
             )
-            self.draw_neon_block(surface, rect, color, 1.0)
+            self.draw_block(surface, rect, color, 1.0)
 
     # ---- Effects ----
 
@@ -427,8 +636,9 @@ class NeonRenderer:
                 if board_colors and (row, x) in board_colors:
                     color = board_colors[(row, x)]
                 else:
-                    color = NEON_COLORS.get(
-                        random.choice(list(NEON_COLORS.keys()))
+                    palette = self.theme_data["colors"]
+                    color = palette.get(
+                        random.choice(list(palette.keys()))
                     )
                 # Shatter debris — small block fragments flying outward
                 for _ in range(8):
@@ -556,6 +766,8 @@ class NeonRenderer:
                 )
 
     def draw_scanlines(self, surface):
+        if not self.theme_data.get("scanlines", False):
+            return
         self.scanline_offset = (self.scanline_offset + 0.5) % 4
         overlay = pygame.Surface((SCREEN_W, SCREEN_H), pygame.SRCALPHA)
         for y in range(0, SCREEN_H, 4):
@@ -567,16 +779,17 @@ class NeonRenderer:
         surface.blit(overlay, (0, 0))
 
     def draw_game_over(self, surface, engine):
+        td = self.theme_data
         overlay = pygame.Surface((SCREEN_W, SCREEN_H), pygame.SRCALPHA)
         overlay.fill((0, 0, 0, 180))
         surface.blit(overlay, (0, 0))
 
-        txt = self.font_title.render("GAME OVER", True, ACCENT_COLOR)
+        txt = self.font_title.render("GAME OVER", True, td["accent"])
         rect = txt.get_rect(center=(SCREEN_W // 2, SCREEN_H // 2 - 40))
         surface.blit(txt, rect)
 
         score_txt = self.font_large.render(
-            f"Score: {engine.score:,}", True, TEXT_COLOR
+            f"Score: {engine.score:,}", True, td["text"]
         )
         score_rect = score_txt.get_rect(center=(SCREEN_W // 2, SCREEN_H // 2 + 20))
         surface.blit(score_txt, score_rect)
@@ -586,26 +799,28 @@ class NeonRenderer:
         surface.blit(prompt, prompt_rect)
 
     def draw_pause(self, surface):
+        td = self.theme_data
         overlay = pygame.Surface((SCREEN_W, SCREEN_H), pygame.SRCALPHA)
         overlay.fill((0, 0, 0, 140))
         surface.blit(overlay, (0, 0))
-        txt = self.font_title.render("PAUSED", True, TEXT_COLOR)
+        txt = self.font_title.render("PAUSED", True, td["text"])
         rect = txt.get_rect(center=(SCREEN_W // 2, SCREEN_H // 2))
         surface.blit(txt, rect)
 
     def draw_menu(self, surface):
+        td = self.theme_data
         # Animated title
         pulse = 0.5 + 0.5 * math.sin(self.time * 2)
         title_color = tuple(
-            int(ACCENT_COLOR[i] * (0.6 + 0.4 * pulse))
+            int(td["accent"][i] * (0.6 + 0.4 * pulse))
             for i in range(3)
         )
-        title = self.font_title.render("NEON BLOCKS", True, title_color)
+        title = self.font_title.render(td["title"], True, title_color)
         rect = title.get_rect(center=(SCREEN_W // 2, SCREEN_H // 2 - 60))
         surface.blit(title, rect)
 
         subtitle = self.font_mid.render(
-            "Cyber-Punk Tetris", True, TEXT_COLOR
+            td["subtitle"], True, td["text"]
         )
         sub_rect = subtitle.get_rect(center=(SCREEN_W // 2, SCREEN_H // 2 - 10))
         surface.blit(subtitle, sub_rect)
@@ -619,7 +834,7 @@ class NeonRenderer:
         surface.blit(prompt, prompt_rect)
 
         hint = self.font_small.render(
-            "Arrows to move  •  Up to rotate  •  Space to hard drop",
+            "Arrows to move  •  Up to rotate  •  Space to hard drop  •  1/2/3 theme",
             True, (120, 120, 150)
         )
         hint_rect = hint.get_rect(center=(SCREEN_W // 2, SCREEN_H // 2 + 90))
@@ -726,6 +941,11 @@ class NeonTetrisGame:
                     self.ai_active = not self.ai_active
                     self.renderer.ai_button.active = self.ai_active
                     self.ai.current_plan = None
+                elif event.key in (pygame.K_1, pygame.K_2, pygame.K_3):
+                    theme_idx = {pygame.K_1: 0, pygame.K_2: 1, pygame.K_3: 2}[event.key]
+                    theme_name = THEME_NAMES[theme_idx]
+                    self.renderer.set_theme(theme_name)
+                    self._play_beep(523 + theme_idx * 80, 0.06, 0.15)
                 elif self.engine.state == GameState.MENU:
                     if event.key == pygame.K_RETURN:
                         self.engine.restart()
@@ -739,7 +959,10 @@ class NeonTetrisGame:
                         ghost = self.engine.ghost_cells()
                         affected_rows = set(cy for cx, cy in ghost)
                         board_colors = self._capture_board_colors_before(affected_rows)
-                        piece_color = self.engine.current_piece.color
+                        piece_color = self.renderer.theme_data["colors"].get(
+                            self.engine.current_piece.shape_type,
+                            self.engine.current_piece.color,
+                        )
                         for cx, cy in ghost:
                             if cy >= 0:
                                 board_colors[(cy, cx)] = piece_color
@@ -766,6 +989,12 @@ class NeonTetrisGame:
             self.ai.current_plan = None
             if self.ai_active:
                 self._play_beep(660, 0.1, 0.2)
+
+        # Handle theme button clicks
+        for i, btn in enumerate(self.renderer.theme_buttons):
+            if btn.update(mouse_pos, mouse_clicked):
+                self.renderer.set_theme(THEME_NAMES[i])
+                self._play_beep(523 + i * 80, 0.06, 0.15)
 
         if self.engine.state != GameState.PLAYING:
             self.das_timers.clear()
@@ -801,14 +1030,14 @@ class NeonTetrisGame:
         Must be called before the line clear happens. Since hard_drop clears
         lines internally, we capture the full bottom rows first.
         """
-        from tetris_engine import NEON_COLORS as COLORS
+        palette = self.renderer.theme_data["colors"]
         board_colors = {}
         for row in rows:
             if row < len(self.engine.board):
                 for x in range(BOARD_WIDTH):
                     cell = self.engine.board[row][x]
-                    if cell and cell in COLORS:
-                        board_colors[(row, x)] = COLORS[cell]
+                    if cell and cell in palette:
+                        board_colors[(row, x)] = palette[cell]
         return board_colors
 
     def _run_ai(self):
@@ -840,7 +1069,10 @@ class NeonTetrisGame:
             # Capture colors from those rows before the drop
             board_colors = self._capture_board_colors_before(affected_rows)
             # Also capture the piece's own color for its cells
-            piece_color = self.engine.current_piece.color
+            piece_color = self.renderer.theme_data["colors"].get(
+                self.engine.current_piece.shape_type,
+                self.engine.current_piece.color,
+            )
             for cx, cy in ghost:
                 if cy >= 0:
                     board_colors[(cy, cx)] = piece_color
@@ -874,7 +1106,10 @@ class NeonTetrisGame:
             ghost = self.engine.ghost_cells()
             affected_rows = set(cy for cx, cy in ghost)
             board_colors = self._capture_board_colors_before(affected_rows)
-            piece_color = self.engine.current_piece.color
+            piece_color = self.renderer.theme_data["colors"].get(
+                self.engine.current_piece.shape_type,
+                self.engine.current_piece.color,
+            )
             for cx, cy in ghost:
                 if cy >= 0:
                     board_colors[(cy, cx)] = piece_color
