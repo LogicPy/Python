@@ -235,22 +235,30 @@ class NeonRenderer:
 
     def _init_buttons(self):
         rx = BOARD_OFFSET_X + BOARD_PX_W + 20
-        by = BOARD_OFFSET_Y + 545
+        # AI button
         self.ai_button = NeonButton(
-            (rx, by, 240, 44),
+            (rx, BOARD_OFFSET_Y + 535, 240, 38),
             "AI: OFF",
             self.font_mid,
             TEXT_COLOR,
             ACCENT_COLOR,
         )
+        # Infinite scroll button
+        self.scroll_button = NeonButton(
+            (rx, BOARD_OFFSET_Y + 581, 240, 38),
+            "SCROLL: OFF",
+            self.font_mid,
+            (100, 200, 100),
+            (0, 255, 150),
+        )
         # Theme selector buttons (3 small buttons in a row)
-        ty = BOARD_OFFSET_Y + 605
+        ty = BOARD_OFFSET_Y + 627
         tw = 76
         tg = 6
         self.theme_buttons = []
         for i, name in enumerate(THEME_NAMES):
             btn = NeonButton(
-                (rx + i * (tw + tg), ty, tw, 30),
+                (rx + i * (tw + tg), ty, tw, 28),
                 name.upper(),
                 self.font_small,
                 (100, 100, 120),
@@ -479,14 +487,24 @@ class NeonRenderer:
                 (BOARD_OFFSET_X + BOARD_PX_W, py),
             )
 
+    def _scroll_y_offset(self, engine):
+        """Pixel Y offset for smooth scroll animation."""
+        if engine.infinite_scroll and engine.scroll_anim_offset > 0:
+            return int(engine.scroll_anim_offset * CELL)
+        return 0
+
     def draw_locked_blocks(self, surface, engine):
         td = self.theme_data
-        for y, row in enumerate(engine.board):
+        yoff = self._scroll_y_offset(engine)
+        # Only render rows visible in the viewport (0..BOARD_HEIGHT-1)
+        max_row = min(len(engine.board), BOARD_HEIGHT)
+        for y in range(max_row):
+            row = engine.board[y]
             for x, cell in enumerate(row):
                 if cell != 0:
                     rect = pygame.Rect(
                         BOARD_OFFSET_X + x * CELL,
-                        BOARD_OFFSET_Y + y * CELL,
+                        BOARD_OFFSET_Y + y * CELL + yoff,
                         CELL, CELL,
                     )
                     intensity = 1.0
@@ -501,6 +519,7 @@ class NeonRenderer:
         if not engine.current_piece:
             return
         td = self.theme_data
+        yoff = self._scroll_y_offset(engine)
         color = td["colors"].get(
             engine.current_piece.shape_type, engine.current_piece.color
         )
@@ -509,7 +528,7 @@ class NeonRenderer:
                 continue
             rect = pygame.Rect(
                 BOARD_OFFSET_X + cx * CELL,
-                BOARD_OFFSET_Y + cy * CELL,
+                BOARD_OFFSET_Y + cy * CELL + yoff,
                 CELL, CELL,
             )
             self.draw_block(surface, rect, color, 1.0)
@@ -518,6 +537,7 @@ class NeonRenderer:
         if engine.state != GameState.PLAYING:
             return
         td = self.theme_data
+        yoff = self._scroll_y_offset(engine)
         color = td["colors"].get(
             engine.current_piece.shape_type, (100, 100, 100)
         ) if engine.current_piece else (100, 100, 100)
@@ -526,7 +546,7 @@ class NeonRenderer:
                 continue
             rect = pygame.Rect(
                 BOARD_OFFSET_X + cx * CELL,
-                BOARD_OFFSET_Y + cy * CELL,
+                BOARD_OFFSET_Y + cy * CELL + yoff,
                 CELL, CELL,
             )
             self.draw_ghost_block(surface, rect, color)
@@ -574,9 +594,9 @@ class NeonRenderer:
             "↓     Soft Drop",
             "SPACE Hard Drop",
             "A     Toggle AI",
+            "S     Toggle Scroll",
             "1/2/3 Switch Theme",
-            "P     Pause",
-            "R     Restart",
+            "P/R   Pause/Restart",
         ]
         for i, line in enumerate(controls):
             txt = self.font_small.render(line, True, (110, 110, 150))
@@ -585,6 +605,10 @@ class NeonRenderer:
         # AI toggle button
         self.ai_button.label = "AI: ON" if self.ai_button.active else "AI: OFF"
         self.ai_button.draw(surface)
+
+        # Infinite scroll toggle button
+        self.scroll_button.label = "SCROLL: ON" if self.scroll_button.active else "SCROLL: OFF"
+        self.scroll_button.draw(surface)
 
         # Theme selector buttons
         for btn in self.theme_buttons:
@@ -849,9 +873,21 @@ class NeonRenderer:
             return
 
         self.draw_board_background(surface)
+
+        # Clip rendering to the board viewport
+        board_clip = pygame.Rect(
+            BOARD_OFFSET_X, BOARD_OFFSET_Y,
+            BOARD_PX_W, BOARD_PX_H
+        )
+        prev_clip = surface.get_clip()
+        surface.set_clip(board_clip)
+
         self.draw_ghost(surface, engine)
         self.draw_locked_blocks(surface, engine)
         self.draw_current_piece(surface, engine)
+
+        surface.set_clip(prev_clip)
+
         self.draw_hud(surface, engine)
         self.draw_particles(surface)
 
@@ -941,6 +977,10 @@ class NeonTetrisGame:
                     self.ai_active = not self.ai_active
                     self.renderer.ai_button.active = self.ai_active
                     self.ai.current_plan = None
+                elif event.key == pygame.K_s:
+                    self.engine.toggle_infinite_scroll()
+                    self.renderer.scroll_button.active = self.engine.infinite_scroll
+                    self._play_beep(440, 0.06, 0.15)
                 elif event.key in (pygame.K_1, pygame.K_2, pygame.K_3):
                     theme_idx = {pygame.K_1: 0, pygame.K_2: 1, pygame.K_3: 2}[event.key]
                     theme_name = THEME_NAMES[theme_idx]
@@ -989,6 +1029,12 @@ class NeonTetrisGame:
             self.ai.current_plan = None
             if self.ai_active:
                 self._play_beep(660, 0.1, 0.2)
+
+        # Handle scroll button click
+        if self.renderer.scroll_button.update(mouse_pos, mouse_clicked):
+            self.engine.toggle_infinite_scroll()
+            self.renderer.scroll_button.active = self.engine.infinite_scroll
+            self._play_beep(440, 0.06, 0.15)
 
         # Handle theme button clicks
         for i, btn in enumerate(self.renderer.theme_buttons):
@@ -1089,6 +1135,7 @@ class NeonTetrisGame:
     def update(self, dt):
         self.renderer.time += dt
         self.renderer.update_effects()
+        self.engine.update_scroll_anim()
 
         if self.engine.state != GameState.PLAYING:
             return

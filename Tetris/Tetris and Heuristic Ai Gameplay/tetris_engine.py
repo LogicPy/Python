@@ -6,6 +6,10 @@ from enum import Enum, auto
 BOARD_WIDTH = 10
 BOARD_HEIGHT = 20
 
+# Infinite scroll settings
+SCROLL_TRIGGER_ROW = BOARD_HEIGHT // 2  # scroll when stack reaches viewport middle
+SCROLL_EXPAND_CHUNK = 10                # rows to add when expanding board
+
 CELL_EMPTY = 0
 
 SHAPES = {
@@ -108,6 +112,11 @@ class TetrisEngine:
         self.next_piece = None
         self.bag = []
         self.last_cleared_rows = []
+        # Infinite scroll state
+        self.infinite_scroll = False
+        self.scroll_anim_offset = 0.0   # pixel offset for smooth scroll animation (0..1)
+        self.scroll_anim_active = False
+        self.total_scroll = 0           # total rows scrolled down (for score/display)
         self._new_game()
 
     def _refill_bag(self):
@@ -129,6 +138,9 @@ class TetrisEngine:
         self.lines = 0
         self.level = 1
         self.combo = 0
+        self.scroll_anim_offset = 0.0
+        self.scroll_anim_active = False
+        self.total_scroll = 0
         self._refill_bag()
         self.current_piece = self._spawn_piece()
         self.next_piece = self._spawn_piece()
@@ -138,20 +150,23 @@ class TetrisEngine:
         self._new_game()
 
     def _collides(self, cells):
+        board_h = len(self.board)
         for cx, cy in cells:
             if cx < 0 or cx >= BOARD_WIDTH:
                 return True
-            if cy >= BOARD_HEIGHT:
+            if cy >= board_h:
                 return True
             if cy >= 0 and self.board[cy][cx] != CELL_EMPTY:
                 return True
         return False
 
     def _lock_piece(self):
+        board_h = len(self.board)
         for cx, cy in self.current_piece.cells():
-            if 0 <= cy < BOARD_HEIGHT and 0 <= cx < BOARD_WIDTH:
+            if 0 <= cy < board_h and 0 <= cx < BOARD_WIDTH:
                 self.board[cy][cx] = self.current_piece.shape_type
         self._clear_lines()
+        self._check_scroll()
         self.current_piece = self.next_piece
         self.next_piece = self._spawn_piece()
 
@@ -170,14 +185,58 @@ class TetrisEngine:
         self.board = new_board
         if cleared > 0:
             self.combo += 1
-            base_points = [0, 100, 300, 500, 800][cleared]
-            self.score += base_points * self.level + self.combo * 50
+            base_points = [0, 100, 300, 500, 800]
+            pts = base_points[min(cleared, 4)] + (cleared - 4) * 400 if cleared > 4 else base_points[cleared]
+            self.score += pts * self.level + self.combo * 50
             self.lines += cleared
             self.level = self.lines // 10 + 1
             self.last_cleared_rows = cleared_rows
         else:
             self.combo = 0
             self.last_cleared_rows = []
+
+    def _highest_block_row(self):
+        """Return the row index of the highest block, or len(board) if empty."""
+        for y, row in enumerate(self.board):
+            for x in range(BOARD_WIDTH):
+                if row[x] != CELL_EMPTY:
+                    return y
+        return len(self.board)
+
+    def _check_scroll(self):
+        """If infinite scroll is on and stack is too high, scroll the board down."""
+        if not self.infinite_scroll:
+            return
+        highest = self._highest_block_row()
+        if highest < SCROLL_TRIGGER_ROW:
+            scroll_needed = SCROLL_TRIGGER_ROW - highest
+            for _ in range(scroll_needed):
+                self.board.insert(0, [CELL_EMPTY] * BOARD_WIDTH)
+            self._trim_board()
+            self.total_scroll += scroll_needed
+            self.score += scroll_needed * 10
+            # Trigger smooth scroll animation
+            self.scroll_anim_offset = float(scroll_needed)
+            self.scroll_anim_active = True
+
+    def update_scroll_anim(self):
+        """Animate the scroll offset toward 0. Call each frame."""
+        if not self.scroll_anim_active:
+            return
+        self.scroll_anim_offset *= 0.85
+        if self.scroll_anim_offset < 0.01:
+            self.scroll_anim_offset = 0.0
+            self.scroll_anim_active = False
+
+    def _trim_board(self):
+        """Remove empty rows from the bottom beyond the buffer zone."""
+        target_size = BOARD_HEIGHT + SCROLL_EXPAND_CHUNK
+        while len(self.board) > target_size:
+            # Only trim if the bottom row is empty
+            if self.board[-1].count(CELL_EMPTY) == BOARD_WIDTH:
+                self.board.pop()
+            else:
+                break
 
     def move_left(self):
         if self.state != GameState.PLAYING:
@@ -244,3 +303,7 @@ class TetrisEngine:
             self.state = GameState.PAUSED
         elif self.state == GameState.PAUSED:
             self.state = GameState.PLAYING
+
+    def toggle_infinite_scroll(self):
+        self.infinite_scroll = not self.infinite_scroll
+        return self.infinite_scroll
